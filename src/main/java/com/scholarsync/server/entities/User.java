@@ -1,6 +1,8 @@
-package com.scholarsync.entities;
+package com.scholarsync.server.entities;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -12,22 +14,23 @@ public class User {
     @Column(name = "id")
     private long id;
 
-    @Column(name = "email", nullable = false)
+    @Column(nullable = false)
     private String email;
 
-    @Column(name = "password", columnDefinition = "TEXT")
+    @Column
     private String password;
 
-    @Column(name = "first_name", columnDefinition = "TEXT")
+    @Column(name = "first_name")
     private String firstName;
 
-    @Column(name = "last_name", columnDefinition = "TEXT")
+    @Column(name = "last_name")
     private String lastName;
 
-    @Column(name = "birth_date", columnDefinition = "DATE")
+    @Column(name = "birth_date")
     private LocalDate birthDate;
 
-    @Column(name = "created_at", columnDefinition = "TIMESTAMP")
+    @CreationTimestamp
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @Column(name = "credits")

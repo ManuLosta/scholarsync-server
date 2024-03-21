@@ -1,9 +1,9 @@
-package com.scholarsync.controllers;
+package com.scholarsync.server.controllers;
 
 
 
-import com.scholarsync.entities.User;
-import com.scholarsync.repositories.UserRepository;
+import com.scholarsync.server.entities.User;
+import com.scholarsync.server.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
