@@ -1,0 +1,75 @@
+
+###
+# This endpoint is used to register a new user.
+# It accepts a POST request with a JSON body.
+# The JSON body should include:
+# - email: The user's email address.
+# - password: The user's password.
+# - firstName: The user's first name.
+# - lastName: The user's last name.
+# - birthDate: The user's birth date in the format "yyyy-mm-dd".
+POST http://localhost:8080/register
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123",
+  "firstName": "John",
+  "lastName": "Doe",
+  "birthDate": "1990-01-01"
+}
+
+<> 2024-03-21T175555.200.txt
+<> 2024-03-21T175416.200.txt
+<> 2024-03-21T174829.200.txt
+
+
+###
+# This endpoint is used to log in an existing user.
+# It accepts a POST request with a JSON body.
+# The JSON body should include:
+# - email: The user's email address.
+# - password: The user's password.
+# This method will return login succesfull.
+
+
+
+POST http://localhost:8080/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+<> 2024-03-21T175607.200.txt
+<> 2024-03-21T174958.200.txt
+
+
+###
+# This endpoint is used to log in an existing user.
+# This method will return password not found.
+POST http://localhost:8080/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password1234"
+}
+
+<> 2024-03-21T175612.200.txt
+
+
+###
+# This endpoint is used to log in an existing user.
+# This method will return user not found.
+
+POST http://localhost:8080/login
+Content-Type: application/json
+
+{
+  "email": "test@example1.com",
+  "password": "password123"
+}
+
+<> 2024-03-21T175616.200.txt
