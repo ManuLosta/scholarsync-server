@@ -1,0 +1,125 @@
+package com.scholarsync.entities;
+
+import jakarta.persistence.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "users")
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private long id;
+
+    @Column(name = "email", nullable = false)
+    private String email;
+
+    @Column(name = "password", columnDefinition = "TEXT")
+    private String password;
+
+    @Column(name = "first_name", columnDefinition = "TEXT")
+    private String firstName;
+
+    @Column(name = "last_name", columnDefinition = "TEXT")
+    private String lastName;
+
+    @Column(name = "birth_date", columnDefinition = "DATE")
+    private LocalDate birthDate;
+
+    @Column(name = "created_at", columnDefinition = "TIMESTAMP")
+    private LocalDateTime createdAt;
+
+    @Column(name = "credits")
+    private int credits;
+
+    @Column(name = "xp")
+    private int xp;
+
+    @Column(name = "level_id")
+    private long levelId = 0;
+
+    public User() {
+        this.createdAt = LocalDateTime.now();
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public LocalDate getBirthDate() {
+        return birthDate;
+    }
+
+    public void setBirthDate(LocalDate birthDate) {
+        this.birthDate = birthDate;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public int getCredits() {
+        return credits;
+    }
+
+    public void setCredits(int credits) {
+        this.credits = credits;
+    }
+
+    public int getXp() {
+        return xp;
+    }
+
+    public void setXp(int xp) {
+        this.xp = xp;
+    }
+
+    public long getLevelId() {
+        return levelId;
+    }
+
+    public void setLevelId(long levelId) {
+        this.levelId = levelId;
+    }
+}
