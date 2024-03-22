@@ -3,7 +3,6 @@ package com.scholarsync.server.entities;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.Nationalized;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
@@ -11,9 +10,10 @@ import java.time.LocalDateTime;
 @Entity
 public class Session {
 
-    private  static final SecureRandom secureRandom = new SecureRandom();
+    private static final SecureRandom secureRandom = new SecureRandom();
+
     @Column(unique = true)
-    private Long id;
+    private long id;
 
     @Id
     @Column(name = "userId")

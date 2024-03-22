@@ -21,16 +21,11 @@ public class OAuthController {
 
     @PostMapping("/register")
     public ResponseEntity<Object> register(@RequestBody User user) {
-        return new ResponseEntity<>(oAuthService.register(user), HttpStatus.OK);
+        return oAuthService.register(user);
     }
 
     @PostMapping("/login")
     public ResponseEntity<Object> login(@RequestBody UserDTO userDTO) {
-        long sessionId = oAuthService.login(userDTO);
-        return switch ((int) sessionId) {
-            case 404 -> new ResponseEntity<>("User not Found", HttpStatusCode.valueOf(404));
-            case 401 -> new ResponseEntity<>("Incorrect Password", HttpStatusCode.valueOf(401));
-            default -> new ResponseEntity<>(sessionId, HttpStatus.OK);
-        };
+        return oAuthService.login(userDTO);
     }
 }

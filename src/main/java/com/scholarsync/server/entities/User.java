@@ -13,10 +13,10 @@ public class User {
 
     private final SecureRandom secureRandom = new SecureRandom();
     @Id
-    @Column(name = "id",unique = true)
+    @Column(name = "id", unique = true)
     private long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
 
     @Column
@@ -52,7 +52,7 @@ public class User {
     public User() {
 
         this.createdAt = LocalDateTime.now();
-        this.id = secureRandom.nextLong();
+        this.id = Math.abs(secureRandom.nextLong());
     }
 
     public long getId() {

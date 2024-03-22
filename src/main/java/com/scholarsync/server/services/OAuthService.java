@@ -6,7 +6,13 @@ import com.scholarsync.server.entities.User;
 import com.scholarsync.server.repositories.SessionRepository;
 import com.scholarsync.server.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.net.http.HttpResponse;
 
 
 @Service
@@ -18,13 +24,19 @@ public class OAuthService {
     @Autowired
     private SessionRepository sessionRepository;
 
-    public String register(User user) {
-
-        userRepository.save(user);
-        return "User" + user.getFirstName() + " " + user.getLastName() + " registered successfully!";
+    public ResponseEntity<Object> register(User user) {
+        try {
+            userRepository.save(user);
+            String response =  "User " + user.getFirstName() + " " + user.getLastName() + " registered successfully!";
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+        catch (DataIntegrityViolationException e){
+            String response =  "User " + user.getFirstName() + " " + user.getLastName() + " already exists!";
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
     }
 
-    public long login(UserDTO userDTO) {
+    public ResponseEntity<Object> login(UserDTO userDTO) {
         User user = convertToEntity(userDTO);
 
         if (user != null) {
@@ -32,12 +44,12 @@ public class OAuthService {
                 Session session = new Session();
                 session.setUser(user);
                 sessionRepository.save(session);
-                return session.getId();
+                return new ResponseEntity<>(session.getId(),HttpStatus.OK);
             } else {
-                return 401;
+                return new ResponseEntity<>("Incorrect Password", HttpStatus.UNAUTHORIZED);
             }
         } else {
-            return 404;
+            return new ResponseEntity<>("User not Found", HttpStatus.NOT_FOUND);
         }
     }
 
