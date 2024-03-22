@@ -3,15 +3,17 @@ package com.scholarsync.server.entities;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
 public class User {
+
+    private final SecureRandom secureRandom = new SecureRandom();
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id")
+    @Column(name = "id",unique = true)
     private long id;
 
     @Column(nullable = false)
@@ -42,8 +44,15 @@ public class User {
     @Column(name = "level_id")
     private long levelId = 0;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @PrimaryKeyJoinColumn
+
+    private Session session;
+
     public User() {
+
         this.createdAt = LocalDateTime.now();
+        this.id = secureRandom.nextLong();
     }
 
     public long getId() {
