@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Table(name = "users")
 public class User {
 
-    private final SecureRandom secureRandom = new SecureRandom();
+    private static final SecureRandom secureRandom = new SecureRandom();
     @Id
     @Column(name = "id", unique = true)
     private long id;
