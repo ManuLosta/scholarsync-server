@@ -31,8 +31,20 @@ public class OAuthService {
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
         catch (DataIntegrityViolationException e){
-            String response =  "User " + user.getFirstName() + " " + user.getLastName() + " already exists!";
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            String errorMessage = e.getMostSpecificCause().getMessage();
+            if (errorMessage.contains("email")) {
+                String response =  "Email " + user.getEmail() + " already in use!";
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            } else if (errorMessage.contains("username")) {
+                String response =  "Username " + user.getUsername() + " already in use!";
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            } else if (errorMessage.contains("email") & errorMessage.contains("username")) {
+                String response =  "Email " + user.getEmail() + " and Username " + user.getUsername() + " already in use!";
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            } else {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
+            }
         }
     }
 

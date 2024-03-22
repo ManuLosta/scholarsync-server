@@ -14,24 +14,62 @@ Content-Type: application/json
 {
   "email": "test@example.com",
   "password": "password123",
+  "username": "testuser",
   "firstName": "John",
   "lastName": "Doe",
   "birthDate": "1990-01-01"
 }
 
-<> 2024-03-21T175555.200.txt
-<> 2024-03-21T175416.200.txt
-<> 2024-03-21T174829.200.txt
+###
+POST http://localhost:8080/register
+Content-Type: application/json
+
+{
+"email": "test@example.com",
+"password": "password123",
+"username": "testuser2",
+"firstName": "John",
+"lastName": "Doe",
+"birthDate": "1990-01-01"
+}
+
+
 
 
 ###
-# This endpoint is used to log in an existing user.
-# It accepts a POST request with a JSON body.
-# The JSON body should include:
-# - email: The user's email address.
-# - password: The user's password.
-# This method will return login succesfull.
+###
+POST http://localhost:8080/register
+Content-Type: application/json
 
+{
+"email": "test@example2.com",
+"password": "password123",
+"username": "testuser",
+"firstName": "John",
+"lastName": "Doe",
+"birthDate": "1990-01-01"
+}
+
+
+
+
+###
+POST http://localhost:8080/register
+Content-Type: application/json
+
+{
+"email": "test@example.com",
+"password": "password123",
+"username": "testuser",
+"firstName": "John",
+"lastName": "Doe",
+"birthDate": "1990-01-01"
+}
+
+
+
+
+###
 
 
 POST http://localhost:8080/login
@@ -57,7 +95,6 @@ Content-Type: application/json
   "password": "password1234"
 }
 
-<> 2024-03-21T175612.200.txt
 
 
 ###
@@ -71,5 +108,3 @@ Content-Type: application/json
   "email": "test@example1.com",
   "password": "password123"
 }
-
-<> 2024-03-21T175616.200.txt
