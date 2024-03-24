@@ -1,22 +1,19 @@
 package com.scholarsync.server.services;
 
-import com.scholarsync.server.DataTransferProtocols.UserDTO;
+import com.scholarsync.server.dtos.UserDTO;
 import com.scholarsync.server.entities.Session;
 import com.scholarsync.server.entities.User;
 import com.scholarsync.server.repositories.SessionRepository;
 import com.scholarsync.server.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.net.http.HttpResponse;
-
 
 @Service
-public class OAuthService {
+public class AuthService {
 
 
     @Autowired

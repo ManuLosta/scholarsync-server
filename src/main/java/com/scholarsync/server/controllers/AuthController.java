@@ -1,31 +1,30 @@
 package com.scholarsync.server.controllers;
 
-import com.scholarsync.server.DataTransferProtocols.UserDTO;
+import com.scholarsync.server.dtos.UserDTO;
 import com.scholarsync.server.entities.User;
-import com.scholarsync.server.repositories.UserRepository;
-import com.scholarsync.server.services.OAuthService;
+import com.scholarsync.server.services.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
-public class OAuthController {
+public class AuthController {
 
 
     @Autowired
-    private OAuthService oAuthService;
+    private AuthService authService;
 
     @PostMapping("/register")
     public ResponseEntity<Object> register(@RequestBody User user) {
-        return oAuthService.register(user);
+        return authService.register(user);
     }
 
     @PostMapping("/login")
     public ResponseEntity<Object> login(@RequestBody UserDTO userDTO) {
-        return oAuthService.login(userDTO);
+        return authService.login(userDTO);
     }
 }

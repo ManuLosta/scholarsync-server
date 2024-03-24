@@ -1,4 +1,4 @@
-package com.scholarsync.server.DataTransferProtocols;
+package com.scholarsync.server.dtos;
 
 public class UserDTO {
     private String email;
