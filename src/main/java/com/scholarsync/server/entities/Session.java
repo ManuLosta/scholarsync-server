@@ -33,7 +33,7 @@ public class Session {
 
     public Session(){
         this.created = LocalDateTime.now();
-        this.expires = this.created.plusHours(2);
+        this.expires = this.created.plusSeconds(60);
         this.id = generateSessionId();
     }
 
@@ -76,5 +76,9 @@ public class Session {
 
     public void setUser(User user){
         this.user = user;
+    }
+
+    public User getUser(){
+        return user;
     }
 }

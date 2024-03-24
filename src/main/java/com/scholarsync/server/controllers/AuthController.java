@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthController {
@@ -23,5 +25,14 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<Object> login(@RequestBody UserDTO userDTO) {
         return authService.login(userDTO);
+    }
+
+    @PostMapping("/validate")
+    public ResponseEntity<Object> validate(@RequestBody Map<String, Long> requestBody) {
+        Long sessionId = requestBody.get("sessionId");
+        if (sessionId != null) {
+            return authService.validate(sessionId);
+        }
+        return null;
     }
 }

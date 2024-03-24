@@ -6,6 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -46,11 +47,6 @@ public class User {
 
     @Column(name = "level_id")
     private long levelId = 0;
-
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @PrimaryKeyJoinColumn
-
-    private Session session;
 
     public User() {
 

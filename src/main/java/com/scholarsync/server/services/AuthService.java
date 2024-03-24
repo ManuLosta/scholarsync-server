@@ -11,6 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
+
 
 @Service
 public class AuthService {
@@ -50,10 +53,19 @@ public class AuthService {
 
         if (user != null) {
             if (user.getPassword().equals(userDTO.getPassword())) {
-                Session session = new Session();
-                session.setUser(user);
-                sessionRepository.save(session);
-                return new ResponseEntity<>(session.getId(), HttpStatus.OK);
+                Optional<Session> optionalSession = sessionRepository.findSessionByUserId(user.getId());
+                if (optionalSession.isPresent()) {
+                    Session session = optionalSession.get();
+                   if (session.getExpires().isAfter(LocalDateTime.now())) {
+                       return new ResponseEntity<>(session.getId(), HttpStatus.OK);
+                   } else {
+                       sessionRepository.delete(session);
+                   }
+                }
+                Session newSession = new Session();
+                newSession.setUser(user);
+                sessionRepository.save(newSession);
+                return new ResponseEntity<>(newSession.getId(), HttpStatus.OK);
             } else {
                 return new ResponseEntity<>("auth/wrong-password", HttpStatus.UNAUTHORIZED);
             }
@@ -62,6 +74,19 @@ public class AuthService {
         }
     }
 
+    public ResponseEntity<Object> validate(Long sessionId) {
+       Optional<Session> session = sessionRepository.getSessionById(sessionId);
+       System.out.println(session);
+       if (session.isPresent()) {
+           if (session.get().getExpires().isAfter(LocalDateTime.now())) {
+              return new ResponseEntity<>(session.get().getUser(), HttpStatus.OK);
+           } else {
+                sessionRepository.delete(session.get());
+                return new ResponseEntity<>("auth/unauthorized", HttpStatus.UNAUTHORIZED);
+           }
+       }
+       return null;
+    }
 
     public User convertToEntity(UserDTO userDTO) {
         return userRepository.findByEmail(userDTO.getEmail());
