@@ -29,14 +29,14 @@ public class AuthService {
         }
         catch (DataIntegrityViolationException e){
             String errorMessage = e.getMostSpecificCause().getMessage();
-            if (errorMessage.contains("email")) {
-                String response =  "Email " + user.getEmail() + " already in use!";
+            if (errorMessage.contains("email") && errorMessage.contains("username")) {
+                String response = "auth/username-email-already-in-use";
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            } else if (errorMessage.contains("email")) {
+                String response =  "auth/email-already-in-use";
                 return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             } else if (errorMessage.contains("username")) {
-                String response =  "Username " + user.getUsername() + " already in use!";
-                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-            } else if (errorMessage.contains("email") & errorMessage.contains("username")) {
-                String response =  "Email " + user.getEmail() + " and Username " + user.getUsername() + " already in use!";
+                String response = "auth/username-already-in-use";
                 return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             } else {
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -53,12 +53,12 @@ public class AuthService {
                 Session session = new Session();
                 session.setUser(user);
                 sessionRepository.save(session);
-                return new ResponseEntity<>(session.getId(),HttpStatus.OK);
+                return new ResponseEntity<>(session.getId(), HttpStatus.OK);
             } else {
-                return new ResponseEntity<>("Incorrect Password", HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<>("auth/wrong-password", HttpStatus.UNAUTHORIZED);
             }
         } else {
-            return new ResponseEntity<>("User not Found", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("auth/user-not-found", HttpStatus.NOT_FOUND);
         }
     }
 
