@@ -84,4 +84,50 @@ public class GroupService {
 
 
     }
+
+    /**
+     * Método getGroups
+     *
+     * Este método se encarga de obtener los grupos a los que pertenece un usuario.
+     *
+     * @param id Es el ID del usuario del que se quieren obtener los grupos.
+     *
+     * @return ResponseEntity<Object> Este método retorna un objeto ResponseEntity que puede contener diferentes estados HTTP:<br>
+     *                               - HttpStatus.OK (200): Si el usuario se encuentra en la base de datos. El cuerpo de la respuesta será un Set de objetos Group.<br>
+     *                               - HttpStatus.NOT_FOUND (404): Si el ID del usuario proporcionado no se encuentra en la base de datos. El cuerpo de la respuesta será "user/not-found".<br>
+     */
+    public ResponseEntity<Object> getGroups(long id){
+        Optional<User> optionalUser = Optional.ofNullable(userRepository.findById(id));
+        if(optionalUser.isEmpty()){
+            return new ResponseEntity<>("user/not-found", HttpStatus.NOT_FOUND);
+        }
+        else{
+            User user = optionalUser.get();
+            Set<Group> groups = user.getGroups();
+            return new ResponseEntity<>(groups, HttpStatus.OK);
+        }
+    }
+
+
+    /**
+     * Método getGroup
+     *
+     * Este método se encarga de obtener un grupo en específico.
+     *
+     * @param id Es el ID del grupo que se quiere obtener.
+     *
+     * @return ResponseEntity<Object> Este método retorna un objeto ResponseEntity que puede contener diferentes estados HTTP:<br>
+     *                               - HttpStatus.OK (200): Si el grupo se encuentra en la base de datos. El cuerpo de la respuesta será un objeto Group.<br>
+     *                               - HttpStatus.NOT_FOUND (404): Si el ID del grupo proporcionado no se encuentra en la base de datos. El cuerpo de la respuesta será "group/not-found".<br>
+     */
+    public ResponseEntity<Object> getGroup(long id){
+        Optional<Group> optionalGroup = groupRepository.findById(id);
+        if(optionalGroup.isEmpty()){
+            return new ResponseEntity<>("group/not-found", HttpStatus.NOT_FOUND);
+        }
+        else{
+            Group group = optionalGroup.get();
+            return new ResponseEntity<>(group, HttpStatus.OK);
+        }
+    }
 }

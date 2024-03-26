@@ -33,7 +33,7 @@ public class Session {
 
     public Session(){
         this.created = LocalDateTime.now();
-        this.expires = this.created.plusSeconds(60);
+        this.expires = this.created.plusHours(1);
         this.id = generateSessionId();
     }
 

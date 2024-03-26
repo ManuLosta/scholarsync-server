@@ -19,7 +19,7 @@ public class SessionService {
     private SessionRepository sessionRepository;
 
     public void addTime(Session session) {
-        session.setExpires(session.getExpires().plusSeconds(60));
+        session.setExpires(session.getExpires().plusMinutes(10));
         sessionRepository.save(session);
     }
     /**
