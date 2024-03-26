@@ -118,5 +118,6 @@ POST http://localhost:8080/api/v1/auth/validate
 Content-Type: application/json
 
 {
-  "sessionId": 7355735348900487221
+  "sessionId": 1645890583281814376
+
 }

@@ -57,6 +57,7 @@ public class AuthService {
                 if (optionalSession.isPresent()) {
                     Session session = optionalSession.get();
                    if (session.getExpires().isAfter(LocalDateTime.now())) {
+                       addTime(session);
                        return new ResponseEntity<>(session.getId(), HttpStatus.OK);
                    } else {
                        sessionRepository.delete(session);
@@ -74,19 +75,11 @@ public class AuthService {
         }
     }
 
-    public ResponseEntity<Object> validate(Long sessionId) {
-       Optional<Session> session = sessionRepository.getSessionById(sessionId);
-       System.out.println(session);
-       if (session.isPresent()) {
-           if (session.get().getExpires().isAfter(LocalDateTime.now())) {
-              return new ResponseEntity<>(session.get().getUser(), HttpStatus.OK);
-           } else {
-                sessionRepository.delete(session.get());
-                return new ResponseEntity<>("auth/unauthorized", HttpStatus.UNAUTHORIZED);
-           }
-       }
-       return null;
+    private void addTime(Session session) {
+        session.setExpires(LocalDateTime.now().plusMinutes(1));
+        sessionRepository.save(session);
     }
+
 
     public User convertToEntity(UserDTO userDTO) {
         return userRepository.findByEmail(userDTO.getEmail());
