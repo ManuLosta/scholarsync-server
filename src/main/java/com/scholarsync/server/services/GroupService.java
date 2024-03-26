@@ -11,9 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class GroupService {
@@ -103,9 +101,28 @@ public class GroupService {
         }
         else{
             User user = optionalUser.get();
-            Set<Group> groups = user.getGroups();
-            return new ResponseEntity<>(groups, HttpStatus.OK);
+            List<Map<String, Object>> response = getGroupList(user);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         }
+    }
+
+    private static List<Map<String, Object>> getGroupList(User user) {
+        Set<Group> groups = user.getGroups();
+        List<Map<String,Object>> response = new ArrayList<>();
+        for(Group group : groups){
+            Map<String,Object> groupMap = new HashMap<>();
+            createGroup(group, groupMap);
+            response.add(groupMap);
+        }
+        return response;
+    }
+
+    private static void createGroup(Group group, Map<String, Object> groupMap) {
+        groupMap.put("id", group.getId());
+        groupMap.put("title", group.getTitle());
+        groupMap.put("description", group.getDescription());
+        groupMap.put("isPrivate", group.isPrivate());
+        groupMap.put("createdBy", group.getCreatedBy().getId());
     }
 
 
@@ -127,6 +144,10 @@ public class GroupService {
         }
         else{
             Group group = optionalGroup.get();
+            Map<String,Object> response = new HashMap<>();
+            createGroup(group, response);
+            Set<User> users = group.getUsers();
+            response.put("users", Arrays.stream(users.toArray()).map(user -> ((User) user).getId()).toArray());
             return new ResponseEntity<>(group, HttpStatus.OK);
         }
     }

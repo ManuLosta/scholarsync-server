@@ -133,7 +133,7 @@ Content-Type: application/json
   "title": "Test Group",
   "description": "This is a test group.",
   "isPrivate": true,
-  "userId": 5819319635459278327
+  "userId": 631678876884612226
 }
 
 ###
@@ -144,5 +144,8 @@ Content-Type: application/json
   "title": "Test Group2",
   "description": "This is a test group.",
   "isPrivate": true,
-  "userId": 5819319635459278327
+  "userId": 631678876884612226
 }
+
+###
+GET http://localhost:8080/api/v1/groups/getGroups?user_id=631678876884612226
