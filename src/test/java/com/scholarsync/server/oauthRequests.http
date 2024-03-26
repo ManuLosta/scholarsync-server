@@ -133,5 +133,16 @@ Content-Type: application/json
   "title": "Test Group",
   "description": "This is a test group.",
   "isPrivate": true,
-  "userId": 6432010512714919487
+  "userId": 5819319635459278327
+}
+
+###
+POST http://localhost:8080/api/v1/groups/create
+Content-Type: application/json
+
+{
+  "title": "Test Group2",
+  "description": "This is a test group.",
+  "isPrivate": true,
+  "userId": 5819319635459278327
 }

@@ -29,7 +29,7 @@ public class Group {
 
     boolean isPrivate;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "created_by")
     private User createdBy;
 

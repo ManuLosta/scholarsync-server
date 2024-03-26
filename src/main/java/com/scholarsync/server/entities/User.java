@@ -50,9 +50,9 @@ public class User {
     @Column(name = "level_id")
     private long levelId = 0;
 
-    @OneToOne(mappedBy = "createdBy", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
     @PrimaryKeyJoinColumn
-    private Group group;
+    private Set<Group> owner;
 
     @ManyToMany
     @JoinTable(
@@ -157,12 +157,12 @@ public class User {
         this.username = username;
     }
 
-    public Group getGroup() {
-        return group;
+    public Set<Group> getOwner() {
+        return owner;
     }
 
-    public void setGroup(Group group) {
-        this.group = group;
+    public void setOwner(Set<Group> owner) {
+        this.owner = owner;
     }
 
     public Set<Group> getGroups() {
