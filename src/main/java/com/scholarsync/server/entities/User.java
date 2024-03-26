@@ -6,7 +6,9 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -47,6 +49,19 @@ public class User {
 
     @Column(name = "level_id")
     private long levelId = 0;
+
+    @OneToOne(mappedBy = "createdBy", cascade = CascadeType.ALL)
+    @PrimaryKeyJoinColumn
+    private Group group;
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_group",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "group_id")
+    )
+    private Set<Group> groups;
+
 
     public User() {
 
@@ -140,5 +155,21 @@ public class User {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public Group getGroup() {
+        return group;
+    }
+
+    public void setGroup(Group group) {
+        this.group = group;
+    }
+
+    public Set<Group> getGroups() {
+        return groups;
+    }
+
+    public void setGroups(Set<Group> groups) {
+        this.groups = groups;
     }
 }
