@@ -17,7 +17,7 @@ public class User {
     private static final SecureRandom secureRandom = new SecureRandom();
     @Id
     @Column(name = "id", unique = true)
-    private long id;
+    private String id;
 
     @Column(nullable = false, unique = true)
     private String email;
@@ -66,14 +66,14 @@ public class User {
     public User() {
 
         this.createdAt = LocalDateTime.now();
-        this.id = Math.abs(secureRandom.nextLong());
+        this.id = String.valueOf(Math.abs(secureRandom.nextLong()));
     }
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(String id) {
         this.id = id;
     }
 

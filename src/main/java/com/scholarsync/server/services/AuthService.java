@@ -66,7 +66,7 @@ public class AuthService {
                 Session newSession = new Session();
                 newSession.setUser(user);
                 sessionRepository.save(newSession);
-                return new ResponseEntity<>(newSession.getId(), HttpStatus.OK);
+                return new ResponseEntity<>(newSession.getId()+"", HttpStatus.OK);
             } else {
                 return new ResponseEntity<>("auth/wrong-password", HttpStatus.UNAUTHORIZED);
             }

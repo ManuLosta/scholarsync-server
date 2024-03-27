@@ -114,11 +114,11 @@ Content-Type: application/json
 ###
 # Validate Session ID
 
-POST http://localhost:8080/api/v1/auth/validate
+POST http://localhost:8080/api/v1/auth/refresh
 Content-Type: application/json
 
 {
-  "sessionId": 1645890583281814376
+  "sessionId": "4565188903229195111"
 
 }
 
@@ -133,7 +133,7 @@ Content-Type: application/json
   "title": "Test Group",
   "description": "This is a test group.",
   "isPrivate": true,
-  "userId": 631678876884612226
+  "userId": "847363550040521594"
 }
 
 ###
@@ -144,8 +144,13 @@ Content-Type: application/json
   "title": "Test Group2",
   "description": "This is a test group.",
   "isPrivate": true,
-  "userId": 631678876884612226
+  "userId": "847363550040521594"
 }
 
 ###
-GET http://localhost:8080/api/v1/groups/getGroups?user_id=631678876884612226
+GET http://localhost:8080/api/v1/groups/getGroups?user_id=847363550040521594
+
+
+
+
+

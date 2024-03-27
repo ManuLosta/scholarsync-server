@@ -28,7 +28,7 @@ public class SessionService {
      * Tambien habria que validar que la sesion pertenezca al usuario que esta intentando acceder.
      *
      */
-    public ResponseEntity<Object> refresh(Long sessionId) {
+    public ResponseEntity<Object> refresh(String sessionId) {
         Optional<Session> session = sessionRepository.getSessionById(sessionId);
         System.out.println(session);
         if (session.isPresent()) {

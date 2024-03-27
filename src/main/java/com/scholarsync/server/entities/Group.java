@@ -15,7 +15,7 @@ public class Group {
 
     @Id
     @Column(name = "group_id", unique = true)
-    long id;
+    String id;
 
 
     @Column(name = "title", unique = true)
@@ -42,14 +42,14 @@ public class Group {
 
 
     public Group() {
-        this.id = Math.abs(secureRandom.nextLong());
+        this.id = String.valueOf((Math.abs(secureRandom.nextLong())));
     }
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(String id) {
         this.id = id;
     }
 

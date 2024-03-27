@@ -13,11 +13,11 @@ public class Session {
     private static final SecureRandom secureRandom = new SecureRandom();
 
     @Column(unique = true)
-    private long id;
+    private String id;
 
     @Id
     @Column(name = "userId")
-    private long userId;
+    private String userId;
     @CreationTimestamp
     @Column(name = "created_at")
 
@@ -34,7 +34,7 @@ public class Session {
     public Session(){
         this.created = LocalDateTime.now();
         this.expires = this.created.plusHours(1);
-        this.id = generateSessionId();
+        this.id = String.valueOf(generateSessionId());
     }
 
     private static long generateSessionId(){
@@ -50,19 +50,19 @@ public class Session {
         this.expires = expires;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public long getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(long userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 

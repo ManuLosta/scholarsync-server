@@ -46,7 +46,7 @@ public class GroupService {
             generatedGroup.setTitle((String) group.get("title"));
             generatedGroup.setDescription((String) group.get("description"));
             generatedGroup.setPrivate((Boolean) group.get("isPrivate"));
-            Optional<User> optionalCreator = userRepository.findById((Long) group.get("userId"));
+            Optional<User> optionalCreator = userRepository.findById((String) group.get("userId"));
             if(optionalCreator.isEmpty()){
                 return new ResponseEntity<>("user/not-found", HttpStatus.NOT_FOUND);
             }
@@ -94,8 +94,8 @@ public class GroupService {
      *                               - HttpStatus.OK (200): Si el usuario se encuentra en la base de datos. El cuerpo de la respuesta será un Set de objetos Group.<br>
      *                               - HttpStatus.NOT_FOUND (404): Si el ID del usuario proporcionado no se encuentra en la base de datos. El cuerpo de la respuesta será "user/not-found".<br>
      */
-    public ResponseEntity<Object> getGroups(long id){
-        Optional<User> optionalUser = Optional.ofNullable(userRepository.findById(id));
+    public ResponseEntity<Object> getGroups(String id){
+        Optional<User> optionalUser = userRepository.findById(id);
         if(optionalUser.isEmpty()){
             return new ResponseEntity<>("user/not-found", HttpStatus.NOT_FOUND);
         }
@@ -137,7 +137,7 @@ public class GroupService {
      *                               - HttpStatus.OK (200): Si el grupo se encuentra en la base de datos. El cuerpo de la respuesta será un objeto Group.<br>
      *                               - HttpStatus.NOT_FOUND (404): Si el ID del grupo proporcionado no se encuentra en la base de datos. El cuerpo de la respuesta será "group/not-found".<br>
      */
-    public ResponseEntity<Object> getGroup(long id){
+    public ResponseEntity<Object> getGroup(String id){
         Optional<Group> optionalGroup = groupRepository.findById(id);
         if(optionalGroup.isEmpty()){
             return new ResponseEntity<>("group/not-found", HttpStatus.NOT_FOUND);

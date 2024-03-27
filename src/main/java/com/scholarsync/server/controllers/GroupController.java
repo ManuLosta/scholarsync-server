@@ -23,13 +23,13 @@ public class GroupController {
     }
 
     @GetMapping("/getGroups")
-    public ResponseEntity<Object> getGroups(@RequestParam(name = "user_id") long id) {
+    public ResponseEntity<Object> getGroups(@RequestParam(name = "user_id") String id) {
         return groupService.getGroups(id);
     }
 
 
     @GetMapping("/getGroup")
-    public ResponseEntity<Object> getGroup(@RequestParam(name = "group_id") long id) {
+    public ResponseEntity<Object> getGroup(@RequestParam(name = "group_id") String id) {
         return groupService.getGroup(id);
     }
 

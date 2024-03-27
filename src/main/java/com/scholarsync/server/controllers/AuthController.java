@@ -31,9 +31,9 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<Object> refresh(@RequestBody Map<String, Long> requestBody) {
-        Long sessionId = requestBody.get("sessionId");
-        if (sessionId != null) {
+    public ResponseEntity<Object> refresh(@RequestBody Map<String, String> requestBody) {
+        String sessionId = requestBody.get("sessionId");
+        if (!sessionId.isEmpty()) {
             return sessionService.refresh(sessionId);
         }
         return null;
