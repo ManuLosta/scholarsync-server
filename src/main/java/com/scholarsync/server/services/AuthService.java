@@ -18,70 +18,64 @@ import java.util.Optional;
 @Service
 public class AuthService {
 
-
     @Autowired
     private UserRepository userRepository;
+
     @Autowired
     private SessionRepository sessionRepository;
 
-    public ResponseEntity<Object> register(User user) {
-        try {
-            userRepository.save(user);
-            String response =  "User " + user.getFirstName() + " " + user.getLastName() + " registered successfully!";
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        }
-        catch (DataIntegrityViolationException e){
-            String errorMessage = e.getMostSpecificCause().getMessage();
-            if (errorMessage.contains("email") && errorMessage.contains("username")) {
-                String response = "auth/username-email-already-in-use";
-                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-            } else if (errorMessage.contains("email")) {
-                String response =  "auth/email-already-in-use";
-                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-            } else if (errorMessage.contains("username")) {
-                String response = "auth/username-already-in-use";
-                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-            } else {
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    @Autowired
+    private SessionService sessionService;
 
-            }
+    public ResponseEntity<Object> register(User user) {
+       Optional<User> emailEntry = userRepository.findUserByEmail(user.getEmail());
+       Optional<User> usernameEntry = userRepository.findUserByUsername(user.getUsername());
+
+        if (emailEntry.isPresent() || usernameEntry.isPresent()) {
+           if (emailEntry.isPresent() && usernameEntry.isPresent()) {
+               return new ResponseEntity<>("auth/email-username-already-in-use", HttpStatus.CONFLICT);
+           } else if (emailEntry.isPresent()) {
+               return new ResponseEntity<>("auth/email-already-in-use", HttpStatus.CONFLICT);
+           } else {
+               return new ResponseEntity<>("auth/username-already-in-use", HttpStatus.CONFLICT);
+           }
         }
+
+        userRepository.save(user);
+        String response =  "User " + user.getFirstName() + " " + user.getLastName() + " registered successfully!";
+        return new ResponseEntity<>(response, HttpStatus.OK);
+
     }
 
     public ResponseEntity<Object> login(UserDTO userDTO) {
-        User user = convertToEntity(userDTO);
+        Optional<User> optionalUser = convertToEntity(userDTO);
 
-        if (user != null) {
-            if (user.getPassword().equals(userDTO.getPassword())) {
-                Optional<Session> optionalSession = sessionRepository.findSessionByUserId(user.getId());
-                if (optionalSession.isPresent()) {
-                    Session session = optionalSession.get();
-                   if (session.getExpires().isAfter(LocalDateTime.now())) {
-                       addTime(session);
-                       return new ResponseEntity<>(session.getId(), HttpStatus.OK);
-                   } else {
-                       sessionRepository.delete(session);
-                   }
-                }
-                Session newSession = new Session();
-                newSession.setUser(user);
-                sessionRepository.save(newSession);
-                return new ResponseEntity<>(newSession.getId()+"", HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>("auth/wrong-password", HttpStatus.UNAUTHORIZED);
-            }
-        } else {
+        if (optionalUser.isEmpty()) {
             return new ResponseEntity<>("auth/user-not-found", HttpStatus.NOT_FOUND);
+        }
+
+        User user = optionalUser.get();
+        if (user.getPassword().equals(userDTO.getPassword())) {
+            Optional<Session> optionalSession = sessionRepository.findSessionByUserId(user.getId());
+            if (optionalSession.isPresent()) {
+                Session session = optionalSession.get();
+               if (sessionService.isSessionExpired(session.getId())) {
+                   sessionService.addTime(session);
+                   return new ResponseEntity<>(session.getId(), HttpStatus.OK);
+               } else {
+                   sessionRepository.delete(session);
+               }
+            }
+            Session newSession = new Session();
+            newSession.setUser(user);
+            sessionRepository.save(newSession);
+            return new ResponseEntity<>(newSession.getId(), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("auth/wrong-password", HttpStatus.UNAUTHORIZED);
         }
     }
 
-    private void addTime(Session session) {
-        session.setExpires(LocalDateTime.now().plusMinutes(1));
-        sessionRepository.save(session);
-    }
-
-
-    public User convertToEntity(UserDTO userDTO) {
-        return userRepository.findByEmail(userDTO.getEmail());
+    public Optional<User> convertToEntity(UserDTO userDTO) {
+        return userRepository.findUserByEmail(userDTO.getEmail());
     }
 }

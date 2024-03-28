@@ -1,12 +1,10 @@
 package com.scholarsync.server.services;
 
-
 import com.scholarsync.server.entities.Session;
 import com.scholarsync.server.repositories.SessionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -30,7 +28,6 @@ public class SessionService {
      */
     public ResponseEntity<Object> refresh(String sessionId) {
         Optional<Session> session = sessionRepository.getSessionById(sessionId);
-        System.out.println(session);
         if (session.isPresent()) {
             if (session.get().getExpires().isAfter(LocalDateTime.now())) {
                 addTime(session.get());
@@ -43,6 +40,8 @@ public class SessionService {
         return null;
     }
 
-
-
+    public boolean isSessionExpired(String sessionId) {
+        Optional<Session> session = sessionRepository.getSessionById(sessionId);
+        return session.isEmpty() || session.get().getExpires().isBefore(LocalDateTime.now());
+    }
 }

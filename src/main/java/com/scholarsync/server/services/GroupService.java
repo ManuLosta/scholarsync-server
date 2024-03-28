@@ -40,7 +40,7 @@ public class GroupService {
      *
      * @throws DataIntegrityViolationException Esta excepción se lanza si se viola alguna restricción de integridad de la base de datos, como por ejemplo, si el título del grupo ya está en uso.
      */
-    public ResponseEntity<Object> createGroup(Map<String,Object> group){
+    public ResponseEntity<Object> createGroup(Map<String, Object> group){
         try {
             Group generatedGroup = new Group();
             generatedGroup.setTitle((String) group.get("title"));
@@ -50,7 +50,7 @@ public class GroupService {
             if(optionalCreator.isEmpty()){
                 return new ResponseEntity<>("user/not-found", HttpStatus.NOT_FOUND);
             }
-            else{
+            else {
                 User creator = optionalCreator.get();
                 generatedGroup.setCreatedBy(creator);
                 Set<User> userSet = generatedGroup.getUsers();
@@ -61,7 +61,6 @@ public class GroupService {
 
                 creator.getGroups().add(generatedGroup);
                 userRepository.save(creator);
-
 
                 System.out.println("Group " + generatedGroup.getTitle() + " created successfully!");
                 return new ResponseEntity<>("Group Generated", HttpStatus.OK);
