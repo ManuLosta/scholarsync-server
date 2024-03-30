@@ -2,8 +2,10 @@ package com.scholarsync.server.entities;
 
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.security.SecureRandom;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -11,9 +13,8 @@ import java.util.Set;
 @Table(name = "groups")
 public class Group {
 
-    private static final SecureRandom secureRandom = new SecureRandom();
-
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "group_id", unique = true)
     String id;
 
@@ -36,14 +37,9 @@ public class Group {
     @ManyToMany(mappedBy = "groups")
     Set<User> users = new HashSet<>();
 
-
-
-
-
-
-    public Group() {
-        this.id = String.valueOf((Math.abs(secureRandom.nextLong())));
-    }
+    @CreationTimestamp
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
     public String getId() {
         return id;
@@ -84,8 +80,6 @@ public class Group {
     public void setCreatedBy(User createdBy) {
         this.createdBy = createdBy;
     }
-
-
 
     public Set<User> getUsers() {
         return users;

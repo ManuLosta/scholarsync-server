@@ -23,10 +23,12 @@ public class UserService {
 
     public ResponseEntity<Object> sendFriendRequest(Map<String, String> friendRequestBody) {
         Optional<User> fromEntry = userRepository.findById(friendRequestBody.get("from_id"));
-        Optional<User> toEntry = userRepository.findUserByUsername(friendRequestBody.get("to_username"));
+        Optional<User> toEntry = userRepository.findById(friendRequestBody.get("to_id"));
+
         if (fromEntry.isEmpty() || toEntry.isEmpty()) {
             return ResponseEntity.badRequest().body("user/not-found");
         }
+
         if (fromEntry.get().getFriends().contains(toEntry.get())) {
             return ResponseEntity.badRequest().body("user/already-a-friend");
         }

@@ -1,11 +1,9 @@
 package com.scholarsync.server.controllers;
 
 
-import com.scholarsync.server.entities.Group;
 import com.scholarsync.server.services.GroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -32,9 +30,4 @@ public class GroupController {
     public ResponseEntity<Object> getGroup(@RequestParam(name = "group_id") String id) {
         return groupService.getGroup(id);
     }
-
-
-
-
-
 }

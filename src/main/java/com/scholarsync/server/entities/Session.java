@@ -10,37 +10,26 @@ import java.time.LocalDateTime;
 @Entity
 public class Session {
 
-    private static final SecureRandom secureRandom = new SecureRandom();
-
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(unique = true)
     private String id;
 
-    @Id
-    @Column(name = "userId")
-    private String userId;
     @CreationTimestamp
     @Column(name = "created_at")
 
     private LocalDateTime created;
 
     @Column(name = "expires_at")
-
     private LocalDateTime expires;
+
     @OneToOne
-    @MapsId
     @JoinColumn(name = "userId")
     private User user;
 
-    public Session(){
-        this.created = LocalDateTime.now();
-        this.expires = this.created.plusHours(1);
-        this.id = String.valueOf(generateSessionId());
+    public Session() {
+        this.expires = LocalDateTime.now().plusHours(1);
     }
-
-    private static long generateSessionId(){
-        return Math.abs(secureRandom.nextLong());
-    }
-
 
     public LocalDateTime getExpires() {
         return expires;
@@ -56,14 +45,6 @@ public class Session {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
     }
 
     public LocalDateTime getCreated() {

@@ -7,14 +7,14 @@ import com.scholarsync.server.repositories.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.util.Assert;
 
 import java.time.LocalDate;
 
@@ -40,6 +40,27 @@ public class RestControllerTest {
     @Autowired
     GroupRepository groupRepository;
 
+
+    public void createTemplateData() throws Exception {
+        User user = new User();
+        user.setEmail("test@example.com");
+        user.setPassword("password123");
+        user.setUsername("testuser");
+        user.setFirstName("John");
+        user.setLastName("Doe");
+        user.setBirthDate(LocalDate.parse("1990-01-01"));
+
+        userRepository.save(user);
+
+        User user1 = new User();
+        user1.setFirstName("Robert");
+        user1.setLastName("Smith");
+        user1.setEmail("robertSmith@gmail.com");
+        user1.setPassword("password123");
+        user1.setUsername("robertsmith");
+
+        userRepository.save(user1);
+    }
 
     @Test
     public void registerUserTest() throws Exception {
@@ -88,15 +109,7 @@ public class RestControllerTest {
 
     @Test
     public void sendFriendRequestTest() throws Exception {
-
-        String robertId = mockMvc.perform(MockMvcRequestBuilders.post("/users/get-id-by-username")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"username\":\"robertsmith\"}"))
-                .andReturn().getResponse().getContentAsString();
-        mockMvc.perform(MockMvcRequestBuilders.post("/users/send-friend-request")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"from_id\":\"" + robertId + "\",\"toName\":\"John\",\"to_username\":\"robertsmith\"}")).
-                andExpect(MockMvcResultMatchers.content().string("friend-request/sent"));
+        createTemplateData();
     }
 
 

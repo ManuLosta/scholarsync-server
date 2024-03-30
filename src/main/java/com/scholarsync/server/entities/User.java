@@ -14,8 +14,8 @@ import java.util.Set;
 @Table(name = "users")
 public class User {
 
-    private static final SecureRandom secureRandom = new SecureRandom();
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", unique = true)
     private String id;
 
@@ -77,12 +77,7 @@ public class User {
     @OneToMany(mappedBy = "to", cascade = CascadeType.ALL)
     private Set<FriendRequest> receivedRequests;
 
-
-    public User() {
-
-        this.createdAt = LocalDateTime.now();
-        this.id = String.valueOf(Math.abs(secureRandom.nextLong()));
-    }
+    public User() { }
 
     public String getId() {
         return id;

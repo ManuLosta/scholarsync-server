@@ -21,7 +21,7 @@ Content-Type: application/json
 }
 
 ###
-POST http://localhost:8080/register
+POST http://localhost:8080/api/v1/auth/register
 Content-Type: application/json
 
 {
@@ -118,7 +118,7 @@ POST http://localhost:8080/api/v1/auth/refresh
 Content-Type: application/json
 
 {
-  "sessionId": "4565188903229195111"
+  "sessionId": "baeafc3a-625f-44c6-837d-80c6e831f826"
 
 }
 
@@ -133,7 +133,7 @@ Content-Type: application/json
   "title": "Test Group",
   "description": "This is a test group.",
   "isPrivate": true,
-  "userId": "847363550040521594"
+  "userId": "01bb4ef7-3d7a-4c67-badf-5caacf55f25a"
 }
 
 ###

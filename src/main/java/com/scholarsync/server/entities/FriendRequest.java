@@ -13,15 +13,16 @@ import java.util.Set;
 
 public class FriendRequest {
 
-    private static final SecureRandom secureRandom = new SecureRandom();
-
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "request_id", unique = true)
     private String id;
 
     @Column(name = "created_at")
     @CreationTimestamp
     private LocalDateTime createdAt;
+
+    @Column(name = "accepted")
     private boolean accepted;
 
     @ManyToOne
@@ -33,8 +34,6 @@ public class FriendRequest {
     private User to;
 
     public FriendRequest() {
-        this.id = String.valueOf((Math.abs(secureRandom.nextLong())));
-        this.createdAt = LocalDateTime.now();
         this.accepted = false;
     }
 
