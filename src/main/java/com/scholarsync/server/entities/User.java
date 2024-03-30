@@ -62,6 +62,21 @@ public class User {
     )
     private Set<Group> groups;
 
+    @ManyToMany
+    @JoinTable(
+            name = "friend_with",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "friend_id")
+
+    )
+    private Set<User> friends;
+
+    @OneToMany(mappedBy = "from", cascade = CascadeType.ALL)
+    private Set<FriendRequest> sentRequests;
+
+    @OneToMany(mappedBy = "to", cascade = CascadeType.ALL)
+    private Set<FriendRequest> receivedRequests;
+
 
     public User() {
 
@@ -171,5 +186,29 @@ public class User {
 
     public void setGroups(Set<Group> groups) {
         this.groups = groups;
+    }
+
+    public Set<User> getFriends() {
+        return friends;
+    }
+
+    public void setFriends(Set<User> friends) {
+        this.friends = friends;
+    }
+
+    public Set<FriendRequest> getSentRequests() {
+        return sentRequests;
+    }
+
+    public void setSentRequests(Set<FriendRequest> sentRequests) {
+        this.sentRequests = sentRequests;
+    }
+
+    public Set<FriendRequest> getReceivedRequests() {
+        return receivedRequests;
+    }
+
+    public void setReceivedRequests(Set<FriendRequest> receivedRequests) {
+        this.receivedRequests = receivedRequests;
     }
 }
