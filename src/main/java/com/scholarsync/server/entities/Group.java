@@ -1,6 +1,8 @@
 package com.scholarsync.server.entities;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -32,9 +34,11 @@ public class Group {
 
     @ManyToOne
     @JoinColumn(name = "created_by")
+    @JsonBackReference
     private User createdBy;
 
     @ManyToMany(mappedBy = "groups")
+    @JsonIgnoreProperties("groups")
     Set<User> users = new HashSet<>();
 
     @CreationTimestamp

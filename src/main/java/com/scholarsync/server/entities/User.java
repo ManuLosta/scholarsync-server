@@ -1,5 +1,6 @@
 package com.scholarsync.server.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -53,6 +54,7 @@ public class User {
 
     @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
     @PrimaryKeyJoinColumn
+    @JsonManagedReference
     private Set<Group> owner;
 
     @ManyToMany
@@ -61,6 +63,7 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "group_id")
     )
+    @JsonIgnoreProperties("users")
     private Set<Group> groups;
 
     @ManyToMany

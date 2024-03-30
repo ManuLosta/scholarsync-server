@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 /**
  * To run this tests is important to put hibernate into update mode
@@ -107,7 +108,21 @@ public class RestControllerTest {
 
     @Test
     public void sendFriendRequestTest() throws Exception {
-        createTemplateData();
+//        createTemplateData();
+        String idTestUser = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/users/get-id-by-username")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"testuser\"}"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        String idRobertSmith = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/users/get-id-by-username")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"robertsmith\"}"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/users/send-friend-request")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"from_id\":\"" + idTestUser + "\",\"to_id\":\"" + idRobertSmith + "\"}"))
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
 

@@ -1,6 +1,7 @@
 package com.scholarsync.server.entities;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -24,10 +25,12 @@ public class FriendRequest {
     private boolean accepted;
 
     @ManyToOne
+    @JsonBackReference
     @JoinColumn(name = "from_id")
     private User from;
 
     @ManyToOne
+    @JsonBackReference
     @JoinColumn(name = "to_id")
     private User to;
 
