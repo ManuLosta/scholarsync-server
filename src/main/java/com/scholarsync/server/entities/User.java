@@ -1,5 +1,6 @@
 package com.scholarsync.server.entities;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -72,9 +73,11 @@ public class User {
     private Set<User> friends;
 
     @OneToMany(mappedBy = "from", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private Set<FriendRequest> sentRequests;
 
     @OneToMany(mappedBy = "to", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private Set<FriendRequest> receivedRequests;
 
     public User() { }

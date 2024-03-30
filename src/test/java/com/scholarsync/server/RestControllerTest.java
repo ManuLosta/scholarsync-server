@@ -1,17 +1,15 @@
 package com.scholarsync.server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.scholarsync.server.dtos.UserDTO;
+import com.scholarsync.server.dtos.LoginDTO;
 import com.scholarsync.server.entities.User;
 import com.scholarsync.server.repositories.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -80,7 +78,7 @@ public class RestControllerTest {
 
     @Test
     public void loginUserTest() throws Exception {
-        UserDTO userDTO = new UserDTO();
+        LoginDTO userDTO = new LoginDTO();
         userDTO.setEmail("test@example.com");
         userDTO.setPassword("password123");
 

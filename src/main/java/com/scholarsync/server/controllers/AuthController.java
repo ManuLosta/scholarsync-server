@@ -1,6 +1,7 @@
 package com.scholarsync.server.controllers;
 
-import com.scholarsync.server.dtos.UserDTO;
+import com.scholarsync.server.dtos.LoginDTO;
+import com.scholarsync.server.dtos.RegisterDTO;
 import com.scholarsync.server.entities.User;
 import com.scholarsync.server.services.AuthService;
 import com.scholarsync.server.services.SessionService;
@@ -21,12 +22,12 @@ public class AuthController {
     private SessionService sessionService;
 
     @PostMapping("/register")
-    public ResponseEntity<Object> register(@RequestBody User user) {
+    public ResponseEntity<Object> register(@RequestBody RegisterDTO user) {
         return authService.register(user);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Object> login(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<Object> login(@RequestBody LoginDTO userDTO) {
         return authService.login(userDTO);
     }
 

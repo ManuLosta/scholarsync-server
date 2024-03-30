@@ -1,6 +1,6 @@
 package com.scholarsync.server.dtos;
 
-public class UserDTO {
+public class LoginDTO {
     private String email;
     private String password;
 

@@ -1,17 +1,16 @@
 package com.scholarsync.server.services;
 
-import com.scholarsync.server.dtos.UserDTO;
+import com.scholarsync.server.dtos.LoginDTO;
+import com.scholarsync.server.dtos.RegisterDTO;
 import com.scholarsync.server.entities.Session;
 import com.scholarsync.server.entities.User;
 import com.scholarsync.server.repositories.SessionRepository;
 import com.scholarsync.server.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 
@@ -27,7 +26,7 @@ public class AuthService {
     @Autowired
     private SessionService sessionService;
 
-    public ResponseEntity<Object> register(User user) {
+    public ResponseEntity<Object> register(RegisterDTO user) {
        Optional<User> emailEntry = userRepository.findUserByEmail(user.getEmail());
        Optional<User> usernameEntry = userRepository.findUserByUsername(user.getUsername());
 
@@ -41,13 +40,20 @@ public class AuthService {
            }
         }
 
-        userRepository.save(user);
-        String response =  "User " + user.getFirstName() + " " + user.getLastName() + " registered successfully!";
+        User newUser = new User();
+        newUser.setFirstName(user.getFirstName());
+        newUser.setLastName(user.getLastName());
+        newUser.setEmail(user.getEmail());
+        newUser.setUsername(user.getUsername());
+        newUser.setPassword(user.getPassword());
+        newUser.setBirthDate(user.getBirthDate());
+        userRepository.save(newUser);
+        String response =  "User " + newUser.getFirstName() + " " + newUser.getLastName() + " registered successfully!";
         return new ResponseEntity<>(response, HttpStatus.OK);
 
     }
 
-    public ResponseEntity<Object> login(UserDTO userDTO) {
+    public ResponseEntity<Object> login(LoginDTO userDTO) {
         Optional<User> optionalUser = convertToEntity(userDTO);
 
         if (optionalUser.isEmpty()) {
@@ -75,7 +81,7 @@ public class AuthService {
         }
     }
 
-    public Optional<User> convertToEntity(UserDTO userDTO) {
+    public Optional<User> convertToEntity(LoginDTO userDTO) {
         return userRepository.findUserByEmail(userDTO.getEmail());
     }
 }

@@ -4,9 +4,7 @@ package com.scholarsync.server.entities;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.security.SecureRandom;
 import java.time.LocalDateTime;
-import java.util.Set;
 
 @Entity
 @Table(name = "friend_request")
