@@ -5,11 +5,8 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -54,7 +51,7 @@ public class User {
 
     @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
     @PrimaryKeyJoinColumn
-    @JsonManagedReference
+    @JsonIgnoreProperties({"createdBy", "users"})
     private Set<Group> owner;
 
     @ManyToMany
