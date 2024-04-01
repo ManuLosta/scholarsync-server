@@ -1,5 +1,6 @@
 package com.scholarsync.server;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.scholarsync.server.dtos.LoginDTO;
 import com.scholarsync.server.entities.User;
@@ -123,6 +124,39 @@ public class RestControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"from_id\":\"" + idTestUser + "\",\"to_id\":\"" + idRobertSmith + "\"}"))
                 .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    @Test
+    public void getAllRequestsTest() throws Exception {
+        String idRobertSmith = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/users/get-id-by-username")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"robertsmith\"}"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        String response = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/users/"+idRobertSmith+"/friend-requests"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        System.out.println(response);
+    }
+
+    @Test
+    public void registerAndSendRequestToRobert() throws Exception {
+
+        String userId = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/users/get-id-by-username")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"lautarom\"}"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        String roberId = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/users/get-id-by-username")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"robertsmith\"}"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/users/send-friend-request")
+                        .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"from_id\":\"" + userId + "\",\"to_id\":\"" + roberId + "\"}")).andExpect(MockMvcResultMatchers.status().isOk());
     }
 
 

@@ -4,11 +4,14 @@ import com.scholarsync.server.entities.FriendRequest;
 import com.scholarsync.server.entities.User;
 import com.scholarsync.server.repositories.FriendRequestRepository;
 import com.scholarsync.server.repositories.UserRepository;
+import org.hibernate.boot.jaxb.hbm.spi.JaxbHbmOuterJoinEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -49,6 +52,23 @@ public class UserService {
     public ResponseEntity<Object> getIdByUsername(Map<String, String> username) {
         Optional<User> user = userRepository.findUserByUsername(username.get("username"));
         return user.<ResponseEntity<Object>>map(value -> ResponseEntity.ok(value.getId())).orElseGet(() -> ResponseEntity.badRequest().body("user/not-found"));
+    }
+
+    public ResponseEntity<Object> getAllRequests(String id) {
+        Optional<User> user = userRepository.findById(id);
+        if (user.isEmpty()) {
+            return ResponseEntity.badRequest().body("user/not-found");
+        }
+        List<Map<String,Object>> response = new ArrayList<>();
+        for (FriendRequest friendRequest : user.get().getReceivedRequests()) {
+            response.add(Map.of(
+                    "id", friendRequest.getId(),
+                    "from", friendRequest.getFrom().getUsername(),
+                    "to", friendRequest.getTo().getUsername(),
+                    "created_at", friendRequest.getCreatedAt()
+            ));
+        }
+        return ResponseEntity.ok(response);
     }
 
 

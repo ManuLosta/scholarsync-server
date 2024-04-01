@@ -153,4 +153,6 @@ GET http://localhost:8080/api/v1/groups/getGroups?user_id=847363550040521594
 
 
 
+###
+GET http://localhost:8080/api/v1/users/b5377fe1-f637-472c-a04c-63ec2a230532/friend-requests
 

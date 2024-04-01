@@ -43,4 +43,10 @@ public class UserController {
     public ResponseEntity<Object> getIdByUsernames(@RequestBody Map<String,String> username){
         return userService.getIdByUsername(username);
     }
+
+    @GetMapping("/{id}/friend-requests")
+    public ResponseEntity<Object> getAllRequests(@PathVariable String id){
+        return userService.getAllRequests(id);
+
+    }
 }
