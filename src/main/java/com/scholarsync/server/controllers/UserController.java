@@ -2,6 +2,7 @@ package com.scholarsync.server.controllers;
 
 
 
+import com.scholarsync.server.entities.FriendRequest;
 import com.scholarsync.server.entities.User;
 import com.scholarsync.server.repositories.UserRepository;
 import com.scholarsync.server.services.UserService;
@@ -27,6 +28,7 @@ public class UserController {
         return userRepository.findAll();
     }
 
+
     @GetMapping("/{id}")
     public ResponseEntity<User> getUser(@PathVariable String id) {
         Optional<User> user = userRepository.findById(id);
@@ -34,10 +36,12 @@ public class UserController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+
     @PostMapping("/send-friend-request")
     public ResponseEntity<Object> sendFriendRequest(@RequestBody Map<String,String> friendRequestBody){
         return userService.sendFriendRequest(friendRequestBody);
     }
+
 
     @PostMapping("/get-id-by-username")
     public ResponseEntity<Object> getIdByUsernames(@RequestBody Map<String,String> username){
@@ -49,4 +53,25 @@ public class UserController {
         return userService.getAllRequests(id);
 
     }
+
+
+    @PostMapping("accept-friend/accept/{id}")
+    public List<User> acceptFriendRequest(
+            @PathVariable("id") String idRequest
+            ){
+            return userService.addFriend(idRequest);
+
+    }
+
+
+    @PostMapping("accept-friend/reject")
+    public void rejectFriendRequest(
+            @RequestBody FriendRequest friendRequest
+    ){
+
+        userService.deleteFriendRequest(friendRequest);
+
+    }
+
+
 }

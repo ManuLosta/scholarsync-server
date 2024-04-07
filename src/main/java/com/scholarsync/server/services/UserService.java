@@ -4,16 +4,11 @@ import com.scholarsync.server.entities.FriendRequest;
 import com.scholarsync.server.entities.User;
 import com.scholarsync.server.repositories.FriendRequestRepository;
 import com.scholarsync.server.repositories.UserRepository;
-import org.hibernate.boot.jaxb.hbm.spi.JaxbHbmOuterJoinEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 
@@ -70,6 +65,25 @@ public class UserService {
         }
         return ResponseEntity.ok(response);
     }
+
+    public void deleteFriendRequest(FriendRequest friendRequest){
+        friendRequestRepository.delete(friendRequest);
+    }
+
+    public List<User> addFriend(String idRequest){
+        FriendRequest friendRequest = friendRequestRepository.findFriendRequestById(idRequest);
+        User friend1 = friendRequest.getTo();
+        User friend2 = friendRequest.getFrom();
+
+        Set<User> usersFriend1 = new HashSet<>(friend1.getFriends());
+        usersFriend1.add(friend2);
+        friend1.setFriends(usersFriend1);
+
+        deleteFriendRequest(friendRequest);
+        return List.of(friend1, friend2);
+
+    }
+
 
 
 }
