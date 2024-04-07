@@ -2,7 +2,7 @@ package com.scholarsync.server.controllers;
 
 
 
-import com.scholarsync.server.entities.FriendRequest;
+
 import com.scholarsync.server.entities.User;
 import com.scholarsync.server.repositories.UserRepository;
 import com.scholarsync.server.services.UserService;
@@ -64,12 +64,12 @@ public class UserController {
     }
 
 
-    @PostMapping("accept-friend/reject")
+    @PostMapping("accept-friend/reject/{id}")
     public void rejectFriendRequest(
-            @RequestBody FriendRequest friendRequest
+            @PathVariable("id") String idRequest
     ){
 
-        userService.deleteFriendRequest(friendRequest);
+        userService.deleteFriendRequest(idRequest);
 
     }
 

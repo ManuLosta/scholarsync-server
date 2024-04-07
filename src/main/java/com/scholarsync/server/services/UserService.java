@@ -66,7 +66,9 @@ public class UserService {
         return ResponseEntity.ok(response);
     }
 
-    public void deleteFriendRequest(FriendRequest friendRequest){
+    public void deleteFriendRequest(String idRequest){
+
+        FriendRequest friendRequest = friendRequestRepository.findFriendRequestById(idRequest);
         friendRequestRepository.delete(friendRequest);
     }
 
@@ -79,7 +81,7 @@ public class UserService {
         usersFriend1.add(friend2);
         friend1.setFriends(usersFriend1);
 
-        deleteFriendRequest(friendRequest);
+        deleteFriendRequest(idRequest);
         return List.of(friend1, friend2);
 
     }
