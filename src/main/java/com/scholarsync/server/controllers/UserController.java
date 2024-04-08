@@ -55,22 +55,18 @@ public class UserController {
     }
 
 
-    @PostMapping("accept-friend/accept/{id}")
-    public List<User> acceptFriendRequest(
-            @PathVariable("id") String idRequest
-            ){
-            return userService.addFriend(idRequest);
+    @PostMapping("accept-request")
+    public ResponseEntity<Object> acceptFriendRequest(@RequestBody Map<String,String> friendRequestBody){
+        String id = friendRequestBody.get("id");
+        return userService.acceptFriendRequest(id);
 
     }
 
 
-    @PostMapping("accept-friend/reject/{id}")
-    public void rejectFriendRequest(
-            @PathVariable("id") String idRequest
-    ){
-
-        userService.deleteFriendRequest(idRequest);
-
+    @PostMapping("deny-request")
+    public ResponseEntity<Object> rejectFriendRequest(@RequestBody Map<String,String> friendRequestBody){
+        String id = friendRequestBody.get("id");
+        return userService.deleteFriendRequest(id);
     }
 
 

@@ -5,6 +5,7 @@ import com.scholarsync.server.entities.User;
 import com.scholarsync.server.repositories.FriendRequestRepository;
 import com.scholarsync.server.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -66,24 +67,46 @@ public class UserService {
         return ResponseEntity.ok(response);
     }
 
-    public void deleteFriendRequest(String idRequest){
 
-        FriendRequest friendRequest = friendRequestRepository.findFriendRequestById(idRequest);
-        friendRequestRepository.delete(friendRequest);
+
+    public ResponseEntity<Object> acceptFriendRequest(String idRequest){
+        Optional<FriendRequest> friendRequest = friendRequestRepository.findFriendRequestById(idRequest);
+        if (friendRequest.isEmpty()) {
+            return ResponseEntity.badRequest().body("friend-request/not-found");
+        }
+        FriendRequest request = friendRequest.get();
+        User friend1 = request.getTo();
+        User friend2 = request.getFrom();
+
+        Set<User> usersFriend1 = friend1.getFriends();
+        Set<User> usersFriend2 = friend2.getFriends();
+
+        if (usersFriend1 == null) {
+            usersFriend1 = new HashSet<>();
+        }
+        if (usersFriend2 == null) {
+            usersFriend2 = new HashSet<>();
+        }
+
+        usersFriend1.add(friend2);
+        usersFriend2.add(friend1);
+        friend1.setFriends(usersFriend1);
+        friend2.setFriends(usersFriend2);
+        friendRequestRepository.delete(request);
+        userRepository.save(friend1);
+        userRepository.save(friend2);
+        String message = "friend-request/accepted";
+        return new ResponseEntity<>(message, HttpStatus.OK);
+
     }
 
-    public List<User> addFriend(String idRequest){
-        FriendRequest friendRequest = friendRequestRepository.findFriendRequestById(idRequest);
-        User friend1 = friendRequest.getTo();
-        User friend2 = friendRequest.getFrom();
-
-        Set<User> usersFriend1 = new HashSet<>(friend1.getFriends());
-        usersFriend1.add(friend2);
-        friend1.setFriends(usersFriend1);
-
-        deleteFriendRequest(idRequest);
-        return List.of(friend1, friend2);
-
+    public ResponseEntity<Object> deleteFriendRequest(String idRequest){
+        Optional<FriendRequest> friendRequest = friendRequestRepository.findFriendRequestById(idRequest);
+        if (friendRequest.isEmpty()) {
+            return ResponseEntity.badRequest().body("friend-request/not-found");
+        }
+        friendRequestRepository.delete(friendRequest.get());
+        return new ResponseEntity<>("friend-request/denied", HttpStatus.OK);
     }
 
 

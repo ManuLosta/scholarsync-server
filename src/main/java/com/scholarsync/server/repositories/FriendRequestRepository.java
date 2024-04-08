@@ -8,6 +8,6 @@ import java.util.Optional;
 
 public interface FriendRequestRepository extends JpaRepository<FriendRequest, String> {
     boolean existsByFromAndTo(User from, User to);
-    FriendRequest findFriendRequestById(String id);
+    Optional<FriendRequest> findFriendRequestById(String id);
     Optional<FriendRequest> findAllByTo(User user);
 }
