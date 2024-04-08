@@ -37,36 +37,9 @@ public class UserController {
     }
 
 
-    @PostMapping("/send-friend-request")
-    public ResponseEntity<Object> sendFriendRequest(@RequestBody Map<String,String> friendRequestBody){
-        return userService.sendFriendRequest(friendRequestBody);
-    }
-
-
     @PostMapping("/get-id-by-username")
     public ResponseEntity<Object> getIdByUsernames(@RequestBody Map<String,String> username){
         return userService.getIdByUsername(username);
-    }
-
-    @GetMapping("/{id}/friend-requests")
-    public ResponseEntity<Object> getAllRequests(@PathVariable String id){
-        return userService.getAllRequests(id);
-
-    }
-
-
-    @PostMapping("accept-request")
-    public ResponseEntity<Object> acceptFriendRequest(@RequestBody Map<String,String> friendRequestBody){
-        String id = friendRequestBody.get("id");
-        return userService.acceptFriendRequest(id);
-
-    }
-
-
-    @PostMapping("deny-request")
-    public ResponseEntity<Object> rejectFriendRequest(@RequestBody Map<String,String> friendRequestBody){
-        String id = friendRequestBody.get("id");
-        return userService.deleteFriendRequest(id);
     }
 
 
