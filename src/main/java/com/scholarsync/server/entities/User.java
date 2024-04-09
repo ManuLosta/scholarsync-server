@@ -2,223 +2,214 @@ package com.scholarsync.server.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
+import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
 @Table(name = "users")
 public class User {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id", unique = true)
-    private String id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  @Column(name = "id", unique = true)
+  private String id;
 
-    @Column(nullable = false, unique = true)
-    private String email;
+  @Column(nullable = false, unique = true)
+  private String email;
 
-    @Column(unique = true)
-    private String username;
+  @Column(unique = true)
+  private String username;
 
-    @Column
-    private String password;
+  @Column private String password;
 
-    @Column(name = "first_name")
-    private String firstName;
+  @Column(name = "first_name")
+  private String firstName;
 
-    @Column(name = "last_name")
-    private String lastName;
+  @Column(name = "last_name")
+  private String lastName;
 
-    @Column(name = "birth_date")
-    private LocalDate birthDate;
+  @Column(name = "birth_date")
+  private LocalDate birthDate;
 
-    @CreationTimestamp
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
+  @CreationTimestamp
+  @Column(name = "created_at")
+  private LocalDateTime createdAt;
 
-    @Column(name = "credits")
-    private int credits;
+  @Column(name = "credits")
+  private int credits;
 
-    @Column(name = "xp")
-    private int xp;
+  @Column(name = "xp")
+  private int xp;
 
-    @Column(name = "level_id")
-    private long levelId = 0;
+  @Column(name = "level_id")
+  private long levelId = 0;
 
-    @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
-    @PrimaryKeyJoinColumn
-    @JsonIgnoreProperties({"createdBy", "users"})
-    private Set<Group> owner;
+  @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
+  @PrimaryKeyJoinColumn
+  @JsonIgnoreProperties({"createdBy", "users"})
+  private Set<Group> owner;
 
-    @ManyToMany
-    @JoinTable(
-            name = "user_group",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "group_id")
-    )
-    @JsonIgnoreProperties("users")
-    private Set<Group> groups;
+  @ManyToMany
+  @JoinTable(
+      name = "user_group",
+      joinColumns = @JoinColumn(name = "user_id"),
+      inverseJoinColumns = @JoinColumn(name = "group_id"))
+  @JsonIgnoreProperties("users")
+  private Set<Group> groups;
 
-    @ManyToMany
-    @JoinTable(
-            name = "friend_with",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "friend_id")
+  @ManyToMany
+  @JoinTable(
+      name = "friend_with",
+      joinColumns = @JoinColumn(name = "user_id"),
+      inverseJoinColumns = @JoinColumn(name = "friend_id"))
+  private Set<User> friends;
 
-    )
-    private Set<User> friends;
+  @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+  private Set<Notification> receivedNotifications;
 
+  @OneToMany(mappedBy = "from", cascade = CascadeType.ALL)
+  private Set<FriendRequest> sentFriendRequests;
 
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
-    private Set<Notification> receivedNotifications;
+  @OneToMany(mappedBy = "to", cascade = CascadeType.ALL)
+  private Set<FriendRequest> receivedFriendRequests;
 
-    @OneToMany(mappedBy = "from", cascade = CascadeType.ALL)
-    private Set<FriendRequest> sentFriendRequests;
+  public User() {}
 
-    @OneToMany(mappedBy = "to", cascade = CascadeType.ALL)
-    private Set<FriendRequest> receivedFriendRequests;
+  public String getId() {
+    return id;
+  }
 
-    public User() {
-    }
+  public void setId(String id) {
+    this.id = id;
+  }
 
-    public String getId() {
-        return id;
-    }
+  public String getEmail() {
+    return email;
+  }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+  public void setEmail(String email) {
+    this.email = email;
+  }
 
-    public String getEmail() {
-        return email;
-    }
+  public String getPassword() {
+    return password;
+  }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+  public void setPassword(String password) {
+    this.password = password;
+  }
 
-    public String getPassword() {
-        return password;
-    }
+  public String getFirstName() {
+    return firstName;
+  }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
+  public void setFirstName(String firstName) {
+    this.firstName = firstName;
+  }
 
-    public String getFirstName() {
-        return firstName;
-    }
+  public String getLastName() {
+    return lastName;
+  }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
+  public void setLastName(String lastName) {
+    this.lastName = lastName;
+  }
 
-    public String getLastName() {
-        return lastName;
-    }
+  public LocalDate getBirthDate() {
+    return birthDate;
+  }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
+  public void setBirthDate(LocalDate birthDate) {
+    this.birthDate = birthDate;
+  }
 
-    public LocalDate getBirthDate() {
-        return birthDate;
-    }
+  public LocalDateTime getCreatedAt() {
+    return createdAt;
+  }
 
-    public void setBirthDate(LocalDate birthDate) {
-        this.birthDate = birthDate;
-    }
+  public void setCreatedAt(LocalDateTime createdAt) {
+    this.createdAt = createdAt;
+  }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
+  public int getCredits() {
+    return credits;
+  }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
+  public void setCredits(int credits) {
+    this.credits = credits;
+  }
 
-    public int getCredits() {
-        return credits;
-    }
+  public int getXp() {
+    return xp;
+  }
 
-    public void setCredits(int credits) {
-        this.credits = credits;
-    }
+  public void setXp(int xp) {
+    this.xp = xp;
+  }
 
-    public int getXp() {
-        return xp;
-    }
+  public long getLevelId() {
+    return levelId;
+  }
 
-    public void setXp(int xp) {
-        this.xp = xp;
-    }
+  public void setLevelId(long levelId) {
+    this.levelId = levelId;
+  }
 
-    public long getLevelId() {
-        return levelId;
-    }
+  public String getUsername() {
+    return username;
+  }
 
-    public void setLevelId(long levelId) {
-        this.levelId = levelId;
-    }
+  public void setUsername(String username) {
+    this.username = username;
+  }
 
-    public String getUsername() {
-        return username;
-    }
+  public Set<Group> getOwner() {
+    return owner;
+  }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
+  public void setOwner(Set<Group> owner) {
+    this.owner = owner;
+  }
 
-    public Set<Group> getOwner() {
-        return owner;
-    }
+  public Set<Group> getGroups() {
+    return groups;
+  }
 
-    public void setOwner(Set<Group> owner) {
-        this.owner = owner;
-    }
+  public void setGroups(Set<Group> groups) {
+    this.groups = groups;
+  }
 
-    public Set<Group> getGroups() {
-        return groups;
-    }
+  public Set<User> getFriends() {
+    return friends;
+  }
 
-    public void setGroups(Set<Group> groups) {
-        this.groups = groups;
-    }
+  public void setFriends(Set<User> friends) {
+    this.friends = friends;
+  }
 
-    public Set<User> getFriends() {
-        return friends;
-    }
+  public Set<Notification> getReceivedNotifications() {
+    return receivedNotifications;
+  }
 
-    public void setFriends(Set<User> friends) {
-        this.friends = friends;
-    }
+  public void setReceivedNotifications(Set<Notification> receivedNotifications) {
+    this.receivedNotifications = receivedNotifications;
+  }
 
-    public Set<Notification> getReceivedNotifications() {
-        return receivedNotifications;
-    }
+  public Set<FriendRequest> getSentFriendRequests() {
+    return sentFriendRequests;
+  }
 
-    public void setReceivedNotifications(Set<Notification> receivedNotifications) {
-        this.receivedNotifications = receivedNotifications;
-    }
+  public void setSentFriendRequests(Set<FriendRequest> sentFriendRequests) {
+    this.sentFriendRequests = sentFriendRequests;
+  }
 
-    public Set<FriendRequest> getSentFriendRequests() {
-        return sentFriendRequests;
-    }
+  public Set<FriendRequest> getReceivedFriendRequests() {
+    return receivedFriendRequests;
+  }
 
-    public void setSentFriendRequests(Set<FriendRequest> sentFriendRequests) {
-        this.sentFriendRequests = sentFriendRequests;
-    }
-
-    public Set<FriendRequest> getReceivedFriendRequests() {
-        return receivedFriendRequests;
-    }
-
-    public void setReceivedFriendRequests(Set<FriendRequest> receivedFriendRequests) {
-        this.receivedFriendRequests = receivedFriendRequests;
-    }
-
-
+  public void setReceivedFriendRequests(Set<FriendRequest> receivedFriendRequests) {
+    this.receivedFriendRequests = receivedFriendRequests;
+  }
 }

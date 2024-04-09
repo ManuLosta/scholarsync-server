@@ -3,3 +3,8 @@
 ```bash
 docker compose up
 ```
+
+### spotless
+```bash
+./gradlew spotlessApply
+```

@@ -1,12 +1,10 @@
 package com.scholarsync.server.repositories;
 
 import com.scholarsync.server.entities.Notification;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.Optional;
+public interface NotificationRepository extends JpaRepository<Notification, String> {
 
-
-public interface NotificationRepository extends JpaRepository<Notification, String>{
-
-    Optional<Notification> findByNotificationId(String notificationId);
+  Optional<Notification> findByNotificationId(String notificationId);
 }

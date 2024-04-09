@@ -1,96 +1,89 @@
 package com.scholarsync.server.entities;
 
-
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
-
-import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
 @Table(name = "groups")
 public class Group {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "group_id", unique = true)
-    String id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  @Column(name = "group_id", unique = true)
+  String id;
 
+  @Column(name = "title", unique = true)
+  String title;
 
-    @Column(name = "title", unique = true)
-    String title;
+  @Column(name = "description")
+  String description;
 
-    @Column(name = "description")
+  @Column(name = "isPrivate")
+  boolean isPrivate;
 
-    String description;
+  @ManyToOne
+  @JoinColumn(name = "created_by")
+  @JsonBackReference
+  private User createdBy;
 
-    @Column(name = "isPrivate")
+  @ManyToMany(mappedBy = "groups")
+  @JsonIgnoreProperties("groups")
+  Set<User> users = new HashSet<>();
 
-    boolean isPrivate;
+  @CreationTimestamp
+  @Column(name = "created_at")
+  private LocalDateTime createdAt;
 
-    @ManyToOne
-    @JoinColumn(name = "created_by")
-    @JsonBackReference
-    private User createdBy;
+  public String getId() {
+    return id;
+  }
 
-    @ManyToMany(mappedBy = "groups")
-    @JsonIgnoreProperties("groups")
-    Set<User> users = new HashSet<>();
+  public void setId(String id) {
+    this.id = id;
+  }
 
-    @CreationTimestamp
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
+  public String getTitle() {
+    return title;
+  }
 
-    public String getId() {
-        return id;
-    }
+  public void setTitle(String title) {
+    this.title = title;
+  }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+  public String getDescription() {
+    return description;
+  }
 
-    public String getTitle() {
-        return title;
-    }
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
+  public boolean isPrivate() {
+    return isPrivate;
+  }
 
-    public String getDescription() {
-        return description;
-    }
+  public void setPrivate(boolean aPrivate) {
+    isPrivate = aPrivate;
+  }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+  public User getCreatedBy() {
+    return createdBy;
+  }
 
-    public boolean isPrivate() {
-        return isPrivate;
-    }
+  public void setCreatedBy(User createdBy) {
+    this.createdBy = createdBy;
+  }
 
-    public void setPrivate(boolean aPrivate) {
-        isPrivate = aPrivate;
-    }
+  public Set<User> getUsers() {
+    return users;
+  }
 
-    public User getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(User createdBy) {
-        this.createdBy = createdBy;
-    }
-
-    public Set<User> getUsers() {
-        return users;
-    }
-
-    public void setUsers(Set<User> users) {
-        this.users = users;
-    }
-
+  public void setUsers(Set<User> users) {
+    this.users = users;
+  }
 }
