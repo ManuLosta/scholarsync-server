@@ -1,9 +1,12 @@
 package com.scholarsync.server.services;
 
 import com.scholarsync.server.entities.FriendRequest;
+import com.scholarsync.server.entities.Notification;
 import com.scholarsync.server.entities.User;
 import com.scholarsync.server.repositories.FriendRequestRepository;
+import com.scholarsync.server.repositories.NotificationRepository;
 import com.scholarsync.server.repositories.UserRepository;
+import com.scholarsync.server.types.NotificationType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +16,8 @@ import java.util.*;
 
 @Service
 public class FriendRequestService {
+    @Autowired
+    private NotificationRepository notificationRepository;
 
     @Autowired
     private FriendRequestRepository friendRequestRepository;
@@ -35,10 +40,11 @@ public class FriendRequestService {
         friendRequest.setFrom(fromEntry.get());
         friendRequest.setTo(toEntry.get());
 
-        if(friendRequestRepository.existsByFromAndTo(fromEntry.get(), toEntry.get())){
+        if (friendRequestRepository.existsByFromAndTo(fromEntry.get(), toEntry.get())) {
             return ResponseEntity.badRequest().body("friend-request/already-sent");
         }
         friendRequestRepository.save(friendRequest);
+
 
         return ResponseEntity.ok("friend-request/sent");
 
@@ -49,22 +55,23 @@ public class FriendRequestService {
         if (user.isEmpty()) {
             return ResponseEntity.badRequest().body("user/not-found");
         }
-        List<Map<String,Object>> response = new ArrayList<>();
-        for (FriendRequest friendRequest : user.get().getReceivedRequests()) {
-            response.add(Map.of(
-                    "id", friendRequest.getId(),
-                    "from", friendRequest.getFrom().getUsername(),
-                    "to", friendRequest.getTo().getUsername(),
-                    "created_at", friendRequest.getCreatedAt()
-            ));
+        List<Map<String, Object>> response = new ArrayList<>();
+        for (FriendRequest friendRequest : user.get().getReceivedFriendRequests()) {
+            Map<String, Object> request = new HashMap<>();
+            request.put("id", friendRequest.getNotificationId());
+            request.put("from", (friendRequest).getFrom().getUsername());
+            response.add(request);
         }
         return ResponseEntity.ok(response);
     }
 
-    public ResponseEntity<Object> acceptFriendRequest(String idRequest){
-        Optional<FriendRequest> friendRequest = friendRequestRepository.findFriendRequestById(idRequest);
+    public ResponseEntity<Object> acceptFriendRequest(String idRequest) {
+        Optional<FriendRequest> friendRequest = friendRequestRepository.findById(idRequest);
         if (friendRequest.isEmpty()) {
             return ResponseEntity.badRequest().body("friend-request/not-found");
+        }
+        if (friendRequest.get().getNotifactionType() != NotificationType.FRIEND_REQUEST) {
+            return ResponseEntity.badRequest().body("notification/not-friend-request");
         }
         FriendRequest request = friendRequest.get();
         User friend1 = request.getTo();
@@ -91,8 +98,9 @@ public class FriendRequestService {
         return new ResponseEntity<>(message, HttpStatus.OK);
 
     }
-    public ResponseEntity<Object> deleteFriendRequest(String idRequest){
-        Optional<FriendRequest> friendRequest = friendRequestRepository.findFriendRequestById(idRequest);
+
+    public ResponseEntity<Object> deleteFriendRequest(String idRequest) {
+        Optional<FriendRequest> friendRequest = friendRequestRepository.findById(idRequest);
         if (friendRequest.isEmpty()) {
             return ResponseEntity.badRequest().body("friend-request/not-found");
         }

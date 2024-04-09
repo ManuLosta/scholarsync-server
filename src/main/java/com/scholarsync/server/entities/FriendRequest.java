@@ -2,24 +2,15 @@ package com.scholarsync.server.entities;
 
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.scholarsync.server.types.NotificationType;
 import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "friend_request")
+@PrimaryKeyJoinColumn(name = "friend_request_id")
+public class FriendRequest extends Notification {
 
-public class FriendRequest {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "request_id", unique = true)
-    private String id;
-
-    @Column(name = "created_at")
-    @CreationTimestamp
-    private LocalDateTime createdAt;
 
     @Column(name = "accepted")
     private boolean accepted;
@@ -34,25 +25,10 @@ public class FriendRequest {
     @JoinColumn(name = "to_id")
     private User to;
 
+
     public FriendRequest() {
         this.accepted = false;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+        this.setNotifactionType(NotificationType.FRIEND_REQUEST);
     }
 
     public boolean isAccepted() {
@@ -77,6 +53,13 @@ public class FriendRequest {
 
     public void setTo(User to) {
         this.to = to;
+        setOwner(to);
     }
+
+    @Override
+    public void setOwner(User owner) {
+        super.setOwner(owner);
+    }
+
 
 }

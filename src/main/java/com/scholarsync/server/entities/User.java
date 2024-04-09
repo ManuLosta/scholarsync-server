@@ -1,7 +1,6 @@
 package com.scholarsync.server.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -72,15 +71,18 @@ public class User {
     )
     private Set<User> friends;
 
+
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    private Set<Notification> receivedNotifications;
+
     @OneToMany(mappedBy = "from", cascade = CascadeType.ALL)
-    @JsonManagedReference
-    private Set<FriendRequest> sentRequests;
+    private Set<FriendRequest> sentFriendRequests;
 
     @OneToMany(mappedBy = "to", cascade = CascadeType.ALL)
-    @JsonManagedReference
-    private Set<FriendRequest> receivedRequests;
+    private Set<FriendRequest> receivedFriendRequests;
 
-    public User() { }
+    public User() {
+    }
 
     public String getId() {
         return id;
@@ -194,19 +196,29 @@ public class User {
         this.friends = friends;
     }
 
-    public Set<FriendRequest> getSentRequests() {
-        return sentRequests;
+    public Set<Notification> getReceivedNotifications() {
+        return receivedNotifications;
     }
 
-    public void setSentRequests(Set<FriendRequest> sentRequests) {
-        this.sentRequests = sentRequests;
+    public void setReceivedNotifications(Set<Notification> receivedNotifications) {
+        this.receivedNotifications = receivedNotifications;
     }
 
-    public Set<FriendRequest> getReceivedRequests() {
-        return receivedRequests;
+    public Set<FriendRequest> getSentFriendRequests() {
+        return sentFriendRequests;
     }
 
-    public void setReceivedRequests(Set<FriendRequest> receivedRequests) {
-        this.receivedRequests = receivedRequests;
+    public void setSentFriendRequests(Set<FriendRequest> sentFriendRequests) {
+        this.sentFriendRequests = sentFriendRequests;
     }
+
+    public Set<FriendRequest> getReceivedFriendRequests() {
+        return receivedFriendRequests;
+    }
+
+    public void setReceivedFriendRequests(Set<FriendRequest> receivedFriendRequests) {
+        this.receivedFriendRequests = receivedFriendRequests;
+    }
+
+
 }

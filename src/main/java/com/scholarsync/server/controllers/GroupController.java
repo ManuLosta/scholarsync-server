@@ -16,7 +16,7 @@ public class GroupController {
     private GroupService groupService;
 
     @PostMapping("/create")
-    public ResponseEntity<Object> createGroup(@RequestBody Map<String,Object> group) {
+    public ResponseEntity<Object> createGroup(@RequestBody Map<String, Object> group) {
         return groupService.createGroup(group);
     }
 
@@ -30,7 +30,6 @@ public class GroupController {
     public ResponseEntity<Object> getGroup(@RequestParam(name = "group_id") String id) {
         return groupService.getGroup(id);
     }
-
 
 
 }
