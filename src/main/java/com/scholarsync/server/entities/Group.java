@@ -39,6 +39,9 @@ public class Group {
   @Column(name = "created_at")
   private LocalDateTime createdAt;
 
+  @OneToMany(mappedBy = "group", cascade = CascadeType.ALL)
+  private Set<GroupInvitation> groupInvitations;
+
   public String getId() {
     return id;
   }

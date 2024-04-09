@@ -75,6 +75,9 @@ public class User {
   @OneToMany(mappedBy = "to", cascade = CascadeType.ALL)
   private Set<FriendRequest> receivedFriendRequests;
 
+  @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL)
+  private Set<GroupInvitation> groupInvitations;
+
   public User() {}
 
   public String getId() {
