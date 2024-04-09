@@ -10,4 +10,6 @@ public interface SessionRepository extends JpaRepository<Session, Long> {
   Optional<Session> getSessionById(String sessionId);
 
   Optional<Session> findSessionByUserId(String userId);
+
+  boolean existsSessionById(String sessionId);
 }

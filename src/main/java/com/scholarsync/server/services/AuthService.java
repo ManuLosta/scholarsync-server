@@ -65,8 +65,7 @@ public class AuthService {
       if (optionalSession.isPresent()) {
         Session session = optionalSession.get();
         if (sessionService.isSessionExpired(session.getId())) {
-          sessionService.addTime(session);
-          return new ResponseEntity<>(session.getId(), HttpStatus.OK);
+          sessionRepository.delete(session);
         } else {
           sessionRepository.delete(session);
         }
@@ -78,6 +77,15 @@ public class AuthService {
     } else {
       return new ResponseEntity<>("auth/wrong-password", HttpStatus.UNAUTHORIZED);
     }
+  }
+
+  public ResponseEntity<Object> logout(String sessionId) {
+    Optional<Session> session = sessionRepository.getSessionById(sessionId);
+    if (session.isPresent()) {
+      sessionRepository.delete(session.get());
+      return new ResponseEntity<>("auth/logout-success", HttpStatus.OK);
+    }
+    return new ResponseEntity<>("auth/session-not-found", HttpStatus.NOT_FOUND);
   }
 
   public Optional<User> convertToEntity(LoginDTO userDTO) {

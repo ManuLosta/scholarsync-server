@@ -17,6 +17,25 @@ public class GroupService {
   @Autowired private GroupRepository groupRepository;
   @Autowired private UserRepository userRepository;
 
+  private static List<Map<String, Object>> getGroupList(User user) {
+    Set<Group> groups = user.getGroups();
+    List<Map<String, Object>> response = new ArrayList<>();
+    for (Group group : groups) {
+      Map<String, Object> groupMap = new HashMap<>();
+      createGroup(group, groupMap);
+      response.add(groupMap);
+    }
+    return response;
+  }
+
+  private static void createGroup(Group group, Map<String, Object> groupMap) {
+    groupMap.put("id", group.getId());
+    groupMap.put("title", group.getTitle());
+    groupMap.put("description", group.getDescription());
+    groupMap.put("isPrivate", group.isPrivate());
+    groupMap.put("createdBy", group.getCreatedBy().getId());
+  }
+
   /**
    * Método createGroup
    *
@@ -99,25 +118,6 @@ public class GroupService {
       List<Map<String, Object>> response = getGroupList(user);
       return new ResponseEntity<>(response, HttpStatus.OK);
     }
-  }
-
-  private static List<Map<String, Object>> getGroupList(User user) {
-    Set<Group> groups = user.getGroups();
-    List<Map<String, Object>> response = new ArrayList<>();
-    for (Group group : groups) {
-      Map<String, Object> groupMap = new HashMap<>();
-      createGroup(group, groupMap);
-      response.add(groupMap);
-    }
-    return response;
-  }
-
-  private static void createGroup(Group group, Map<String, Object> groupMap) {
-    groupMap.put("id", group.getId());
-    groupMap.put("title", group.getTitle());
-    groupMap.put("description", group.getDescription());
-    groupMap.put("isPrivate", group.isPrivate());
-    groupMap.put("createdBy", group.getCreatedBy().getId());
   }
 
   /**

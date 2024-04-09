@@ -52,7 +52,9 @@ public class FriendRequestService {
     for (FriendRequest friendRequest : user.get().getReceivedFriendRequests()) {
       Map<String, Object> request = new HashMap<>();
       request.put("id", friendRequest.getNotificationId());
-      request.put("from", (friendRequest).getFrom().getUsername());
+      request.put("from", friendRequest.getFrom().getUsername());
+      request.put("to", friendRequest.getTo().getUsername());
+      request.put("created_at", friendRequest.getCreatedAt());
       response.add(request);
     }
     return ResponseEntity.ok(response);

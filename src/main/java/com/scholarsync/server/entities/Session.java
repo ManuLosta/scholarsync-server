@@ -24,7 +24,7 @@ public class Session {
   private User user;
 
   public Session() {
-    this.expires = LocalDateTime.now().plusHours(1);
+    this.expires = LocalDateTime.now().plusDays(1);
   }
 
   public LocalDateTime getExpires() {
@@ -51,11 +51,11 @@ public class Session {
     this.created = created;
   }
 
-  public void setUser(User user) {
-    this.user = user;
-  }
-
   public User getUser() {
     return user;
+  }
+
+  public void setUser(User user) {
+    this.user = user;
   }
 }

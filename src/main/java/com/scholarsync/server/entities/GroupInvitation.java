@@ -14,12 +14,12 @@ public class GroupInvitation extends Notification {
   @JoinColumn(name = "group_id")
   Group group;
 
+  boolean accepted;
+
   @ManyToOne
   @JsonBackReference
   @JoinColumn(name = "id")
   private User userId;
-
-  boolean accepted;
 
   public GroupInvitation() {
     this.accepted = false;

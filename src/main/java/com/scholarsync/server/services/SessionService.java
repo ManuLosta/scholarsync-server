@@ -25,7 +25,6 @@ public class SessionService {
     Optional<Session> session = sessionRepository.getSessionById(sessionId);
     if (session.isPresent()) {
       if (session.get().getExpires().isAfter(LocalDateTime.now())) {
-        addTime(session.get());
         User user = session.get().getUser();
         RefreshDTO refreshDTO = new RefreshDTO();
         refreshDTO.setId(user.getId());
