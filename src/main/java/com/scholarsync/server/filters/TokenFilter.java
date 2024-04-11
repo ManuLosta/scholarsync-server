@@ -23,7 +23,7 @@ public class TokenFilter extends OncePerRequestFilter {
   @Override
   protected boolean shouldNotFilter(HttpServletRequest request) {
     String path = request.getServletPath();
-    return path.contains("/api/v1/auth");
+    return path.contains("/api/v1/auth") || "OPTIONS".equalsIgnoreCase(request.getMethod());
   }
 
   @Override
@@ -34,12 +34,14 @@ public class TokenFilter extends OncePerRequestFilter {
     if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
       String bearerToken = authorizationHeader.substring(7);
       if (sessionRepository.existsSessionById(bearerToken)) {
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         chain.doFilter(request, response);
+      } else {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
       }
     } else {
       response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-      return;
+      response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
     }
   }
 }
