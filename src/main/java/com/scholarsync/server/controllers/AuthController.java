@@ -27,9 +27,9 @@ public class AuthController {
   }
 
   @PostMapping("/logout")
-    public ResponseEntity<Object> logout(@RequestBody Map<String, String> requestBody) {
-        return authService.logout(requestBody.get("sessionId"));
-    }
+  public ResponseEntity<Object> logout(@RequestBody Map<String, String> requestBody) {
+    return authService.logout(requestBody.get("sessionId"));
+  }
 
   @PostMapping("/refresh")
   public ResponseEntity<Object> refresh(@RequestBody Map<String, String> requestBody) {

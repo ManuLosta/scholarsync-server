@@ -1,5 +1,6 @@
 package com.scholarsync.server.services;
 
+import com.scholarsync.server.dtos.FriendRequesInvitationDTO;
 import com.scholarsync.server.entities.FriendRequest;
 import com.scholarsync.server.entities.User;
 import com.scholarsync.server.repositories.FriendRequestRepository;
@@ -7,6 +8,7 @@ import com.scholarsync.server.repositories.NotificationRepository;
 import com.scholarsync.server.repositories.UserRepository;
 import com.scholarsync.server.types.NotificationType;
 import java.util.*;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,15 +50,16 @@ public class FriendRequestService {
     if (user.isEmpty()) {
       return ResponseEntity.badRequest().body("user/not-found");
     }
-    List<Map<String, Object>> response = new ArrayList<>();
-    for (FriendRequest friendRequest : user.get().getReceivedFriendRequests()) {
-      Map<String, Object> request = new HashMap<>();
-      request.put("id", friendRequest.getNotificationId());
-      request.put("from", friendRequest.getFrom().getUsername());
-      request.put("to", friendRequest.getTo().getUsername());
-      request.put("created_at", friendRequest.getCreatedAt());
-      response.add(request);
-    }
+    List<FriendRequesInvitationDTO> response =
+        user.get().getReceivedFriendRequests().stream()
+            .map(
+                friendRequest ->
+                    new FriendRequesInvitationDTO(
+                        friendRequest.getNotificationId(),
+                        friendRequest.getFrom().getId(),
+                        friendRequest.getTo().getId(),
+                        friendRequest.getCreatedAt().toString()))
+            .collect(Collectors.toList());
     return ResponseEntity.ok(response);
   }
 
