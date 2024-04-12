@@ -215,4 +215,12 @@ public class User {
   public void setReceivedFriendRequests(Set<FriendRequest> receivedFriendRequests) {
     this.receivedFriendRequests = receivedFriendRequests;
   }
+
+    public Set<GroupInvitation> getGroupInvitations() {
+        return groupInvitations;
+    }
+
+    public void setGroupInvitations(Set<GroupInvitation> groupInvitations) {
+        this.groupInvitations = groupInvitations;
+    }
 }

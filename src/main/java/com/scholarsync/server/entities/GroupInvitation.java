@@ -47,4 +47,12 @@ public class GroupInvitation extends Notification {
   public void setOwner(User owner) {
     super.setOwner(owner);
   }
+
+    public boolean isAccepted() {
+        return accepted;
+    }
+
+    public void setAccepted(boolean accepted) {
+        this.accepted = accepted;
+    }
 }
