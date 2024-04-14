@@ -1,5 +1,7 @@
 package com.scholarsync.server.services;
 
+import com.scholarsync.server.dtos.ProfileDTO;
+import com.scholarsync.server.entities.Group;
 import com.scholarsync.server.entities.User;
 import com.scholarsync.server.repositories.UserRepository;
 import java.util.*;
@@ -17,4 +19,19 @@ public class UserService {
     return user.<ResponseEntity<Object>>map(value -> ResponseEntity.ok(value.getId()))
         .orElseGet(() -> ResponseEntity.badRequest().body("user/not-found"));
   }
+
+    public ProfileDTO getProfileInfo(String id) {
+
+      User user = userRepository.findUserById(id);
+      int numAnswers = 4;    //todo implement
+      int numQuestions = 20; //todo implement
+      List<String> groupList = List.of();
+      for (Group group : user.getGroups()){
+        groupList.add(group.getTitle());
+      }
+
+      ProfileDTO profileDTO = new ProfileDTO(user.getUsername(), user.getFirstName(), user.getLastName(), user.getFriends().size(), user.getCredits(), numQuestions, numAnswers, groupList);
+      return profileDTO;
+
+    }
 }
