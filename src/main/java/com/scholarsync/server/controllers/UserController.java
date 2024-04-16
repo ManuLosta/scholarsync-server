@@ -1,5 +1,6 @@
 package com.scholarsync.server.controllers;
 
+import com.scholarsync.server.dtos.ProfileDTO;
 import com.scholarsync.server.entities.User;
 import com.scholarsync.server.repositories.UserRepository;
 import com.scholarsync.server.services.UserService;
@@ -33,4 +34,11 @@ public class UserController {
   public ResponseEntity<Object> getIdByUsernames(@RequestBody Map<String, String> username) {
     return userService.getIdByUsername(username);
   }
+
+  @GetMapping("/profile/{id}")
+  public ProfileDTO getProfileInfo(@PathVariable String id){
+    return userService.getProfileInfo(id);
+  }
+
+
 }

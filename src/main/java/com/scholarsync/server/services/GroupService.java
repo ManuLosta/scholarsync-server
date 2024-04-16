@@ -156,13 +156,13 @@ public class GroupService {
       notified.setGroups(Set.of(invitedTo));
     } // add group to user
     Set<User> participants = invitedTo.getUsers();
-    if(participants != null) {
+    if (participants != null) {
       participants.add(notified);
     } else {
       invitedTo.setUsers(Set.of(notified));
     }
     invitedTo.setUsers(participants); // add user to group
-    groupRepository.save(invitedTo);//update group
-    userRepository.save(notified); //update user
+    groupRepository.save(invitedTo); // update group
+    userRepository.save(notified); // update user
   }
 }

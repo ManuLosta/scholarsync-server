@@ -1,14 +1,12 @@
 package com.scholarsync.server.services;
 
-import com.scholarsync.server.dtos.GroupDTO;
+import com.scholarsync.server.dtos.GroupNotificationDTO;
 import com.scholarsync.server.entities.*;
 import com.scholarsync.server.repositories.*;
+import java.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
-
-import java.util.*;
 
 @Service
 public class GroupInvitationService {
@@ -16,6 +14,7 @@ public class GroupInvitationService {
   @Autowired private GroupInvitationRepository groupInvitationRepository;
   @Autowired private GroupRepository groupRepository;
   @Autowired private UserRepository userRepository;
+  @Autowired private NotificationRepository notificationRepository;
 
   public ResponseEntity<Object> sendGroupInvitation(Map<String, Object> groupInvitationBody) {
     String groupId = (String) groupInvitationBody.get("group_id");
@@ -59,7 +58,7 @@ public class GroupInvitationService {
     User notified = groupInvitation.get().getUserId();
     groupService.addUserToGroup(invitedTo, notified); // add user to group
     notified.getGroupInvitations().remove(groupInvitation.get()); // remove invitation from user
-    groupInvitationRepository.delete(groupInvitation.get()); // delete invitation
+    notificationRepository.delete(groupInvitation.get()); // delete invitation
     return ResponseEntity.ok("group-invitation/accepted");
   }
 
@@ -71,7 +70,7 @@ public class GroupInvitationService {
     }
     User notified = groupInvitation.get().getUserId();
     notified.getGroupInvitations().remove(groupInvitation.get()); // remove invitation from user
-    groupInvitationRepository.delete(groupInvitation.get()); // delete invitation
+    notificationRepository.delete(groupInvitation.get());
     return ResponseEntity.ok("group-invitation/declined");
   }
 
@@ -81,15 +80,16 @@ public class GroupInvitationService {
       return ResponseEntity.badRequest().body("user/not-found");
     }
     Set<GroupInvitation> invitations = user.get().getGroupInvitations();
-    List<GroupDTO> response = new ArrayList<>();
+    List<GroupNotificationDTO> response = new ArrayList<>();
     invitations.stream()
         .map(this::invitationToGroupDTO)
         .forEach(response::add); // transform into DTO and add to response List
     return ResponseEntity.ok(response);
   }
 
-  private GroupDTO invitationToGroupDTO(GroupInvitation invitation) {
-    GroupDTO dto = new GroupDTO();
+  private GroupNotificationDTO invitationToGroupDTO(GroupInvitation invitation) {
+    GroupNotificationDTO dto = new GroupNotificationDTO();
+    dto.setId(invitation.getNotificationId());
     dto.setName(invitation.getGroup().getTitle());
     dto.setOwnerName(invitation.getGroup().getCreatedBy().getUsername());
     return dto;
