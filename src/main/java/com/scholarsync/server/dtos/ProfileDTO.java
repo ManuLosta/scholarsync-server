@@ -3,7 +3,8 @@ package com.scholarsync.server.dtos;
 import java.util.List;
 
 public class ProfileDTO {
-    public ProfileDTO(String username, String firstName, String lastName, int friends, int credits, int questions, int answer, List<String> groups) {
+    public ProfileDTO(List<String> receivedFriendsRequest, String username, String firstName, String lastName, List<String> friends, int credits, int questions, int answer, List<String> groups) {
+        this.receivedFriendsRequest = receivedFriendsRequest;
         this.username = username;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -14,10 +15,19 @@ public class ProfileDTO {
         this.groups = groups;
     }
 
+    public List<String> getReceivedFriendsRequest() {
+        return receivedFriendsRequest;
+    }
+
+    public void setReceivedFriendsRequest(List<String> receivedFriendsRequest) {
+        this.receivedFriendsRequest = receivedFriendsRequest;
+    }
+
+    private List<String> receivedFriendsRequest;
     private String username;
     private String firstName;
     private String lastName;
-    private int friends;
+    private List<String> friends;
     private int credits;
     private int questions;
 
@@ -45,11 +55,11 @@ public class ProfileDTO {
         this.lastName = lastName;
     }
 
-    public int getFriends() {
+    public List<String> getFriends() {
         return friends;
     }
 
-    public void setFriends(int friends) {
+    public void setFriends(List<String> friends) {
         friends = friends;
     }
 

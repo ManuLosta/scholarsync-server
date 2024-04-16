@@ -1,6 +1,7 @@
 package com.scholarsync.server.services;
 
 import com.scholarsync.server.dtos.ProfileDTO;
+import com.scholarsync.server.entities.FriendRequest;
 import com.scholarsync.server.entities.Group;
 import com.scholarsync.server.entities.User;
 import com.scholarsync.server.repositories.UserRepository;
@@ -23,15 +24,32 @@ public class UserService {
     public ProfileDTO getProfileInfo(String id) {
 
       User user = userRepository.findUserById(id);
+
       int numAnswers = 4;    //todo implement
       int numQuestions = 20; //todo implement
-      List<String> groupList = List.of();
-      for (Group group : user.getGroups()){
-        groupList.add(group.getTitle());
+
+      List<String> receivedRequestFromId = List.of();
+
+      for (FriendRequest userSend : user.getReceivedFriendRequests()){
+
+        receivedRequestFromId.add(userSend.getFrom().getId());
       }
 
-      ProfileDTO profileDTO = new ProfileDTO(user.getUsername(), user.getFirstName(), user.getLastName(), user.getFriends().size(), user.getCredits(), numQuestions, numAnswers, groupList);
-      return profileDTO;
+      List<String> groupList;
+
+      groupList = List.of("Mate amigos", "prog Austral"); // todo quit this line
+
+      for (Group group : user.getGroups()){
+
+        groupList.add(group.getTitle());
+
+      }
+      List<String> friendIds = new ArrayList<>();
+      for (User friend : user.getFriends()) {
+        friendIds.add(friend.getId());
+      }
+
+        return new ProfileDTO(receivedRequestFromId, user.getUsername(), user.getFirstName(), user.getLastName(), friendIds, user.getCredits(), numQuestions, numAnswers, groupList);
 
     }
 }
