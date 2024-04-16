@@ -21,35 +21,38 @@ public class UserService {
         .orElseGet(() -> ResponseEntity.badRequest().body("user/not-found"));
   }
 
-    public ProfileDTO getProfileInfo(String id) {
+  public ProfileDTO getProfileInfo(String id) {
+    Optional<User> user = userRepository.findById(id);
+    return user.map(UserService::userToProfileDTO).orElse(null);
 
-      User user = userRepository.findUserById(id);
 
-      int numAnswers = 4;    //todo implement
-      int numQuestions = 20; //todo implement
+  }
 
-      List<String> receivedRequestFromId = List.of();
+  private static ProfileDTO userToProfileDTO(User user) {
+    ProfileDTO profileDTO = new ProfileDTO();
+    profileDTO.setId(user.getId());
+    profileDTO.setUsername(user.getUsername());
+    profileDTO.setFirstName(user.getFirstName());
+    profileDTO.setLastName(user.getLastName());
+    profileDTO.setBirthDate(user.getBirthDate());
+    profileDTO.setCreatedAt(user.getCreatedAt());
+    profileDTO.setCredits(user.getCredits());
+    Set<User> friends = user.getFriends();
+    Set<Group> groups = user.getGroups();
+    Map<String,Object> friendsMap = new HashMap<>();
+    Map<String,Object> groupsMap = new HashMap<>();
 
-      for (FriendRequest userSend : user.getReceivedFriendRequests()){
-
-        receivedRequestFromId.add(userSend.getFrom().getId());
-      }
-
-      List<String> groupList;
-
-      groupList = List.of("Mate amigos", "prog Austral"); // todo quit this line
-
-      for (Group group : user.getGroups()){
-
-        groupList.add(group.getTitle());
-
-      }
-      List<String> friendIds = new ArrayList<>();
-      for (User friend : user.getFriends()) {
-        friendIds.add(friend.getId());
-      }
-
-        return new ProfileDTO(receivedRequestFromId, user.getUsername(), user.getFirstName(), user.getLastName(), friendIds, user.getCredits(), numQuestions, numAnswers, groupList);
-
+    for(User friend : friends) {
+      friendsMap.put(friend.getId(), friend.getUsername());
     }
+
+    for(Group group : groups) {
+      groupsMap.put(group.getId(), group.getTitle());
+    }
+
+    profileDTO.setFriends(friendsMap);
+    profileDTO.setGroups(groupsMap);
+
+    return profileDTO;
+  }
 }
