@@ -5,6 +5,9 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
+
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
@@ -12,45 +15,72 @@ import org.hibernate.annotations.CreationTimestamp;
 public class User {
 
   @Id
+  @Setter
+  @Getter
   @GeneratedValue(strategy = GenerationType.UUID)
   @Column(name = "id", unique = true)
   private String id;
 
   @Column(nullable = false, unique = true)
+  @Setter
+  @Getter
   private String email;
 
   @Column(unique = true)
+  @Setter
+  @Getter
   private String username;
 
+
+  @Getter
+  @Setter
   @Column private String password;
 
+  @Setter
+  @Getter
   @Column(name = "first_name")
   private String firstName;
 
+  @Setter
+  @Getter
   @Column(name = "last_name")
   private String lastName;
 
   @Column(name = "birth_date")
+  @Setter
+  @Getter
   private LocalDate birthDate;
 
   @CreationTimestamp
+  @Setter
+  @Getter
   @Column(name = "created_at")
   private LocalDateTime createdAt;
 
   @Column(name = "credits")
+  @Setter
+  @Getter
   private int credits;
 
+  @Setter
+  @Getter
   @Column(name = "xp")
   private int xp;
 
+  @Setter
+  @Getter
   @Column(name = "level_id")
   private long levelId = 0;
 
+  @Setter
+  @Getter
   @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
   @PrimaryKeyJoinColumn
   @JsonIgnoreProperties({"createdBy", "users"})
   private Set<Group> owner;
 
+  @Setter
+  @Getter
   @ManyToMany
   @JoinTable(
       name = "user_group",
@@ -59,6 +89,8 @@ public class User {
   @JsonIgnoreProperties("users")
   private Set<Group> groups;
 
+  @Setter
+  @Getter
   @ManyToMany
   @JoinTable(
       name = "friend_with",
@@ -66,161 +98,25 @@ public class User {
       inverseJoinColumns = @JoinColumn(name = "friend_id"))
   private Set<User> friends;
 
+  @Setter
+  @Getter
   @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
   private Set<Notification> receivedNotifications;
 
+  @Setter
+  @Getter
   @OneToMany(mappedBy = "from", cascade = CascadeType.ALL)
   private Set<FriendRequest> sentFriendRequests;
 
+  @Setter
+  @Getter
   @OneToMany(mappedBy = "to", cascade = CascadeType.ALL)
   private Set<FriendRequest> receivedFriendRequests;
 
+  @Setter
+  @Getter
   @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL)
   private Set<GroupInvitation> groupInvitations;
 
   public User() {}
-
-  public String getId() {
-    return id;
-  }
-
-  public void setId(String id) {
-    this.id = id;
-  }
-
-  public String getEmail() {
-    return email;
-  }
-
-  public void setEmail(String email) {
-    this.email = email;
-  }
-
-  public String getPassword() {
-    return password;
-  }
-
-  public void setPassword(String password) {
-    this.password = password;
-  }
-
-  public String getFirstName() {
-    return firstName;
-  }
-
-  public void setFirstName(String firstName) {
-    this.firstName = firstName;
-  }
-
-  public String getLastName() {
-    return lastName;
-  }
-
-  public void setLastName(String lastName) {
-    this.lastName = lastName;
-  }
-
-  public LocalDate getBirthDate() {
-    return birthDate;
-  }
-
-  public void setBirthDate(LocalDate birthDate) {
-    this.birthDate = birthDate;
-  }
-
-  public LocalDateTime getCreatedAt() {
-    return createdAt;
-  }
-
-  public void setCreatedAt(LocalDateTime createdAt) {
-    this.createdAt = createdAt;
-  }
-
-  public int getCredits() {
-    return credits;
-  }
-
-  public void setCredits(int credits) {
-    this.credits = credits;
-  }
-
-  public int getXp() {
-    return xp;
-  }
-
-  public void setXp(int xp) {
-    this.xp = xp;
-  }
-
-  public long getLevelId() {
-    return levelId;
-  }
-
-  public void setLevelId(long levelId) {
-    this.levelId = levelId;
-  }
-
-  public String getUsername() {
-    return username;
-  }
-
-  public void setUsername(String username) {
-    this.username = username;
-  }
-
-  public Set<Group> getOwner() {
-    return owner;
-  }
-
-  public void setOwner(Set<Group> owner) {
-    this.owner = owner;
-  }
-
-  public Set<Group> getGroups() {
-    return groups;
-  }
-
-  public void setGroups(Set<Group> groups) {
-    this.groups = groups;
-  }
-
-  public Set<User> getFriends() {
-    return friends;
-  }
-
-  public void setFriends(Set<User> friends) {
-    this.friends = friends;
-  }
-
-  public Set<Notification> getReceivedNotifications() {
-    return receivedNotifications;
-  }
-
-  public void setReceivedNotifications(Set<Notification> receivedNotifications) {
-    this.receivedNotifications = receivedNotifications;
-  }
-
-  public Set<FriendRequest> getSentFriendRequests() {
-    return sentFriendRequests;
-  }
-
-  public void setSentFriendRequests(Set<FriendRequest> sentFriendRequests) {
-    this.sentFriendRequests = sentFriendRequests;
-  }
-
-  public Set<FriendRequest> getReceivedFriendRequests() {
-    return receivedFriendRequests;
-  }
-
-  public void setReceivedFriendRequests(Set<FriendRequest> receivedFriendRequests) {
-    this.receivedFriendRequests = receivedFriendRequests;
-  }
-
-  public Set<GroupInvitation> getGroupInvitations() {
-    return groupInvitations;
-  }
-
-  public void setGroupInvitations(Set<GroupInvitation> groupInvitations) {
-    this.groupInvitations = groupInvitations;
-  }
 }

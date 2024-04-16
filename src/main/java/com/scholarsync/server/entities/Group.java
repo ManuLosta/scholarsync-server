@@ -6,35 +6,55 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
+@Getter
+@Setter
 @Table(name = "groups")
 public class Group {
 
+  @Getter
+  @Setter
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
   @Column(name = "group_id", unique = true)
   String id;
 
+  @Getter
+  @Setter
   @Column(name = "title", unique = true)
   String title;
 
+  @Getter
+  @Setter
   @Column(name = "description")
   String description;
 
+  @Setter
+  @Getter
   @Column(name = "isPrivate")
   boolean isPrivate;
 
+  @Getter
+  @Setter
   @ManyToOne
   @JoinColumn(name = "created_by")
   @JsonBackReference
   private User createdBy;
 
+  @Getter
+  @Setter
   @ManyToMany(mappedBy = "groups")
   @JsonIgnoreProperties("groups")
   Set<User> users = new HashSet<>();
 
+
+  @Getter
+  @Setter
   @CreationTimestamp
   @Column(name = "created_at")
   private LocalDateTime createdAt;
@@ -42,51 +62,4 @@ public class Group {
   @OneToMany(mappedBy = "group", cascade = CascadeType.ALL)
   private Set<GroupInvitation> groupInvitations;
 
-  public String getId() {
-    return id;
-  }
-
-  public void setId(String id) {
-    this.id = id;
-  }
-
-  public String getTitle() {
-    return title;
-  }
-
-  public void setTitle(String title) {
-    this.title = title;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
-  public boolean isPrivate() {
-    return isPrivate;
-  }
-
-  public void setPrivate(boolean aPrivate) {
-    isPrivate = aPrivate;
-  }
-
-  public User getCreatedBy() {
-    return createdBy;
-  }
-
-  public void setCreatedBy(User createdBy) {
-    this.createdBy = createdBy;
-  }
-
-  public Set<User> getUsers() {
-    return users;
-  }
-
-  public void setUsers(Set<User> users) {
-    this.users = users;
-  }
 }

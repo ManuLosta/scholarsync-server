@@ -68,7 +68,7 @@ public class FriendRequestService {
     if (friendRequest.isEmpty()) {
       return ResponseEntity.badRequest().body("friend-request/not-found");
     }
-    if (friendRequest.get().getNotifactionType() != NotificationType.FRIEND_REQUEST) {
+    if (friendRequest.get().getNotificationType() != NotificationType.FRIEND_REQUEST) {
       return ResponseEntity.badRequest().body("notification/not-friend-request");
     }
     FriendRequest request = friendRequest.get();

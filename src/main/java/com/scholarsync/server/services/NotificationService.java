@@ -35,7 +35,7 @@ public class NotificationService {
         notifications.stream()
             .map(
                 notification -> {
-                  switch (notification.getNotifactionType()) {
+                  switch (notification.getNotificationType()) {
                     case NotificationType.FRIEND_REQUEST:
                       Optional<FriendRequest> friendRequest =
                           friendRequestRepository.findById(notification.getNotificationId());
