@@ -3,8 +3,12 @@ package com.scholarsync.server.entities;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.scholarsync.server.types.NotificationType;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
+@Getter
+@Setter
 @Table(name = "friend_request")
 @PrimaryKeyJoinColumn(name = "friend_request_id")
 public class FriendRequest extends Notification {
@@ -12,6 +16,7 @@ public class FriendRequest extends Notification {
   @Column(name = "accepted")
   private boolean accepted;
 
+  @Setter
   @ManyToOne
   @JsonBackReference
   @JoinColumn(name = "from_id")
@@ -24,30 +29,11 @@ public class FriendRequest extends Notification {
 
   public FriendRequest() {
     this.accepted = false;
-    this.setNotifactionType(NotificationType.FRIEND_REQUEST);
+    this.setNotificationType(NotificationType.FRIEND_REQUEST);
   }
 
-  public boolean isAccepted() {
-    return accepted;
-  }
 
-  public void setAccepted(boolean accepted) {
-    this.accepted = accepted;
-  }
-
-  public User getFrom() {
-    return from;
-  }
-
-  public void setFrom(User from) {
-    this.from = from;
-  }
-
-  public User getTo() {
-    return to;
-  }
-
-  public void setTo(User to) {
+    public void setTo(User to) {
     this.to = to;
     setOwner(to);
   }

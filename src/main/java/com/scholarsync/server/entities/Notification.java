@@ -4,56 +4,36 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.scholarsync.server.types.NotificationType;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 public class Notification {
   @Id
+  @Setter
+  @Getter
   @GeneratedValue(strategy = GenerationType.UUID)
   private String notificationId;
 
   @Enumerated(EnumType.STRING)
-  private NotificationType notifactionType;
+  @Setter
+  @Getter
+  private NotificationType notificationType;
 
   @ManyToOne
   @JsonBackReference
+  @Setter
+  @Getter
   @JoinColumn(name = "owner_id")
   private User owner;
 
+  @Setter
+  @Getter
   @Column(name = "created_at")
   @CreationTimestamp
   private LocalDateTime createdAt;
 
-  public String getNotificationId() {
-    return notificationId;
-  }
-
-  private void setNotificationId(String notificationId) {
-    this.notificationId = notificationId;
-  }
-
-  public NotificationType getNotifactionType() {
-    return notifactionType;
-  }
-
-  void setNotifactionType(NotificationType notifactionType) {
-    this.notifactionType = notifactionType;
-  }
-
-  public LocalDateTime getCreatedAt() {
-    return createdAt;
-  }
-
-  public void setCreatedAt(LocalDateTime createdAt) {
-    this.createdAt = createdAt;
-  }
-
-  public User getOwner() {
-    return owner;
-  }
-
-  public void setOwner(User owner) {
-    this.owner = owner;
-  }
 }

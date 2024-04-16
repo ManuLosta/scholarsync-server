@@ -3,19 +3,26 @@ package com.scholarsync.server.entities;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.scholarsync.server.types.NotificationType;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
+@Getter
+@Setter
 @Table(name = "group_invitation")
 @PrimaryKeyJoinColumn(name = "group_invitation_id")
 public class GroupInvitation extends Notification {
 
+  @Setter
+  @Getter
   @ManyToOne
   @JsonBackReference
   @JoinColumn(name = "group_id")
   Group group;
 
-  boolean accepted;
+  @Setter boolean accepted;
 
+  @Getter
   @ManyToOne
   @JsonBackReference
   @JoinColumn(name = "id")
@@ -23,19 +30,7 @@ public class GroupInvitation extends Notification {
 
   public GroupInvitation() {
     this.accepted = false;
-    this.setNotifactionType(NotificationType.GROUP_INVITE);
-  }
-
-  public Group getGroup() {
-    return group;
-  }
-
-  public void setGroup(Group group) {
-    this.group = group;
-  }
-
-  public User getUserId() {
-    return userId;
+    this.setNotificationType(NotificationType.GROUP_INVITE);
   }
 
   public void setUserId(User userId) {
@@ -46,13 +41,5 @@ public class GroupInvitation extends Notification {
   @Override
   public void setOwner(User owner) {
     super.setOwner(owner);
-  }
-
-  public boolean isAccepted() {
-    return accepted;
-  }
-
-  public void setAccepted(boolean accepted) {
-    this.accepted = accepted;
   }
 }
