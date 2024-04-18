@@ -1,38 +1,17 @@
 package com.scholarsync.server.dtos;
 
 import com.scholarsync.server.types.NotificationType;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class GroupNotificationDTO {
   private String id;
   private String name;
   private String ownerName;
+
+  @Setter(AccessLevel.NONE)
   private final NotificationType notifactionType = NotificationType.GROUP_INVITE;
-
-  public String getId() {
-    return id;
-  }
-
-  public void setId(String id) {
-    this.id = id;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getOwnerName() {
-    return ownerName;
-  }
-
-  public void setOwnerName(String ownerName) {
-    this.ownerName = ownerName;
-  }
-
-  public NotificationType getNotifactionType() {
-    return notifactionType;
-  }
 }

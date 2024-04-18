@@ -6,7 +6,6 @@ import com.scholarsync.server.repositories.UserRepository;
 import com.scholarsync.server.services.UserService;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,16 +22,13 @@ public class UserController {
     return userRepository.findAll();
   }
 
-
   @PostMapping("/get-id-by-username")
   public ResponseEntity<Object> getIdByUsernames(@RequestBody Map<String, String> username) {
     return userService.getIdByUsername(username);
   }
 
   @GetMapping("/profile/{id}")
-  public ProfileDTO getProfileInfo(@PathVariable String id){
+  public ProfileDTO getProfileInfo(@PathVariable String id) {
     return userService.getProfileInfo(id);
   }
-
-
 }

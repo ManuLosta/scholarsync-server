@@ -3,29 +3,28 @@ package com.scholarsync.server.entities;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.scholarsync.server.types.NotificationType;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Getter
-@Setter
 @Table(name = "group_invitation")
 @PrimaryKeyJoinColumn(name = "group_invitation_id")
+@Getter
+@Setter
 public class GroupInvitation extends Notification {
 
-  @Setter
-  @Getter
   @ManyToOne
   @JsonBackReference
   @JoinColumn(name = "group_id")
   Group group;
 
-  @Setter boolean accepted;
+  boolean accepted;
 
-  @Getter
   @ManyToOne
   @JsonBackReference
   @JoinColumn(name = "id")
+  @Setter(AccessLevel.NONE)
   private User userId;
 
   public GroupInvitation() {
