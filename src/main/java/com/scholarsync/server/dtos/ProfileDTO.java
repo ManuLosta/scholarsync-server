@@ -26,8 +26,8 @@ public class ProfileDTO {
     private LocalDate birthDate;
     private LocalDateTime createdAt;
     private int credits;
-    private Map<String,Object> friends;
-    private Map<String,Object> groups;
+    private List<Map<String,Object>> friends;
+    private List<Map<String,Object>> groups;
 
 
 

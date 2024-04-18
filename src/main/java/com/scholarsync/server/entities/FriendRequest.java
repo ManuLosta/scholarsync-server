@@ -32,8 +32,7 @@ public class FriendRequest extends Notification {
     this.setNotificationType(NotificationType.FRIEND_REQUEST);
   }
 
-
-    public void setTo(User to) {
+  public void setTo(User to) {
     this.to = to;
     setOwner(to);
   }
