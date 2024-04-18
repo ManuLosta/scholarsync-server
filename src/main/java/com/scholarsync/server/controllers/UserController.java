@@ -23,12 +23,6 @@ public class UserController {
     return userRepository.findAll();
   }
 
-  @GetMapping("/{id}")
-  public ResponseEntity<User> getUser(@PathVariable String id) {
-    Optional<User> user = userRepository.findById(id);
-    return user.map(value -> ResponseEntity.ok().body(value))
-        .orElseGet(() -> ResponseEntity.notFound().build());
-  }
 
   @PostMapping("/get-id-by-username")
   public ResponseEntity<Object> getIdByUsernames(@RequestBody Map<String, String> username) {
