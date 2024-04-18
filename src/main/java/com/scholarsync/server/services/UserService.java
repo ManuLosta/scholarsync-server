@@ -39,19 +39,28 @@ public class UserService {
     profileDTO.setCredits(user.getCredits());
     Set<User> friends = user.getFriends();
     Set<Group> groups = user.getGroups();
+    List<Map<String,Object>> friendsList = new ArrayList<>();
+    List<Map<String,Object>> groupsList = new ArrayList<>();
     Map<String,Object> friendsMap = new HashMap<>();
     Map<String,Object> groupsMap = new HashMap<>();
 
-    for(User friend : friends) {
-      friendsMap.put(friend.getId(), friend.getUsername());
+    for(User friend : friends){
+      Map<String,Object> friendMap = new HashMap<>();
+      friendMap.put("id", friend.getId());
+      friendMap.put("username", friend.getUsername());
+      friendMap.put("firstName", friend.getFirstName());
+      friendsList.add(friendMap);
     }
 
-    for(Group group : groups) {
-      groupsMap.put(group.getId(), group.getTitle());
+    for(Group group : groups){
+      Map<String,Object> groupMap = new HashMap<>();
+      groupMap.put("id", group.getId());
+      groupMap.put("name", group.getTitle());
+      groupsList.add(groupMap);
     }
 
-    profileDTO.setFriends(friendsMap);
-    profileDTO.setGroups(groupsMap);
+    profileDTO.setFriends(friendsList);
+    profileDTO.setGroups(groupsList);
 
     return profileDTO;
   }
