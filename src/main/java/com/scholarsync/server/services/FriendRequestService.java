@@ -104,4 +104,19 @@ public class FriendRequestService {
     friendRequestRepository.delete(friendRequest.get());
     return new ResponseEntity<>("friend-request/denied", HttpStatus.OK);
   }
+
+  public ResponseEntity<Object> getRequestStatus(String from, String to) {
+    Optional<User> fromUser = userRepository.findById(from);
+    Optional<User> toUser = userRepository.findById(to);
+    if (fromUser.isEmpty() || toUser.isEmpty()) {
+      return ResponseEntity.badRequest().body("user/not-found");
+    }
+    if (fromUser.get().getFriends().contains(toUser.get())) {
+      return ResponseEntity.ok("friend-request/accepted");
+    }
+    if (friendRequestRepository.existsByFromAndTo(fromUser.get(), toUser.get())|| friendRequestRepository.existsByFromAndTo(toUser.get(), fromUser.get())){
+      return ResponseEntity.ok("friend-request/sent");
+    }
+    return ResponseEntity.ok("friend-request/not-sent");
+  }
 }

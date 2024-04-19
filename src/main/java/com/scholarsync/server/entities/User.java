@@ -70,7 +70,7 @@ public class User {
       joinColumns = @JoinColumn(name = "user_id"),
       inverseJoinColumns = @JoinColumn(name = "friend_id"))
   private Set<User> friends;
-  
+
 
   @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
   private Set<Notification> receivedNotifications;
