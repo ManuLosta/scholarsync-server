@@ -142,8 +142,16 @@ public class GroupService {
       Map<String, Object> response = new HashMap<>();
       createGroup(group, response);
       Set<User> users = group.getUsers();
-      response.put(
-          "users", Arrays.stream(users.toArray()).map(user -> ((User) user).getId()).toArray());
+      List<Map<String,Object>> usersList = new ArrayList<>();
+      for(User user: users) {
+        Map<String,Object> userMap = new HashMap<>();
+        userMap.put("users", user.getId());
+        userMap.put("firstName", user.getFirstName());
+        userMap.put("lastName", user.getLastName());
+        userMap.put("username", user.getUsername());
+        usersList.add(userMap);
+      }
+      response.put("users", usersList);
       return new ResponseEntity<>(response, HttpStatus.OK);
     }
   }
