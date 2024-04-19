@@ -9,4 +9,6 @@ public interface FriendRequestRepository extends JpaRepository<FriendRequest, St
   boolean existsByFromAndTo(User from, User to);
 
   Optional<FriendRequest> findAllByTo(User user);
+
+  Optional<FriendRequest> findByFromAndTo(User user, User user1);
 }
