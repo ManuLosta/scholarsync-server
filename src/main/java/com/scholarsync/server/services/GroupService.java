@@ -142,7 +142,8 @@ public class GroupService {
       Map<String, Object> response = new HashMap<>();
       createGroup(group, response);
       Set<User> users = group.getUsers();
-      response.put("users", Arrays.stream(users.toArray()).map(user -> ((User) user).getId()).toArray());
+      response.put(
+          "users", Arrays.stream(users.toArray()).map(user -> ((User) user).getId()).toArray());
       return new ResponseEntity<>(response, HttpStatus.OK);
     }
   }

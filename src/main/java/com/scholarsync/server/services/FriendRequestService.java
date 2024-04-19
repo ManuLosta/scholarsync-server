@@ -104,4 +104,35 @@ public class FriendRequestService {
     friendRequestRepository.delete(friendRequest.get());
     return new ResponseEntity<>("friend-request/denied", HttpStatus.OK);
   }
+
+  public ResponseEntity<Object> getRequestStatus(String from, String to) {
+    Optional<User> fromUser = userRepository.findById(from);
+    Optional<User> toUser = userRepository.findById(to);
+    String response;
+    HashMap<String, String> res = new HashMap<>();
+
+    if (fromUser.isEmpty() || toUser.isEmpty()) {
+      response = "user/not-found";
+      res.put("status", response);
+    } else if (fromUser.get().getFriends().contains(toUser.get())) {
+      response = "friend-request/already-friends";
+      res.put("status", response);
+    } else if (friendRequestRepository.existsByFromAndTo(fromUser.get(), toUser.get())) {
+      response = "friend-request/sent";
+      res.put("status", response);
+    } else if (friendRequestRepository.existsByFromAndTo(toUser.get(), fromUser.get())) {
+      response = "friend-request/received";
+      Optional<FriendRequest> friendRequest =
+          friendRequestRepository.findByFromAndTo(toUser.get(), fromUser.get());
+      res.put("status", response);
+      if (friendRequest.isPresent()) {
+        String notificationId = friendRequest.get().getNotificationId();
+        res.put("notification_id", notificationId);
+      }
+    } else {
+      response = "friend-request/not-sent";
+      res.put("status", response);
+    }
+    return ResponseEntity.ok(res);
+  }
 }

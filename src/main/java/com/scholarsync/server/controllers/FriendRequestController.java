@@ -18,6 +18,14 @@ public class FriendRequestController {
     return friendRequestService.sendFriendRequest(friendRequestBody);
   }
 
+
+  @PostMapping("/get-request-status")
+  public ResponseEntity<Object> getRequestStatus(@RequestBody Map<String, String> friendRequestBody) {
+    String from = friendRequestBody.get("from_id");
+    String to = friendRequestBody.get("to_id");
+    return friendRequestService.getRequestStatus(from, to);
+  }
+
   @GetMapping("/{id}/friend-requests")
   public ResponseEntity<Object> getAllRequests(@PathVariable String id) {
     return friendRequestService.getAllRequests(id);
