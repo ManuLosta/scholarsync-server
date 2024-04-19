@@ -29,7 +29,7 @@ public class GroupController {
 
   @PostMapping("/remove-user-from-group")
   public ResponseEntity<Object> removeUserFromGroup(@RequestBody Map<String, String> group) {
-    return groupService.removeUserFromGroup(group);
+    return groupService.removeUserFromGroupRequest(group);
   }
 
 }

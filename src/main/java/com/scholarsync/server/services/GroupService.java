@@ -173,4 +173,35 @@ public class GroupService {
     groupRepository.save(invitedTo); // update group
     userRepository.save(notified); // update user
   }
+
+  public ResponseEntity<Object> removeUserFromGroupRequest(Map<String, String> groupData) {
+    Optional<Group> optionalGroup = groupRepository.findById(groupData.get("group_id"));
+    Optional<User> optionalUser = userRepository.findById(groupData.get("user_id"));
+    if (optionalGroup.isEmpty()) {
+      return new ResponseEntity<>("group/not-found", HttpStatus.NOT_FOUND);
+    } else if (optionalUser.isEmpty()) {
+      return new ResponseEntity<>("user/not-found", HttpStatus.NOT_FOUND);
+    } else if (optionalGroup.get().getCreatedBy().equals(optionalUser.get())) {
+      return new ResponseEntity<>("user/cannot-remove-creator", HttpStatus.BAD_REQUEST);
+    } else if (!optionalGroup.get().getUsers().contains(optionalUser.get())) {
+      return new ResponseEntity<>("user/not-in-group", HttpStatus.BAD_REQUEST);
+    } else {
+      Group group = optionalGroup.get();
+      User user = optionalUser.get();
+      removeUserFromGroup(group, user);
+      return new ResponseEntity<>("User removed from group", HttpStatus.OK);
+    }
+  }
+
+  public void removeUserFromGroup(Group group, User user) {
+    Set<User> users = group.getUsers();
+    users.remove(user);
+    group.setUsers(users);
+    Set<Group> userGroups = user.getGroups();
+    userGroups.remove(group);
+    user.setGroups(userGroups);
+    userRepository.save(user);
+    groupRepository.save(group);
+  }
+
 }
