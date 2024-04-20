@@ -1,7 +1,9 @@
 package com.scholarsync.server.services;
 
 import com.scholarsync.server.entities.Group;
+import com.scholarsync.server.entities.GroupInvitation;
 import com.scholarsync.server.entities.User;
+import com.scholarsync.server.repositories.GroupInvitationRepository;
 import com.scholarsync.server.repositories.GroupRepository;
 import com.scholarsync.server.repositories.UserRepository;
 import java.util.*;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class GroupService {
 
+  @Autowired private GroupInvitationRepository groupInvitationRepository;
   @Autowired private GroupRepository groupRepository;
   @Autowired private UserRepository userRepository;
 
@@ -142,16 +145,24 @@ public class GroupService {
       Map<String, Object> response = new HashMap<>();
       createGroup(group, response);
       Set<User> users = group.getUsers();
+      Set<GroupInvitation> invitations = group.getGroupInvitations();
       List<Map<String, Object>> usersList = new ArrayList<>();
+      List<Map<String, Object>> invitedUsers = new ArrayList<>();
       for (User user : users) {
         Map<String, Object> userMap = new HashMap<>();
-        userMap.put("user_id", user.getId());
+        userMap.put("id", user.getId());
         userMap.put("firstName", user.getFirstName());
         userMap.put("lastName", user.getLastName());
         userMap.put("username", user.getUsername());
         usersList.add(userMap);
       }
+      for (GroupInvitation groupInvitation: invitations) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("user_id", groupInvitation.getUserId().getId());
+        invitedUsers.add(map);
+      }
       response.put("users", usersList);
+      response.put("invitations", invitedUsers);
       return new ResponseEntity<>(response, HttpStatus.OK);
     }
   }
