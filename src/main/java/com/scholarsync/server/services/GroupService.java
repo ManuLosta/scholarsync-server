@@ -1,7 +1,9 @@
 package com.scholarsync.server.services;
 
 import com.scholarsync.server.entities.Group;
+import com.scholarsync.server.entities.GroupInvitation;
 import com.scholarsync.server.entities.User;
+import com.scholarsync.server.repositories.GroupInvitationRepository;
 import com.scholarsync.server.repositories.GroupRepository;
 import com.scholarsync.server.repositories.UserRepository;
 import java.util.*;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class GroupService {
 
+  @Autowired private GroupInvitationRepository groupInvitationRepository;
   @Autowired private GroupRepository groupRepository;
   @Autowired private UserRepository userRepository;
 
@@ -142,8 +145,24 @@ public class GroupService {
       Map<String, Object> response = new HashMap<>();
       createGroup(group, response);
       Set<User> users = group.getUsers();
-      response.put(
-          "users", Arrays.stream(users.toArray()).map(user -> ((User) user).getId()).toArray());
+      Set<GroupInvitation> invitations = group.getGroupInvitations();
+      List<Map<String, Object>> usersList = new ArrayList<>();
+      List<Map<String, Object>> invitedUsers = new ArrayList<>();
+      for (User user : users) {
+        Map<String, Object> userMap = new HashMap<>();
+        userMap.put("id", user.getId());
+        userMap.put("firstName", user.getFirstName());
+        userMap.put("lastName", user.getLastName());
+        userMap.put("username", user.getUsername());
+        usersList.add(userMap);
+      }
+      for (GroupInvitation groupInvitation: invitations) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("user_id", groupInvitation.getUserId().getId());
+        invitedUsers.add(map);
+      }
+      response.put("users", usersList);
+      response.put("invitations", invitedUsers);
       return new ResponseEntity<>(response, HttpStatus.OK);
     }
   }
@@ -165,4 +184,35 @@ public class GroupService {
     groupRepository.save(invitedTo); // update group
     userRepository.save(notified); // update user
   }
+
+  public ResponseEntity<Object> removeUserFromGroupRequest(Map<String, String> groupData) {
+    Optional<Group> optionalGroup = groupRepository.findById(groupData.get("group_id"));
+    Optional<User> optionalUser = userRepository.findById(groupData.get("user_id"));
+    if (optionalGroup.isEmpty()) {
+      return new ResponseEntity<>("group/not-found", HttpStatus.NOT_FOUND);
+    } else if (optionalUser.isEmpty()) {
+      return new ResponseEntity<>("user/not-found", HttpStatus.NOT_FOUND);
+    } else if (optionalGroup.get().getCreatedBy().equals(optionalUser.get())) {
+      return new ResponseEntity<>("user/cannot-remove-creator", HttpStatus.BAD_REQUEST);
+    } else if (!optionalGroup.get().getUsers().contains(optionalUser.get())) {
+      return new ResponseEntity<>("user/not-in-group", HttpStatus.BAD_REQUEST);
+    } else {
+      Group group = optionalGroup.get();
+      User user = optionalUser.get();
+      removeUserFromGroup(group, user);
+      return new ResponseEntity<>("User removed from group", HttpStatus.OK);
+    }
+  }
+
+  public void removeUserFromGroup(Group group, User user) {
+    Set<User> users = group.getUsers();
+    users.remove(user);
+    group.setUsers(users);
+    Set<Group> userGroups = user.getGroups();
+    userGroups.remove(group);
+    user.setGroups(userGroups);
+    userRepository.save(user);
+    groupRepository.save(group);
+  }
+
 }

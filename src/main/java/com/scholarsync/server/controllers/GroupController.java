@@ -26,4 +26,10 @@ public class GroupController {
   public ResponseEntity<Object> getGroup(@RequestParam(name = "group_id") String id) {
     return groupService.getGroup(id);
   }
+
+  @PostMapping("/remove-user-from-group")
+  public ResponseEntity<Object> removeUserFromGroup(@RequestBody Map<String, String> group) {
+    return groupService.removeUserFromGroupRequest(group);
+  }
+
 }
