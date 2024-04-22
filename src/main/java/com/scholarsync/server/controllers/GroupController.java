@@ -33,8 +33,7 @@ public class GroupController {
   }
 
   @PostMapping("/join-group")
-    public ResponseEntity<Object> joinGroup(@RequestBody Map<String, String> group) {
-        return groupService.joinPublicGroup(group);
-    }
-
+  public ResponseEntity<Object> joinGroup(@RequestBody Map<String, String> group) {
+    return groupService.joinPublicGroup(group);
+  }
 }

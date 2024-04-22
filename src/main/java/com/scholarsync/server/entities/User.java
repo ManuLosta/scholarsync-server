@@ -79,7 +79,7 @@ public class User {
   @OneToMany(mappedBy = "to", cascade = CascadeType.ALL)
   private Set<FriendRequest> receivedFriendRequests;
 
-  @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL)
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
   private Set<GroupInvitation> receivedGroupInvitations;
 
   @OneToMany(mappedBy = "invitedBy", cascade = CascadeType.ALL)

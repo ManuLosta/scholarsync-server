@@ -156,9 +156,9 @@ public class GroupService {
         userMap.put("username", user.getUsername());
         usersList.add(userMap);
       }
-      for (GroupInvitation groupInvitation: invitations) {
+      for (GroupInvitation groupInvitation : invitations) {
         Map<String, Object> map = new HashMap<>();
-        map.put("user_id", groupInvitation.getUserId().getId());
+        map.put("user_id", groupInvitation.getUser().getId());
         invitedUsers.add(map);
       }
       response.put("users", usersList);
@@ -233,5 +233,4 @@ public class GroupService {
     userRepository.save(user);
     groupRepository.save(group);
   }
-
 }

@@ -38,7 +38,7 @@ public class GroupInvitationService {
     GroupInvitation groupInvitation = new GroupInvitation();
     groupInvitation.setInvitedBy(group.getCreatedBy());
     groupInvitation.setGroup(group);
-    groupInvitation.setUserId(to); // set group and user
+    groupInvitation.setUser(to); // set group and user
     Set<GroupInvitation> groupInvitations = to.getReceivedGroupInvitations();
     if (groupInvitations != null) {
       groupInvitations.add(groupInvitation);
@@ -57,9 +57,11 @@ public class GroupInvitationService {
     }
     groupInvitation.get().setAccepted(true);
     Group invitedTo = groupInvitation.get().getGroup();
-    User notified = groupInvitation.get().getUserId();
+    User notified = groupInvitation.get().getUser();
     groupService.addUserToGroup(invitedTo, notified); // add user to group
-    notified.getReceivedGroupInvitations().remove(groupInvitation.get()); // remove invitation from user
+    notified
+        .getReceivedGroupInvitations()
+        .remove(groupInvitation.get()); // remove invitation from user
     notificationRepository.delete(groupInvitation.get()); // delete invitation
     return ResponseEntity.ok("group-invitation/accepted");
   }
@@ -70,8 +72,10 @@ public class GroupInvitationService {
     if (groupInvitation.isEmpty()) {
       return ResponseEntity.badRequest().body("group-invitation/not-found");
     }
-    User notified = groupInvitation.get().getUserId();
-    notified.getReceivedGroupInvitations().remove(groupInvitation.get()); // remove invitation from user
+    User notified = groupInvitation.get().getUser();
+    notified
+        .getReceivedGroupInvitations()
+        .remove(groupInvitation.get()); // remove invitation from user
     notificationRepository.delete(groupInvitation.get());
     return ResponseEntity.ok("group-invitation/declined");
   }
@@ -84,18 +88,8 @@ public class GroupInvitationService {
     Set<GroupInvitation> invitations = user.get().getReceivedGroupInvitations();
     List<GroupNotificationDTO> response = new ArrayList<>();
     invitations.stream()
-        .map(this::invitationToGroupDTO)
-        .forEach(response::add); // transform into DTO and add to response List
+        .map(GroupNotificationDTO::groupInvitationToDTO)
+        .forEach(response::add); // transform into DTO and add to response ListS
     return ResponseEntity.ok(response);
-  }
-
-  private GroupNotificationDTO invitationToGroupDTO(GroupInvitation invitation) {
-    GroupNotificationDTO dto = new GroupNotificationDTO();
-    dto.setOwner_group(invitation.getInvitedBy().getId());
-    dto.setGroup_id(invitation.getGroup().getId());
-    dto.setNotification_id(invitation.getNotificationId());
-    dto.setName(invitation.getGroup().getTitle());
-    dto.setUser_invited(invitation.getUserId().getId());
-    return dto;
   }
 }

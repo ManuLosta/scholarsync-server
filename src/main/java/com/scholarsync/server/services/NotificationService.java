@@ -1,6 +1,6 @@
 package com.scholarsync.server.services;
 
-import com.scholarsync.server.dtos.FriendRequesInvitationDTO;
+import com.scholarsync.server.dtos.FriendRequestInvitationDTO;
 import com.scholarsync.server.dtos.GroupNotificationDTO;
 import com.scholarsync.server.entities.FriendRequest;
 import com.scholarsync.server.entities.GroupInvitation;
@@ -42,19 +42,14 @@ public class NotificationService {
                       if (friendRequest.isEmpty()) {
                         break;
                       }
-                      return new FriendRequesInvitationDTO(
-                          friendRequest.get().getNotificationId(),
-                          friendRequest.get().getFrom().getId(),
-                          friendRequest.get().getFrom().getUsername(),
-                          friendRequest.get().getTo().getId(),
-                          friendRequest.get().getCreatedAt().toString());
+                      return FriendRequestInvitationDTO.friendRequestToDTO(friendRequest.get());
                     case NotificationType.GROUP_INVITE:
                       Optional<GroupInvitation> groupInvitation =
                           groupInvitationRepository.findById(notification.getNotificationId());
                       if (groupInvitation.isEmpty()) {
                         break;
                       }
-                        return getGroupNotificationDTO(groupInvitation);
+                      return GroupNotificationDTO.groupInvitationToDTO(groupInvitation.get());
                     default:
                       return null;
                   }
@@ -62,19 +57,5 @@ public class NotificationService {
                 })
             .toList();
     return ResponseEntity.ok(response);
-  }
-
-  private static GroupNotificationDTO getGroupNotificationDTO(Optional<GroupInvitation> groupInvitation) {
-    if (groupInvitation.isEmpty()) {
-      return null;
-    }
-    GroupInvitation invitation = groupInvitation.get();
-    GroupNotificationDTO dto = new GroupNotificationDTO();
-    dto.setNotification_id(invitation.getNotificationId());
-    dto.setGroup_id(invitation.getGroup().getId());
-    dto.setOwner_group(invitation.getGroup().getCreatedBy().getId());
-    dto.setName(invitation.getGroup().getTitle());
-    dto.setUser_invited(invitation.getUserId().getId());
-    return dto;
   }
 }
