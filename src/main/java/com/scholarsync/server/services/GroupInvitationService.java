@@ -28,7 +28,7 @@ public class GroupInvitationService {
       return ResponseEntity.badRequest().body("user/not-found");
     }
     groupInvitationRepository
-        .findByGroupAndUserId(groupInvitedBy.get(), user.get())
+        .findByGroupAndUser(groupInvitedBy.get(), user.get())
         .ifPresent(
             groupInvitation -> {
               ResponseEntity.badRequest().body("group-invitation/already-sent");
