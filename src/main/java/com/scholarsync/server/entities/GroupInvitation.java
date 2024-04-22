@@ -19,6 +19,11 @@ public class GroupInvitation extends Notification {
   @JoinColumn(name = "group_id")
   Group group;
 
+  @ManyToOne
+  @JsonBackReference
+  @JoinColumn(name = "invited_by")
+  User invitedBy;
+
   boolean accepted;
 
   @ManyToOne

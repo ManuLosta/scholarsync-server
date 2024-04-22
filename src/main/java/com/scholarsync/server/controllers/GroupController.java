@@ -32,4 +32,9 @@ public class GroupController {
     return groupService.removeUserFromGroupRequest(group);
   }
 
+  @PostMapping("/join-group")
+    public ResponseEntity<Object> joinGroup(@RequestBody Map<String, String> group) {
+        return groupService.joinPublicGroup(group);
+    }
+
 }

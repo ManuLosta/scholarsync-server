@@ -45,6 +45,7 @@ public class NotificationService {
                       return new FriendRequesInvitationDTO(
                           friendRequest.get().getNotificationId(),
                           friendRequest.get().getFrom().getId(),
+                          friendRequest.get().getFrom().getUsername(),
                           friendRequest.get().getTo().getId(),
                           friendRequest.get().getCreatedAt().toString());
                     case NotificationType.GROUP_INVITE:
@@ -53,12 +54,7 @@ public class NotificationService {
                       if (groupInvitation.isEmpty()) {
                         break;
                       }
-                      GroupInvitation invitation = groupInvitation.get();
-                      GroupNotificationDTO dto = new GroupNotificationDTO();
-                      dto.setId(invitation.getNotificationId());
-                      dto.setName(invitation.getGroup().getTitle());
-                      dto.setOwnerName(invitation.getGroup().getCreatedBy().getUsername());
-                      return dto;
+                        return getGroupNotificationDTO(groupInvitation);
                     default:
                       return null;
                   }
@@ -66,5 +62,19 @@ public class NotificationService {
                 })
             .toList();
     return ResponseEntity.ok(response);
+  }
+
+  private static GroupNotificationDTO getGroupNotificationDTO(Optional<GroupInvitation> groupInvitation) {
+    if (groupInvitation.isEmpty()) {
+      return null;
+    }
+    GroupInvitation invitation = groupInvitation.get();
+    GroupNotificationDTO dto = new GroupNotificationDTO();
+    dto.setNotification_id(invitation.getNotificationId());
+    dto.setGroup_id(invitation.getGroup().getId());
+    dto.setOwner_group(invitation.getGroup().getCreatedBy().getId());
+    dto.setName(invitation.getGroup().getTitle());
+    dto.setUser_invited(invitation.getUserId().getId());
+    return dto;
   }
 }

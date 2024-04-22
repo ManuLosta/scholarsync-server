@@ -34,14 +34,16 @@ public class GroupInvitationService {
               ResponseEntity.badRequest().body("group-invitation/already-sent");
             });
     User to = user.get();
+    Group group = groupInvitedBy.get();
     GroupInvitation groupInvitation = new GroupInvitation();
-    groupInvitation.setGroup(groupInvitedBy.get());
+    groupInvitation.setInvitedBy(group.getCreatedBy());
+    groupInvitation.setGroup(group);
     groupInvitation.setUserId(to); // set group and user
-    Set<GroupInvitation> groupInvitations = to.getGroupInvitations();
+    Set<GroupInvitation> groupInvitations = to.getReceivedGroupInvitations();
     if (groupInvitations != null) {
       groupInvitations.add(groupInvitation);
     } else {
-      to.setGroupInvitations(Set.of(groupInvitation));
+      to.setReceivedGroupInvitations(Set.of(groupInvitation));
     } // add invitation to user
     groupInvitationRepository.save(groupInvitation); // save invitation
     return ResponseEntity.ok("group-invitation/sent");
@@ -57,7 +59,7 @@ public class GroupInvitationService {
     Group invitedTo = groupInvitation.get().getGroup();
     User notified = groupInvitation.get().getUserId();
     groupService.addUserToGroup(invitedTo, notified); // add user to group
-    notified.getGroupInvitations().remove(groupInvitation.get()); // remove invitation from user
+    notified.getReceivedGroupInvitations().remove(groupInvitation.get()); // remove invitation from user
     notificationRepository.delete(groupInvitation.get()); // delete invitation
     return ResponseEntity.ok("group-invitation/accepted");
   }
@@ -69,7 +71,7 @@ public class GroupInvitationService {
       return ResponseEntity.badRequest().body("group-invitation/not-found");
     }
     User notified = groupInvitation.get().getUserId();
-    notified.getGroupInvitations().remove(groupInvitation.get()); // remove invitation from user
+    notified.getReceivedGroupInvitations().remove(groupInvitation.get()); // remove invitation from user
     notificationRepository.delete(groupInvitation.get());
     return ResponseEntity.ok("group-invitation/declined");
   }
@@ -79,7 +81,7 @@ public class GroupInvitationService {
     if (user.isEmpty()) {
       return ResponseEntity.badRequest().body("user/not-found");
     }
-    Set<GroupInvitation> invitations = user.get().getGroupInvitations();
+    Set<GroupInvitation> invitations = user.get().getReceivedGroupInvitations();
     List<GroupNotificationDTO> response = new ArrayList<>();
     invitations.stream()
         .map(this::invitationToGroupDTO)
@@ -89,9 +91,11 @@ public class GroupInvitationService {
 
   private GroupNotificationDTO invitationToGroupDTO(GroupInvitation invitation) {
     GroupNotificationDTO dto = new GroupNotificationDTO();
-    dto.setId(invitation.getNotificationId());
+    dto.setOwner_group(invitation.getInvitedBy().getId());
+    dto.setGroup_id(invitation.getGroup().getId());
+    dto.setNotification_id(invitation.getNotificationId());
     dto.setName(invitation.getGroup().getTitle());
-    dto.setOwnerName(invitation.getGroup().getCreatedBy().getUsername());
+    dto.setUser_invited(invitation.getUserId().getId());
     return dto;
   }
 }

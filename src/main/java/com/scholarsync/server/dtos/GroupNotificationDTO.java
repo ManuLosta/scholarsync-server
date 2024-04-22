@@ -8,10 +8,12 @@ import lombok.Setter;
 @Getter
 @Setter
 public class GroupNotificationDTO {
-  private String id;
+  private String notification_id;
+  private String group_id;
   private String name;
-  private String ownerName;
+  private String owner_group;
+  private String user_invited;
 
   @Setter(AccessLevel.NONE)
-  private final NotificationType notifactionType = NotificationType.GROUP_INVITE;
+  private final NotificationType notificationType = NotificationType.GROUP_INVITE;
 }

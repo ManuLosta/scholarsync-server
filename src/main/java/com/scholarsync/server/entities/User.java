@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Properties;
 import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
@@ -71,7 +70,6 @@ public class User {
       inverseJoinColumns = @JoinColumn(name = "friend_id"))
   private Set<User> friends;
 
-
   @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
   private Set<Notification> receivedNotifications;
 
@@ -82,7 +80,10 @@ public class User {
   private Set<FriendRequest> receivedFriendRequests;
 
   @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL)
-  private Set<GroupInvitation> groupInvitations;
+  private Set<GroupInvitation> receivedGroupInvitations;
+
+  @OneToMany(mappedBy = "invitedBy", cascade = CascadeType.ALL)
+  private Set<GroupInvitation> sentGroupInvitations;
 
   public User() {}
 }

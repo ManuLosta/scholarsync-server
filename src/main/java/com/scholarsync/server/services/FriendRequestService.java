@@ -57,6 +57,7 @@ public class FriendRequestService {
                     new FriendRequesInvitationDTO(
                         friendRequest.getNotificationId(),
                         friendRequest.getFrom().getId(),
+                        friendRequest.getFrom().getUsername(),
                         friendRequest.getTo().getId(),
                         friendRequest.getCreatedAt().toString()))
             .collect(Collectors.toList());
