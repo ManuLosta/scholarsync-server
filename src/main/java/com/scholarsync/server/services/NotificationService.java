@@ -1,6 +1,6 @@
 package com.scholarsync.server.services;
 
-import com.scholarsync.server.dtos.FriendRequesInvitationDTO;
+import com.scholarsync.server.dtos.FriendRequestInvitationDTO;
 import com.scholarsync.server.dtos.GroupNotificationDTO;
 import com.scholarsync.server.entities.FriendRequest;
 import com.scholarsync.server.entities.GroupInvitation;
@@ -42,23 +42,14 @@ public class NotificationService {
                       if (friendRequest.isEmpty()) {
                         break;
                       }
-                      return new FriendRequesInvitationDTO(
-                          friendRequest.get().getNotificationId(),
-                          friendRequest.get().getFrom().getId(),
-                          friendRequest.get().getTo().getId(),
-                          friendRequest.get().getCreatedAt().toString());
+                      return FriendRequestInvitationDTO.friendRequestToDTO(friendRequest.get());
                     case NotificationType.GROUP_INVITE:
                       Optional<GroupInvitation> groupInvitation =
                           groupInvitationRepository.findById(notification.getNotificationId());
                       if (groupInvitation.isEmpty()) {
                         break;
                       }
-                      GroupInvitation invitation = groupInvitation.get();
-                      GroupNotificationDTO dto = new GroupNotificationDTO();
-                      dto.setId(invitation.getNotificationId());
-                      dto.setName(invitation.getGroup().getTitle());
-                      dto.setOwnerName(invitation.getGroup().getCreatedBy().getUsername());
-                      return dto;
+                      return GroupNotificationDTO.groupInvitationToDTO(groupInvitation.get());
                     default:
                       return null;
                   }

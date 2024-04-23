@@ -1,6 +1,6 @@
 package com.scholarsync.server.services;
 
-import com.scholarsync.server.dtos.FriendRequesInvitationDTO;
+import com.scholarsync.server.dtos.FriendRequestInvitationDTO;
 import com.scholarsync.server.entities.FriendRequest;
 import com.scholarsync.server.entities.User;
 import com.scholarsync.server.repositories.FriendRequestRepository;
@@ -50,15 +50,9 @@ public class FriendRequestService {
     if (user.isEmpty()) {
       return ResponseEntity.badRequest().body("user/not-found");
     }
-    List<FriendRequesInvitationDTO> response =
+    List<FriendRequestInvitationDTO> response =
         user.get().getReceivedFriendRequests().stream()
-            .map(
-                friendRequest ->
-                    new FriendRequesInvitationDTO(
-                        friendRequest.getNotificationId(),
-                        friendRequest.getFrom().getId(),
-                        friendRequest.getTo().getId(),
-                        friendRequest.getCreatedAt().toString()))
+            .map(FriendRequestInvitationDTO::friendRequestToDTO)
             .collect(Collectors.toList());
     return ResponseEntity.ok(response);
   }

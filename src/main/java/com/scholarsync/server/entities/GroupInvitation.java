@@ -19,21 +19,26 @@ public class GroupInvitation extends Notification {
   @JoinColumn(name = "group_id")
   Group group;
 
+  @ManyToOne
+  @JsonBackReference
+  @JoinColumn(name = "invited_by")
+  User invitedBy;
+
   boolean accepted;
 
   @ManyToOne
   @JsonBackReference
   @JoinColumn(name = "id")
   @Setter(AccessLevel.NONE)
-  private User userId;
+  private User user;
 
   public GroupInvitation() {
     this.accepted = false;
     this.setNotificationType(NotificationType.GROUP_INVITE);
   }
 
-  public void setUserId(User userId) {
-    this.userId = userId;
+  public void setUser(User userId) {
+    this.user = userId;
     setOwner(userId);
   }
 

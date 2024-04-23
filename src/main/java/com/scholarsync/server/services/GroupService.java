@@ -156,9 +156,9 @@ public class GroupService {
         userMap.put("username", user.getUsername());
         usersList.add(userMap);
       }
-      for (GroupInvitation groupInvitation: invitations) {
+      for (GroupInvitation groupInvitation : invitations) {
         Map<String, Object> map = new HashMap<>();
-        map.put("user_id", groupInvitation.getUserId().getId());
+        map.put("user_id", groupInvitation.getUser().getId());
         invitedUsers.add(map);
       }
       response.put("users", usersList);
@@ -204,6 +204,25 @@ public class GroupService {
     }
   }
 
+  public ResponseEntity<Object> joinPublicGroup(Map<String, String> groupData) {
+    Optional<Group> optionalGroup = groupRepository.findById(groupData.get("group_id"));
+    Optional<User> optionalUser = userRepository.findById(groupData.get("user_id"));
+    if (optionalGroup.isEmpty()) {
+      return new ResponseEntity<>("group/not-found", HttpStatus.NOT_FOUND);
+    } else if (optionalUser.isEmpty()) {
+      return new ResponseEntity<>("user/not-found", HttpStatus.NOT_FOUND);
+    } else {
+      Group group = optionalGroup.get();
+      User user = optionalUser.get();
+      if (!group.isPrivate()) {
+        addUserToGroup(group, user);
+        return new ResponseEntity<>("User added to group", HttpStatus.OK);
+      } else {
+        return new ResponseEntity<>("group/not-public", HttpStatus.BAD_REQUEST);
+      }
+    }
+  }
+
   public void removeUserFromGroup(Group group, User user) {
     Set<User> users = group.getUsers();
     users.remove(user);
@@ -214,5 +233,4 @@ public class GroupService {
     userRepository.save(user);
     groupRepository.save(group);
   }
-
 }
