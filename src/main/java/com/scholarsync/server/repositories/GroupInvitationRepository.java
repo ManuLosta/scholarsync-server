@@ -8,5 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface GroupInvitationRepository extends JpaRepository<GroupInvitation, String> {
 
-  Optional<GroupInvitation> findByGroupAndUserId(Group group, User user);
+  Optional<GroupInvitation> findByGroupAndUser(Group group, User user);
 }

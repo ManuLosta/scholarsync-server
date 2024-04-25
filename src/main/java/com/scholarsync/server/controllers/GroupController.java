@@ -36,4 +36,9 @@ public class GroupController {
   public ResponseEntity<Object> joinGroup(@RequestBody Map<String, String> group) {
     return groupService.joinPublicGroup(group);
   }
+
+  @PostMapping("/delete-group")
+  public ResponseEntity<Object> deleteGroup(@RequestBody Map<String,String> groupInfo){
+    return groupService.deleteGroup(groupInfo);
+  }
 }
