@@ -85,5 +85,9 @@ public class User {
   @OneToMany(mappedBy = "invitedBy", cascade = CascadeType.ALL)
   private Set<GroupInvitation> sentGroupInvitations;
 
+  @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
+    private Set<Question> questions;
+
+
   public User() {}
 }
