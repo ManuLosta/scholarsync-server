@@ -8,11 +8,14 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.validator.constraints.Length;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Entity
 @Getter
 @Setter
-@Table(name = "question", indexes = {@Index(name = "title_index", columnList = "title")})
+@Table(
+    name = "question",
+    indexes = {@Index(name = "title_index", columnList = "title")})
 public class Question {
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
@@ -40,4 +43,7 @@ public class Question {
   @JoinColumn(name = "group_id")
   @JsonBackReference
   private Group group;
+
+  @OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
+  private Set<QuestionFiles> questionFiles;
 }
