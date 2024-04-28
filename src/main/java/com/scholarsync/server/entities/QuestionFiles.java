@@ -22,6 +22,6 @@ public class QuestionFiles {
 
     @Lob
     @Column(name = "file")
-    private Byte[] file;
+    private byte[] file;
 
 }

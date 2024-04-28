@@ -4,13 +4,12 @@ import com.scholarsync.server.dtos.QuestionInputDTO;
 import com.scholarsync.server.services.QuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import io.github.bucket4j.*;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/questions")
@@ -35,13 +34,28 @@ public class QuestionController {
     }
   }
 
-  @GetMapping("/get-question")
+  @GetMapping(value = "/get-question")
   public ResponseEntity<Object> getQuestion(String id) {
     return ResponseEntity.ok(questionService.getQuestion(id));
   }
 
+
+  //all methods that include files are not working correctly so they are deprecated.
+
+  @Deprecated
+  @GetMapping(value = "/download-files")
+  public ResponseEntity<Object> downloadFiles(String id) {
+    return ResponseEntity.ok(questionService.downloadFiles(id));
+  }
+
+  @Deprecated
   @PostMapping("/publish-question")
   public ResponseEntity<Object> publishQuestion(QuestionInputDTO inputQuestion) {
     return ResponseEntity.ok(questionService.publishQuestion(inputQuestion));
+  }
+
+  @PostMapping("/publish-no-doc-question")
+  public ResponseEntity<Object> publishNoDocQuestion(@RequestBody Map<String,Object> inputQuestion){
+    return ResponseEntity.ok(questionService.publishNoDocQuestion(inputQuestion));
   }
 }
