@@ -19,6 +19,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -58,6 +61,9 @@ public class QuestionService {
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       ZipOutputStream zos = new ZipOutputStream(baos);
       for (QuestionFiles questionFile : files) {
+        if (questionFile.getFileType().contains("image")) {
+          continue;
+        }
         ZipEntry entry = new ZipEntry(questionFile.getId());
         entry.setSize(questionFile.getFile().length);
         zos.putNextEntry(entry);
@@ -67,10 +73,10 @@ public class QuestionService {
       zos.close();
       byte[] zipBytes = baos.toByteArray();
 
-      return ResponseEntity.ok()
-          .header(
-              HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + questionId + ".zip\"")
-          .body(zipBytes);
+      HttpHeaders headers = new HttpHeaders();
+      headers.add("Content-Disposition", "attachment; filename=" + questionId + ".zip");
+
+      return ResponseEntity.ok().headers(headers).body(zipBytes);
     } catch (IOException e) {
       return ResponseEntity.status(500).body(null);
     }
@@ -88,35 +94,24 @@ public class QuestionService {
   }
 
   @Transactional
-  public ResponseEntity<Object> publishQuestion(QuestionInputDTO inputQuestion) {
-    Question question = new Question();
-    question.setTitle(inputQuestion.getTitle());
-    question.setContent(inputQuestion.getContent());
-    String authorId = inputQuestion.getAuthorId();
-    String groupId = inputQuestion.getGroupId();
-    Optional<User> author = userRepository.findById(authorId);
-    if (author.isEmpty()) {
-      return ResponseEntity.status(404).body("user/not-found");
+  public ResponseEntity<Object> addImages(List<MultipartFile> images, String questionId) {
+
+    Optional<Question> questionOptional = questionRepository.findById(questionId);
+    if (questionOptional.isEmpty()) {
+      return ResponseEntity.status(404).body("question/not-found");
     }
-    Optional<Group> group = groupRepository.findById(groupId);
-    if (group.isEmpty()) {
-      return ResponseEntity.status(404).body("group/not-found");
-    }
-    question.setAuthor(author.get());
-    question.setGroup(group.get());
+    Question question = questionOptional.get();
 
-    List<MultipartFile> files = inputQuestion.getFiles();
-
-    questionRepository.save(question);
-
-    if (files != null) {
+    if (images != null) {
       Set<QuestionFiles> questionFiles =
-          files.stream()
+          images.stream()
               .map(
                   file -> {
                     QuestionFiles questionFile = new QuestionFiles();
                     try {
                       questionFile.setFile(file.getBytes());
+                      questionFile.setFileName(file.getOriginalFilename());
+                      questionFile.setFileType(file.getContentType());
                     } catch (IOException e) {
                       e.printStackTrace();
                     }
@@ -134,7 +129,7 @@ public class QuestionService {
     return ResponseEntity.ok(QuestionDTO.questionToDTO(question));
   }
 
-  public ResponseEntity<Object> publishNoDocQuestion(Map<String,Object> inputQuestion) {
+  public ResponseEntity<Object> publishNoDocQuestion(Map<String, Object> inputQuestion) {
 
     String title = inputQuestion.get("title").toString();
     String content = inputQuestion.get("content").toString();
@@ -156,7 +151,31 @@ public class QuestionService {
 
     questionRepository.save(question);
 
-
     return ResponseEntity.ok(QuestionDTO.questionToDTO(question));
+  }
+
+  @Transactional
+  public ResponseEntity<Object> getImages(String id) {
+    Optional<Question> questionOptional = questionRepository.findById(id);
+    if (questionOptional.isEmpty()) {
+      return ResponseEntity.status(404).body("question/not-found");
+    }
+    Question question = questionOptional.get();
+
+    List<Map<String, String>> images =
+        question.getQuestionFiles().stream()
+            .filter(questionFile -> questionFile.getFileType().contains("image"))
+            .map(
+                questionFile -> {
+                  Map<String, String> imageMap = new HashMap<>();
+                  imageMap.put("fileType", questionFile.getFileType());
+                  imageMap.put(
+                      "base64Encoding", Base64.getEncoder().encodeToString(questionFile.getFile()));
+                  imageMap.put("name", questionFile.getId());
+                  return imageMap;
+                })
+            .collect(Collectors.toList());
+
+    return ResponseEntity.ok(images);
   }
 }

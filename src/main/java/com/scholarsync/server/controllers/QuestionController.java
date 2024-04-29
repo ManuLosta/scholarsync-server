@@ -4,11 +4,14 @@ import com.scholarsync.server.dtos.QuestionInputDTO;
 import com.scholarsync.server.services.QuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import io.github.bucket4j.*;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -40,22 +43,26 @@ public class QuestionController {
   }
 
 
-  //all methods that include files are not working correctly so they are deprecated.
-
-  @Deprecated
-  @GetMapping(value = "/download-files")
+  @GetMapping(value = "/download-files", produces = "application/zip")
   public ResponseEntity<Object> downloadFiles(String id) {
-    return ResponseEntity.ok(questionService.downloadFiles(id));
+    ResponseEntity<Object> response = questionService.downloadFiles(id);
+    return response;
   }
 
-  @Deprecated
-  @PostMapping("/publish-question")
-  public ResponseEntity<Object> publishQuestion(QuestionInputDTO inputQuestion) {
-    return ResponseEntity.ok(questionService.publishQuestion(inputQuestion));
+  @GetMapping("/get-images")
+  public ResponseEntity<Object> getImages(String id) {
+    return ResponseEntity.ok(questionService.getImages(id));
+  }
+
+  @PostMapping("/upload-images")
+  public ResponseEntity<Object> uploadImages(
+      @RequestParam("files") List<MultipartFile> files, @RequestParam String questionId) {
+    return ResponseEntity.ok(questionService.addImages(files, questionId));
   }
 
   @PostMapping("/publish-no-doc-question")
-  public ResponseEntity<Object> publishNoDocQuestion(@RequestBody Map<String,Object> inputQuestion){
+  public ResponseEntity<Object> publishNoDocQuestion(
+      @RequestBody Map<String, Object> inputQuestion) {
     return ResponseEntity.ok(questionService.publishNoDocQuestion(inputQuestion));
   }
 }

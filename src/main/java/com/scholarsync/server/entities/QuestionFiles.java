@@ -10,18 +10,22 @@ import lombok.Setter;
 @Setter
 public class QuestionFiles {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private String id;
 
-    @ManyToOne
-    @JoinColumn(name = "question_id")
-    @JsonBackReference
-    private Question question;
+  @ManyToOne
+  @JoinColumn(name = "question_id")
+  @JsonBackReference
+  private Question question;
 
+  @Lob
+  @Column(name = "file")
+  private byte[] file;
 
-    @Lob
-    @Column(name = "file")
-    private byte[] file;
+  @Column(name = "file_name")
+  private String fileName;
 
+  @Column(name = "file_type")
+  private String fileType;
 }
