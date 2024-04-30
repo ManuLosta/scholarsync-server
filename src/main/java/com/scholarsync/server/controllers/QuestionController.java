@@ -42,7 +42,6 @@ public class QuestionController {
     return ResponseEntity.ok(questionService.getQuestion(id));
   }
 
-
   @GetMapping(value = "/download-files", produces = "application/zip")
   public ResponseEntity<Object> downloadFiles(String id) {
     ResponseEntity<Object> response = questionService.downloadFiles(id);
@@ -60,9 +59,23 @@ public class QuestionController {
     return ResponseEntity.ok(questionService.addImages(files, questionId));
   }
 
+  @PostMapping("/publish-question")
+  public ResponseEntity<Object> publishQuestion(
+      @RequestParam String title,
+      @RequestParam String content,
+      @RequestParam String authorId,
+      @RequestParam String groupId,
+      @RequestParam List<MultipartFile> files) {
+    QuestionInputDTO info = new QuestionInputDTO();
+    info.setTitle(title);
+    info.setContent(content);
+    info.setAuthorId(authorId);
+    info.setGroupId(groupId);
+    return ResponseEntity.ok(questionService.publishQuestion(info, files));
+  }
+
   @PostMapping("/publish-no-doc-question")
-  public ResponseEntity<Object> publishNoDocQuestion(
-      @RequestBody Map<String, Object> inputQuestion) {
+  public ResponseEntity<Object> publishNoDocQuestion(@RequestBody QuestionInputDTO inputQuestion) {
     return ResponseEntity.ok(questionService.publishNoDocQuestion(inputQuestion));
   }
 }

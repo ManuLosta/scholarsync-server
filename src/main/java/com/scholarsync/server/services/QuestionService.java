@@ -13,6 +13,7 @@ import com.scholarsync.server.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -129,20 +130,16 @@ public class QuestionService {
     return ResponseEntity.ok(QuestionDTO.questionToDTO(question));
   }
 
-  public ResponseEntity<Object> publishNoDocQuestion(Map<String, Object> inputQuestion) {
+  public ResponseEntity<Object> publishNoDocQuestion(QuestionInputDTO inputQuestion) {
 
-    String title = inputQuestion.get("title").toString();
-    String content = inputQuestion.get("content").toString();
-    String authorId = inputQuestion.get("authorId").toString();
-    String groupId = inputQuestion.get("groupId").toString();
     Question question = new Question();
-    question.setTitle(title);
-    question.setContent(content);
-    Optional<User> author = userRepository.findById(authorId);
+    question.setTitle(inputQuestion.getTitle());
+    question.setContent(inputQuestion.getContent());
+    Optional<User> author = userRepository.findById(inputQuestion.getAuthorId());
     if (author.isEmpty()) {
       return ResponseEntity.status(404).body("user/not-found");
     }
-    Optional<Group> group = groupRepository.findById(groupId);
+    Optional<Group> group = groupRepository.findById(inputQuestion.getGroupId());
     if (group.isEmpty()) {
       return ResponseEntity.status(404).body("group/not-found");
     }
@@ -177,5 +174,17 @@ public class QuestionService {
             .collect(Collectors.toList());
 
     return ResponseEntity.ok(images);
+  }
+
+  @Transactional
+  public Object publishQuestion(QuestionInputDTO info, List<MultipartFile> files) {
+
+    ResponseEntity<Object> noQuestionInfo = publishNoDocQuestion(info);
+    if (noQuestionInfo.getStatusCode() != HttpStatusCode.valueOf(200)) {
+      return noQuestionInfo;
+    }
+    QuestionDTO question = (QuestionDTO) noQuestionInfo.getBody();
+    String questionId = question.getId();
+    return addImages(files, questionId);
   }
 }
