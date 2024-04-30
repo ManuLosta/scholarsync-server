@@ -1,5 +1,6 @@
 package com.scholarsync.server.services;
 
+import com.scholarsync.server.dtos.FileDTO;
 import com.scholarsync.server.dtos.QuestionDTO;
 import com.scholarsync.server.dtos.QuestionInputDTO;
 import com.scholarsync.server.entities.Group;
@@ -11,6 +12,8 @@ import com.scholarsync.server.repositories.QuestionFileRepository;
 import com.scholarsync.server.repositories.QuestionRepository;
 import com.scholarsync.server.repositories.UserRepository;
 import jakarta.transaction.Transactional;
+import org.apache.tika.mime.MimeTypeException;
+import org.apache.tika.mime.MimeTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
@@ -83,6 +86,37 @@ public class QuestionService {
     }
   }
 
+  public ResponseEntity<Object> getFiles(String id) {
+    Optional<Question> questionOptional = questionRepository.findById(id);
+    if (questionOptional.isEmpty()) {
+      return ResponseEntity.status(404).body("question/not-found");
+    }
+    Question question = questionOptional.get();
+    List<QuestionFiles> files = new ArrayList<>(question.getQuestionFiles());
+    FileDTO[] fileDTOs = new FileDTO[files.size()];
+    for (QuestionFiles file : files) {
+      FileDTO fileDTO = FileDTO.fileToDTO(file);
+      fileDTOs[files.indexOf(file)] = fileDTO;
+    }
+    return ResponseEntity.ok(fileDTOs);
+  }
+
+    @Transactional
+    public ResponseEntity<Object> downloadFile(String id){
+        Optional<QuestionFiles> questionFileOptional = questionFileRepository.findById(id);
+        if(questionFileOptional.isEmpty()){
+            return ResponseEntity.status(404).body("file/not-found");
+        }
+        QuestionFiles questionFile = questionFileOptional.get();
+        byte[] file = questionFile.getFile();
+        String fileName = questionFile.getFileName();
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=" + fileName);
+        headers.add("Content-Type", questionFile.getFileType());
+
+        return ResponseEntity.ok().headers(headers).body(file);
+    }
+
   public ResponseEntity<Object> getQuestionsByTitle(String title) {
     Set<Question> questions = questionRepository.findQuestionsByTitleContaining(title);
     if (questions.isEmpty()) {
@@ -92,6 +126,17 @@ public class QuestionService {
     List<QuestionDTO> result = questions.stream().map(QuestionDTO::questionToDTO).toList();
 
     return ResponseEntity.ok(result);
+  }
+
+  public String getExtensionFromMimeType(String mimeType) {
+    MimeTypes allTypes = MimeTypes.getDefaultMimeTypes();
+    String extension = "";
+    try {
+      extension = allTypes.forName(mimeType).getExtension();
+    } catch (MimeTypeException e) {
+      e.printStackTrace();
+    }
+    return extension;
   }
 
   @Transactional

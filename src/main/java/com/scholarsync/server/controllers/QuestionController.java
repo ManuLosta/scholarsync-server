@@ -4,6 +4,7 @@ import com.scholarsync.server.dtos.QuestionInputDTO;
 import com.scholarsync.server.services.QuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import io.github.bucket4j.*;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -58,6 +59,20 @@ public class QuestionController {
       @RequestParam("files") List<MultipartFile> files, @RequestParam String questionId) {
     return ResponseEntity.ok(questionService.addImages(files, questionId));
   }
+
+  @GetMapping(value = "/download-file")
+  public ResponseEntity<Object> downloadFile(String id) {
+    ResponseEntity<Object> response = questionService.downloadFile(id);
+    MediaType contentType = response.getHeaders().getContentType();
+    HttpHeaders headers = response.getHeaders();
+    Object body = response.getBody();
+    return ResponseEntity.ok().contentType(contentType).headers(headers).body(body);
+  }
+
+  @GetMapping("/get-question-files")
+    public ResponseEntity<Object> getQuestionFiles(String id) {
+        return ResponseEntity.ok(questionService.getFiles(id));
+    }
 
   @PostMapping("/publish-question")
   public ResponseEntity<Object> publishQuestion(
