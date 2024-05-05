@@ -1,11 +1,9 @@
 package com.scholarsync.server.dtos;
 
 import com.scholarsync.server.entities.Question;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 @AllArgsConstructor
@@ -24,7 +22,6 @@ public class QuestionDTO {
         question.getContent(),
         question.getAuthor().getId(),
         question.getGroup().getId(),
-        question.getCreatedAt()
-        );
+        question.getCreatedAt());
   }
 }

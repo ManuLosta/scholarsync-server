@@ -2,18 +2,14 @@ package com.scholarsync.server.controllers;
 
 import com.scholarsync.server.dtos.QuestionInputDTO;
 import com.scholarsync.server.services.QuestionService;
-import org.springframework.beans.factory.annotation.Autowired;
 import io.github.bucket4j.*;
+import java.time.Duration;
+import java.util.List;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.time.Duration;
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/questions")
@@ -57,7 +53,7 @@ public class QuestionController {
   @PostMapping("/upload-images")
   public ResponseEntity<Object> uploadImages(
       @RequestParam("files") List<MultipartFile> files, @RequestParam String questionId) {
-    return ResponseEntity.ok(questionService.addImages(files, questionId));
+    return ResponseEntity.ok(questionService.addFiles(files, questionId));
   }
 
   @GetMapping(value = "/download-file")
@@ -70,9 +66,9 @@ public class QuestionController {
   }
 
   @GetMapping("/get-question-files")
-    public ResponseEntity<Object> getQuestionFiles(String id) {
-        return ResponseEntity.ok(questionService.getFiles(id));
-    }
+  public ResponseEntity<Object> getQuestionFiles(String id) {
+    return ResponseEntity.ok(questionService.getFiles(id));
+  }
 
   @PostMapping("/publish-question")
   public ResponseEntity<Object> publishQuestion(

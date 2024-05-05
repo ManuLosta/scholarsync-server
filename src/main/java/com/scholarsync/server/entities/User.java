@@ -1,6 +1,8 @@
 package com.scholarsync.server.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.scholarsync.server.constants.LevelMap;
+import com.scholarsync.server.types.levelType;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -47,8 +49,9 @@ public class User {
   @Column(name = "xp")
   private int xp;
 
-  @Column(name = "level_id")
-  private long levelId = 0;
+  @Column(name = "level", nullable = false)
+  @Enumerated(EnumType.STRING)
+  private levelType level;
 
   @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
   @PrimaryKeyJoinColumn
@@ -86,8 +89,26 @@ public class User {
   private Set<GroupInvitation> sentGroupInvitations;
 
   @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
-    private Set<Question> questions;
+  private Set<Question> questions;
 
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+  private Set<Answer> answers;
 
-  public User() {}
+  public User() {
+    this.credits = 100;
+    this.xp = 0;
+    this.level = levelType.Newbie;
+  }
+
+  public void removeCredits(User user) {
+    user.setCredits(user.getCredits() - 20);
+    user.setXp(user.getXp() + 25);
+    user.setLevel(LevelMap.levelMap.get(credits));
+  }
+
+  public void addCredits(User user) {
+    user.setCredits(user.getCredits() + 5);
+    user.setXp(user.getXp() + 50);
+    user.setLevel(LevelMap.levelMap.get(credits));
+  }
 }

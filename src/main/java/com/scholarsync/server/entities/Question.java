@@ -2,13 +2,12 @@ package com.scholarsync.server.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.validator.constraints.Length;
-
-import java.time.LocalDateTime;
-import java.util.Set;
 
 @Entity
 @Getter

@@ -12,24 +12,18 @@ import com.scholarsync.server.repositories.QuestionFileRepository;
 import com.scholarsync.server.repositories.QuestionRepository;
 import com.scholarsync.server.repositories.UserRepository;
 import jakarta.transaction.Transactional;
-import org.apache.tika.mime.MimeTypeException;
-import org.apache.tika.mime.MimeTypes;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 @Service
 public class QuestionService {
@@ -101,21 +95,21 @@ public class QuestionService {
     return ResponseEntity.ok(fileDTOs);
   }
 
-    @Transactional
-    public ResponseEntity<Object> downloadFile(String id){
-        Optional<QuestionFiles> questionFileOptional = questionFileRepository.findById(id);
-        if(questionFileOptional.isEmpty()){
-            return ResponseEntity.status(404).body("file/not-found");
-        }
-        QuestionFiles questionFile = questionFileOptional.get();
-        byte[] file = questionFile.getFile();
-        String fileName = questionFile.getFileName();
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename=" + fileName);
-        headers.add("Content-Type", questionFile.getFileType());
-
-        return ResponseEntity.ok().headers(headers).body(file);
+  @Transactional
+  public ResponseEntity<Object> downloadFile(String id) {
+    Optional<QuestionFiles> questionFileOptional = questionFileRepository.findById(id);
+    if (questionFileOptional.isEmpty()) {
+      return ResponseEntity.status(404).body("file/not-found");
     }
+    QuestionFiles questionFile = questionFileOptional.get();
+    byte[] file = questionFile.getFile();
+    String fileName = questionFile.getFileName();
+    HttpHeaders headers = new HttpHeaders();
+    headers.add("Content-Disposition", "attachment; filename=" + fileName);
+    headers.add("Content-Type", questionFile.getFileType());
+
+    return ResponseEntity.ok().headers(headers).body(file);
+  }
 
   public ResponseEntity<Object> getQuestionsByTitle(String title) {
     Set<Question> questions = questionRepository.findQuestionsByTitleContaining(title);
@@ -128,19 +122,8 @@ public class QuestionService {
     return ResponseEntity.ok(result);
   }
 
-  public String getExtensionFromMimeType(String mimeType) {
-    MimeTypes allTypes = MimeTypes.getDefaultMimeTypes();
-    String extension = "";
-    try {
-      extension = allTypes.forName(mimeType).getExtension();
-    } catch (MimeTypeException e) {
-      e.printStackTrace();
-    }
-    return extension;
-  }
-
   @Transactional
-  public ResponseEntity<Object> addImages(List<MultipartFile> images, String questionId) {
+  public ResponseEntity<Object> addFiles(List<MultipartFile> images, String questionId) {
 
     Optional<Question> questionOptional = questionRepository.findById(questionId);
     if (questionOptional.isEmpty()) {
@@ -188,9 +171,12 @@ public class QuestionService {
     if (group.isEmpty()) {
       return ResponseEntity.status(404).body("group/not-found");
     }
+    author.get().removeCredits(author.get());
     question.setAuthor(author.get());
     question.setGroup(group.get());
 
+    userRepository.save(author.get());
+    groupRepository.save(group.get());
     questionRepository.save(question);
 
     return ResponseEntity.ok(QuestionDTO.questionToDTO(question));
@@ -230,6 +216,6 @@ public class QuestionService {
     }
     QuestionDTO question = (QuestionDTO) noQuestionInfo.getBody();
     String questionId = question.getId();
-    return addImages(files, questionId);
+    return addFiles(files, questionId);
   }
 }

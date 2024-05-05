@@ -7,17 +7,15 @@ import lombok.Setter;
 @Getter
 @Setter
 public class FileDTO {
-    private String id;
-    private String name;
-    private String file_type;
+  private String id;
+  private String name;
+  private String file_type;
 
-
-
-    public static FileDTO fileToDTO(QuestionFiles file) {
-        FileDTO fileDTO = new FileDTO();
-        fileDTO.setId(file.getId());
-        fileDTO.setName(file.getFileName());
-        fileDTO.setFile_type(file.getFileType());
-        return fileDTO;
-    }
+  public static FileDTO fileToDTO(QuestionFiles file) {
+    FileDTO fileDTO = new FileDTO();
+    fileDTO.setId(file.getId());
+    fileDTO.setName(file.getFileName());
+    fileDTO.setFile_type(file.getFileType());
+    return fileDTO;
+  }
 }
