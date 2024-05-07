@@ -21,8 +21,8 @@ public class Question {
   @Column(unique = true, nullable = false)
   String id;
 
-  @Column(nullable = false, length = 25)
-  @Length(min = 10, max = 25)
+  @Column(nullable = false, length = 200)
+  @Length(min = 10, max = 200)
   String title;
 
   @Column(nullable = false, length = 1000)
