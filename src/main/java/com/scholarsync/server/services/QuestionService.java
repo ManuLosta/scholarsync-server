@@ -80,6 +80,7 @@ public class QuestionService {
     }
   }
 
+  @Transactional
   public ResponseEntity<Object> getFiles(String id) {
     Optional<Question> questionOptional = questionRepository.findById(id);
     if (questionOptional.isEmpty()) {

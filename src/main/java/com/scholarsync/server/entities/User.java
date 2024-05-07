@@ -103,12 +103,20 @@ public class User {
   public void removeCredits(User user) {
     user.setCredits(user.getCredits() - 20);
     user.setXp(user.getXp() + 25);
-    user.setLevel(LevelMap.levelMap.get(credits));
+    levelType level = LevelMap.levelMap.get(credits);
+    if (level != user.getLevel() && level != null) {
+      user.setLevel(level);
+    }
   }
 
   public void addCredits(User user) {
     user.setCredits(user.getCredits() + 5);
     user.setXp(user.getXp() + 50);
     user.setLevel(LevelMap.levelMap.get(credits));
+
+    levelType level = LevelMap.levelMap.get(credits);
+    if (level != user.getLevel() && level != null) {
+      user.setLevel(level);
+    }
   }
 }
