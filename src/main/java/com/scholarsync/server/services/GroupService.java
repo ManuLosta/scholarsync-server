@@ -234,7 +234,7 @@ public class GroupService {
     groupRepository.save(group);
   }
 
-  public void deleteGroup(Group group){
+  public void deleteGroup(Group group) {
     groupRepository.delete(group);
   }
 
@@ -243,21 +243,21 @@ public class GroupService {
     String user_id = groupInfo.get("user_id");
     Optional<Group> groupOptional = groupRepository.findById(group_id);
     Optional<User> userOptional = userRepository.findById(user_id);
-    if(groupOptional.isEmpty() && userOptional.isEmpty()){
-      return new ResponseEntity<>("group-and-user/not-found",HttpStatus.NOT_FOUND);
+    if (groupOptional.isEmpty() && userOptional.isEmpty()) {
+      return new ResponseEntity<>("group-and-user/not-found", HttpStatus.NOT_FOUND);
     }
-    if(groupOptional.isEmpty()){
-      return new ResponseEntity<>("group/not-found",HttpStatus.NOT_FOUND);
+    if (groupOptional.isEmpty()) {
+      return new ResponseEntity<>("group/not-found", HttpStatus.NOT_FOUND);
     }
-    if(userOptional.isEmpty()){
-      return new ResponseEntity<>("user/not-found",HttpStatus.NOT_FOUND);
+    if (userOptional.isEmpty()) {
+      return new ResponseEntity<>("user/not-found", HttpStatus.NOT_FOUND);
     }
     User user = userOptional.get();
     Group group = groupOptional.get();
-    if(group.getCreatedBy() != user){
-      return new ResponseEntity<>("user/not-owner",HttpStatus.FORBIDDEN);
+    if (group.getCreatedBy() != user) {
+      return new ResponseEntity<>("user/not-owner", HttpStatus.FORBIDDEN);
     }
     deleteGroup(group);
-    return new ResponseEntity<>("group/deleted",HttpStatus.OK);
+    return new ResponseEntity<>("group/deleted", HttpStatus.OK);
   }
 }

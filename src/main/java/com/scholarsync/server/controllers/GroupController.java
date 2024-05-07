@@ -38,7 +38,7 @@ public class GroupController {
   }
 
   @PostMapping("/delete-group")
-  public ResponseEntity<Object> deleteGroup(@RequestBody Map<String,String> groupInfo){
+  public ResponseEntity<Object> deleteGroup(@RequestBody Map<String, String> groupInfo) {
     return groupService.deleteGroup(groupInfo);
   }
 }
