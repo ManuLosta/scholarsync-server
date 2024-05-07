@@ -45,4 +45,7 @@ public class Question {
 
   @OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
   private Set<QuestionFiles> questionFiles;
+
+  @OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
+  private Set<Answer> answers;
 }

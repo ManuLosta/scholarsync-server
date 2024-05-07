@@ -1,5 +1,6 @@
 package com.scholarsync.server.services;
 
+import com.scholarsync.server.dtos.ProfileDTO;
 import com.scholarsync.server.dtos.RefreshDTO;
 import com.scholarsync.server.entities.Session;
 import com.scholarsync.server.entities.User;
@@ -26,12 +27,8 @@ public class SessionService {
     if (session.isPresent()) {
       if (session.get().getExpires().isAfter(LocalDateTime.now())) {
         User user = session.get().getUser();
-        RefreshDTO refreshDTO = new RefreshDTO();
-        refreshDTO.setId(user.getId());
-        refreshDTO.setFirstName(user.getFirstName());
-        refreshDTO.setLastName(user.getLastName());
-        refreshDTO.setUsername(user.getUsername());
-        return new ResponseEntity<>(refreshDTO, HttpStatus.OK);
+        ProfileDTO profileDTO = ProfileDTO.userToProfileDTO(user);
+        return new ResponseEntity<>(profileDTO, HttpStatus.OK);
       } else {
         sessionRepository.delete(session.get());
         return new ResponseEntity<>("auth/unauthorized", HttpStatus.UNAUTHORIZED);

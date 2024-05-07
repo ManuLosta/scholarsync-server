@@ -5,6 +5,8 @@ import com.scholarsync.server.entities.User;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+
+import com.scholarsync.server.types.levelType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,6 +23,8 @@ public class ProfileDTO {
   private LocalDate birthDate;
   private LocalDateTime createdAt;
   private int credits;
+  private levelType level;
+  private int xp;
   private List<Map<String, Object>> friends;
   private List<Map<String, Object>> groups;
 
@@ -33,6 +37,8 @@ public class ProfileDTO {
     profileDTO.setBirthDate(user.getBirthDate());
     profileDTO.setCreatedAt(user.getCreatedAt());
     profileDTO.setCredits(user.getCredits());
+    profileDTO.setLevel(user.getLevel());
+    profileDTO.setXp(user.getXp());
     Set<User> friends = user.getFriends();
     Set<Group> groups = user.getGroups();
     List<Map<String, Object>> friendsList = new ArrayList<>();

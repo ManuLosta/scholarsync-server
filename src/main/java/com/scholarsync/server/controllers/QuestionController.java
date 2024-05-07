@@ -5,6 +5,8 @@ import com.scholarsync.server.services.QuestionService;
 import io.github.bucket4j.*;
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -89,4 +91,13 @@ public class QuestionController {
   public ResponseEntity<Object> publishNoDocQuestion(@RequestBody QuestionInputDTO inputQuestion) {
     return ResponseEntity.ok(questionService.publishNoDocQuestion(inputQuestion));
   }
+
+  @GetMapping("/get-questions-by-score")
+    public ResponseEntity<Object> getQuestionsByScore(Map<String,Object> info) {
+        int offset = (int) info.get("offset");
+        int limit = (int) info.get("limit");
+        String userId = (String) info.get("userId");
+
+        return ResponseEntity.ok(questionService.getQuestionsByScore(offset, limit, userId));
+    }
 }
