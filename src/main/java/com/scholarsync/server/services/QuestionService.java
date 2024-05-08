@@ -266,8 +266,8 @@ public class QuestionService {
           "totalScore",
           dateScore * 0.1
               + likeScore * 0.3
-              + (Integer) item.get("authorLevelScore") * 0.4
-              + (Integer) item.get("likeLevelScore") * 0.2);
+              + (Integer) item.get("authorLevelScore") * 0.04
+              + (Integer) item.get("likeLevelScore") * 0.02);
       questionScores.add(item);
     }
 
