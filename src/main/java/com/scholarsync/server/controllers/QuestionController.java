@@ -6,6 +6,7 @@ import io.github.bucket4j.*;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -89,15 +90,11 @@ public class QuestionController {
 
   @PostMapping("/publish-no-doc-question")
   public ResponseEntity<Object> publishNoDocQuestion(@RequestBody QuestionInputDTO inputQuestion) {
-    return ResponseEntity.ok(questionService.publishNoDocQuestion(inputQuestion));
+    return questionService.publishNoDocQuestion(inputQuestion);
   }
 
   @GetMapping("/get-questions-by-score")
-    public ResponseEntity<Object> getQuestionsByScore(Map<String,Object> info) {
-        int offset = (int) info.get("offset");
-        int limit = (int) info.get("limit");
-        String userId = (String) info.get("userId");
-
+    public ResponseEntity<Object> getQuestionsByScore(@RequestParam(name = "offset") int offset, @RequestParam(name = "limit") int limit, @RequestParam(name = "user_id") String userId) throws ExecutionException, InterruptedException {
         return ResponseEntity.ok(questionService.getQuestionsByScore(offset, limit, userId));
     }
 }

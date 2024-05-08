@@ -4,26 +4,23 @@ import com.scholarsync.server.dtos.FileDTO;
 import com.scholarsync.server.dtos.QuestionDTO;
 import com.scholarsync.server.dtos.QuestionInputDTO;
 import com.scholarsync.server.entities.*;
-import com.scholarsync.server.repositories.GroupRepository;
-import com.scholarsync.server.repositories.QuestionFileRepository;
-import com.scholarsync.server.repositories.QuestionRepository;
-import com.scholarsync.server.repositories.UserRepository;
+import com.scholarsync.server.repositories.*;
+import com.scholarsync.server.types.levelType;
 import jakarta.transaction.Transactional;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,6 +31,8 @@ public class QuestionService {
   @Autowired UserRepository userRepository;
   @Autowired private GroupRepository groupRepository;
   @Autowired private QuestionFileRepository questionFileRepository;
+  @Autowired
+  private AnswerRepository answerRepository;
 
   @Transactional
   public ResponseEntity<Object> getQuestion(String id) {
@@ -222,77 +221,198 @@ public class QuestionService {
     return addFiles(files, questionId);
   }
 
-  public double getQuestionScore(Question question, int offset, int limit) {
-    double questionUserLevelWeight = 0.4;
-    double mostUpvotedAnswerWeight = 0.3;
-    double timeWeight = 0.1;
-    double moustUpvoteResponseUserLevelWeight = 0.2;
-
-    double questionScore = 0;
-    int questionUserLevel = question.getAuthor().getLevel().ordinal() + 1;
-
-    double timeScore = normalizeTimeDifference(question, offset, limit);
-
-    Answer mostUpvotedAnswer =
-        question.getAnswers().stream().max(Comparator.comparing(Answer::getUpvotes)).orElse(null);
-    questionScore = questionUserLevel * questionUserLevelWeight + timeScore * timeWeight;
-
-    if (mostUpvotedAnswer == null) {
-      return questionScore;
-    }
-    int answerUserLevel = mostUpvotedAnswer.getUser().getLevel().ordinal() + 1;
-
-    double upvoteScore = normalizeMostUpvotedAnswer(mostUpvotedAnswer, offset, limit);
-
-    questionScore +=
-        upvoteScore * mostUpvotedAnswerWeight
-            + answerUserLevel * moustUpvoteResponseUserLevelWeight;
-    return questionScore;
-  }
-
-  private double normalizeTimeDifference(Question question, int offset, int limit) {
-    LocalDateTime now = LocalDateTime.ofInstant(new Date().toInstant(), ZoneId.systemDefault());
-    long daysDifference = ChronoUnit.DAYS.between(question.getCreatedAt(), now);
-    long maxDaysDifference = 30L * (offset + 1);
-    double score =
-        limit - (double) Math.max(0, Math.min(limit, (limit * daysDifference) / maxDaysDifference));
-    score = Math.max(0, Math.min(limit, score));
-    return score;
-  }
-
-  private double normalizeMostUpvotedAnswer(Answer mostUpvotedAnswer, int offset, int limit) {
-    int scoreDifference = mostUpvotedAnswer.getUpvotes() - mostUpvotedAnswer.getDownvotes();
-    int maxScoreDifference = 1000 * (offset + 1);
-    double normalizedScore =
-        limit
-            - (double) Math.max(0, Math.min(limit, (limit * scoreDifference) / maxScoreDifference));
-    normalizedScore = Math.max(0, Math.min(limit, normalizedScore));
-    return normalizedScore;
-  }
-
-  @Async
-  public CompletableFuture<ResponseEntity<List<QuestionScoreDTO>>> getQuestionsByScore(
+  @Transactional
+  public ResponseEntity<List<QuestionScoreDTO>> getQuestionsByScore(
       int offset, int limit, String userId) {
+    List<Map<String, Object>> normalizedQuestions = generateNormalizedQuestions(userId);
+    List<Map<String,Object>> filteredQuestions = normalizedQuestions.subList(
+        offset * limit, Math.min(normalizedQuestions.size(), offset * limit + limit));
+    List<QuestionScoreDTO> result = new ArrayList<>();
+    for (Map<String, Object> question : filteredQuestions) {
+      Question questionEntity = questionRepository.getReferenceById((String) question.get("id"));
+      QuestionDTO questionDTO = QuestionDTO.questionToDTO(questionEntity);
+      result.add(new QuestionScoreDTO(questionDTO, (double) question.get("totalScore")));
+    }
+    return ResponseEntity.ok(result);
+  }
+
+  // --------------------------------helper methods----------------------------------------------
+
+  public List<Map<String, Object>> getQuestionsFinalScore(
+      Map<String, Map<String, Object>> normalizedLikes,
+      Map<String, Map<String, Object>> normalizedDates) {
+
+    Set<Map.Entry<String, Map<String, Object>>> normalizedDatesEntry = normalizedDates.entrySet();
+
+    List<Map<String, Object>> questionScores = new ArrayList<>();
+    for (Map.Entry<String, Map<String, Object>> entry : normalizedDatesEntry) {
+      Question question = questionRepository.getReferenceById(entry.getKey());
+      levelType authorLevel = question.getAuthor().getLevel();
+      Map<String, Object> item = new HashMap<>();
+      String id = entry.getKey();
+      Double dateScore = (Double) entry.getValue().get("score");
+      Double likeScore = 0.0;
+      String likeLevelId = null;
+      if (normalizedLikes.get(id) != null) {
+        likeScore = (Double) normalizedLikes.get(id).get("score");
+        likeLevelId = (String) normalizedLikes.get(id).get("netLikesId");
+      }
+      item.put("id", id);
+      item.put("dateScore", dateScore);
+      item.put("likeScore", likeScore);
+      item.put("authorLevelScore", authorLevel.ordinal() + 1);
+      item.put("likeLevelScore", likeLevelId == null ? 0 : answerRepository.getReferenceById(likeLevelId).getUser().getLevel().ordinal() + 1);
+      item.put(
+          "totalScore",
+          dateScore * 0.1
+              + likeScore * 0.3
+              + (Integer) item.get("authorLevelScore") * 0.4
+              + (Integer) item.get("likeLevelScore") * 0.2);
+      questionScores.add(item);
+    }
+
+    questionScores =
+        questionScores.stream()
+            .sorted(
+                (map1, map2) ->
+                    Double.compare(
+                        (double) map2.get("totalScore"), (double) map1.get("totalScore")))
+            .collect(Collectors.toList());
+    return questionScores;
+  }
+
+  private List<Map<String, Object>> generateNormalizedQuestions(String userId) {
     List<Question> questions = questionRepository.findAll();
     User user = userRepository.findById(userId).orElse(null);
     List<Question> userQuestions =
         questions.stream()
             .filter(question -> question.getGroup().getUsers().contains(user))
-            .toList();
-
-    List<QuestionScoreDTO> questionScores =
-        userQuestions.parallelStream()
-            .map(
-                question ->
-                    new QuestionScoreDTO(
-                        QuestionDTO.questionToDTO(question),
-                        getQuestionScore(question, offset, limit)))
-            .sorted(Comparator.comparingDouble(QuestionScoreDTO::getScore))
             .collect(Collectors.toList());
 
-    return CompletableFuture.completedFuture(ResponseEntity.ok(questionScores));
+    Map<String, List<Map<String, Object>>> questionData = extractQuestionData(userQuestions);
+
+    List<Map<String, Object>> likes = questionData.get("likes");
+    List<Map<String, Object>> dates = questionData.get("dates");
+
+    Map<String, Map<String, Object>> normalizedLikes = normalizeList(likes);
+    Map<String, Map<String, Object>> normalizedDates = normalizeList(dates);
+
+    return getQuestionsFinalScore(normalizedLikes, normalizedDates);
   }
 
+  public Map<String, List<Map<String, Object>>> extractQuestionData(List<Question> userQuestions) {
+    List<Map<String, Object>> questionDates =
+        userQuestions.stream()
+            .map(
+                question -> {
+                  Map<String, Object> map = new HashMap<>();
+                  map.put("value", question.getCreatedAt());
+                  map.put("id", question.getId());
+                  return map;
+                })
+            .sorted(
+                (Comparator.comparing(
+                        map -> ((LocalDateTime) ((Map<String, Object>) map).get("value"))))
+                    .reversed())
+            .collect(Collectors.toList());
+
+    List<Map<String, Object>> maxLikes =
+        new ArrayList<>(
+            userQuestions.stream()
+                .map(
+                    question -> {
+                      Map<String, Object> info = new HashMap<>();
+                      List<Answer> answers = new ArrayList<>(question.getAnswers());
+                      List<Map<String, Object>> likesPerAnswer =
+                          answers.stream()
+                              .map(
+                                  answer -> {
+                                    Map<String, Object> map = new HashMap<>();
+                                    map.put("likes", answer.getUpvotes() - answer.getDownvotes());
+                                    map.put("id", question.getId());
+                                    map.put("responseId", answer.getId());
+                                    return map;
+                                  })
+                              .toList();
+                      info.put(
+                          "value",
+                          likesPerAnswer.stream()
+                              .map(map -> (int) map.get("likes"))
+                              .max(Comparator.naturalOrder())
+                              .orElse(0));
+                      info.put("id", question.getId());
+                      info.put(
+                          "netLikesId",
+                          likesPerAnswer.stream()
+                              .min(
+                                  (map1, map2) ->
+                                      Integer.compare(
+                                          (int) map2.get("likes"), (int) map1.get("likes")))
+                              .map(map -> map.get("responseId"))
+                              .orElse(null));
+                      return info;
+                    })
+                .toList());
+    maxLikes.sort(
+        (Comparator.comparing(map -> (int) ((Map<String, Object>) map).get("value"))).reversed());
+
+    Map<String, List<Map<String, Object>>> result = new HashMap<>();
+    result.put("dates", questionDates);
+    result.put("likes", maxLikes);
+
+    return result;
+  }
+
+  public static Map<String, Map<String, Object>> normalizeList(List<Map<String, Object>> items) {
+    if (items.isEmpty()) {
+      return new HashMap<>();
+    }
+
+    if (items.getFirst().get("value") instanceof LocalDateTime) {
+      int min =
+          (int)
+              ((LocalDateTime) items.getLast().get("value"))
+                  .toEpochSecond(java.time.ZoneOffset.UTC);
+      int max =
+          (int)
+              ((LocalDateTime) items.getFirst().get("value"))
+                  .toEpochSecond(java.time.ZoneOffset.UTC);
+      int size = items.size();
+      Map<String, Map<String, Object>> result = new HashMap<>();
+      for (int i = 0; i < size; i++) {
+        Map<String, Object> item = items.get(i);
+        double score =
+            (double)
+                    (((LocalDateTime) item.get("value")).toEpochSecond(java.time.ZoneOffset.UTC)
+                        - min)
+                / (max - min);
+        Map<String, Object> entry = new HashMap<>();
+        entry.put("value", item.get("value"));
+        entry.put("score", score);
+        result.put((String) item.get("id"), entry);
+      }
+      return result;
+    } else if (items.getFirst().get("value") instanceof Integer) {
+      int min = (int) items.getLast().get("value");
+      int max = (int) items.getFirst().get("value");
+      int size = items.size();
+      Map<String, Map<String, Object>> result = new HashMap<>();
+      for (int i = 0; i < size; i++) {
+        Map<String, Object> item = items.get(i);
+        double score = (double) ((int) item.get("value") - min) / (max - min);
+        Map<String, Object> entry = new HashMap<>();
+        entry.put("value", item.get("value"));
+        entry.put("score", score);
+        entry.put("netLikesId", item.get("netLikesId"));
+        result.put((String) item.get("id"), entry);
+      }
+      return result;
+    } else {
+      throw new IllegalArgumentException("Invalid type");
+    }
+  }
+
+  @Getter
   public static class QuestionScoreDTO {
     private final QuestionDTO question;
     private final double score;
@@ -301,13 +421,5 @@ public class QuestionService {
       this.question = question;
       this.score = score;
     }
-
-    public QuestionDTO getQuestion() {
-      return question;
-    }
-
-    public double getScore() {
-      return score;
-    }
   }
-  }
+}
