@@ -9,11 +9,13 @@ import lombok.Setter;
 public class AnswerDTO {
   private String questionId;
   private String content;
+  private String answerId;
   private String userId;
   private String groupId;
 
   public static AnswerDTO answerToDTO(Answer answer) {
     AnswerDTO answerDTO = new AnswerDTO();
+    answerDTO.setAnswerId(answer.getId());
     answerDTO.setQuestionId(answer.getQuestion().getId());
     answerDTO.setContent(answer.getContent());
     answerDTO.setUserId(answer.getUser().getId());

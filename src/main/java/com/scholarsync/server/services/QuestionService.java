@@ -1,5 +1,6 @@
 package com.scholarsync.server.services;
 
+import com.scholarsync.server.dtos.AnswerDTO;
 import com.scholarsync.server.dtos.FileDTO;
 import com.scholarsync.server.dtos.QuestionDTO;
 import com.scholarsync.server.dtos.QuestionInputDTO;
@@ -219,6 +220,19 @@ public class QuestionService {
     QuestionDTO question = (QuestionDTO) noQuestionInfo.getBody();
     String questionId = question.getId();
     return addFiles(files, questionId);
+  }
+
+  @Transactional
+  public ResponseEntity<Object> getAnswersByQuestion(String questionId){
+    Optional<Question> questionOptional = questionRepository.findById(questionId);
+    if (questionOptional.isEmpty()) {
+      return ResponseEntity.status(404).body("question/not-found");
+    }
+    Question question = questionOptional.get();
+    List<Answer> answers = new ArrayList<>(question.getAnswers());
+    List<Answer> sortedAnswers = answers.stream().sorted((a1, a2) -> a2.getCreatedAt().compareTo(a1.getCreatedAt())).toList();
+    List<AnswerDTO> answerDTOS = sortedAnswers.stream().map(AnswerDTO::answerToDTO).toList();
+    return ResponseEntity.ok(answerDTOS);
   }
 
   @Transactional

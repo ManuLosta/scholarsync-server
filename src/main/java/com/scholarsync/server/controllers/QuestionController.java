@@ -97,4 +97,9 @@ public class QuestionController {
     public ResponseEntity<Object> getQuestionsByScore(@RequestParam(name = "offset") int offset, @RequestParam(name = "limit") int limit, @RequestParam(name = "user_id") String userId) throws ExecutionException, InterruptedException {
         return ResponseEntity.ok(questionService.getQuestionsByScore(offset, limit, userId));
     }
+
+  @GetMapping("/get-answers-by-question")
+  public ResponseEntity<Object> getAnswersByQuestion(@RequestParam(name = "question_id") String questionId) {
+    return ResponseEntity.ok(questionService.getAnswersByQuestion(questionId));
+  }
 }
