@@ -24,7 +24,7 @@ public class AnswerController {
       @RequestParam String content,
       @RequestParam String userId,
       @RequestParam String groupId,
-      @RequestParam List<MultipartFile> files) {
+      @RequestParam(required = false) List<MultipartFile> files) {
     return answerService.answerQuestion(questionId, content, userId, groupId, files);
   }
 
