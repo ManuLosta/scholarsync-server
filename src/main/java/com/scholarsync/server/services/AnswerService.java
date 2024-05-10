@@ -28,6 +28,8 @@ public class AnswerService {
 
   @Autowired AnswerFileRepository answerFileRepository;
 
+  @Autowired RatingRepository ratingRepository;
+
   Map<String, HttpStatusCode> errorMap =
       Map.of(
           "question/not-found",
@@ -117,29 +119,43 @@ public class AnswerService {
     }
   }
 
-  public ResponseEntity<Object> upVoteAnswer(String answerId) {
+  public ResponseEntity<Object> rateAnswer(String answerId, String userId, double rating) {
+    if(rating<0 || rating>5){
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("rating/invalid");
+    }
     Optional<Answer> optionalAnswer = answerRepository.findById(answerId);
     if (optionalAnswer.isEmpty()) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("answer/not-found");
     }
     Answer answer = optionalAnswer.get();
-    answer.setUpvotes(answer.getUpvotes() + 1);
-    answerRepository.save(answer);
-    User user = answer.getUser();
-    user.addCredits(user);
-    userRepository.save(user);
-    return ResponseEntity.ok("answer/up-voted");
-  }
+    Optional<User> optionalUser = userRepository.findById(userId);
+    if (optionalUser.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("user/not-found");
+    }
 
-  public ResponseEntity<Object> downVoteAnswer(String answerId) {
-    Optional<Answer> optionalAnswer = answerRepository.findById(answerId);
-    if (optionalAnswer.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("answer/not-found");
+    Optional<Rating> rating1 = ratingRepository.findByAnswerIdAndUserId(answerId, userId);
+    if(rating1.isPresent()){
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("rating/already-exists");
     }
-    Answer answer = optionalAnswer.get();
-    answer.setDownvotes(answer.getDownvotes() + 1);
+    User user = optionalUser.get();
+    Rating rating1 = new Rating();
+    rating1.setRating(rating);
+    rating1.setAnswer(answer);
+    rating1.setUserId(user);
+    if(answer.getRatings() == null) answer.setRatings(new HashSet<>());
+    answer.getRatings().add(rating1);
+    user.getRatings().add(rating1);
     answerRepository.save(answer);
-    return ResponseEntity.ok("answer/down-voted");
+    userRepository.save(user);
+    ratingRepository.save(rating1);
+
+    int ratingCount = answer.getRatings().size();
+    double ratingAverage =
+        answer.getRatings().stream().mapToDouble(Rating::getRating).average().orElse(0);
+    Map<String, Object> answerMap = new HashMap<>();
+    answerMap.put("ratingCount", ratingCount);
+    answerMap.put("ratingAverage", ratingAverage);
+    return ResponseEntity.ok(answerMap);
   }
 
   @Transactional

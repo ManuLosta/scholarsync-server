@@ -264,8 +264,8 @@ public class QuestionService {
     Optional<Question> questionOptional = questionRepository.findById(id);
     if(questionOptional.isEmpty()) return ResponseEntity.status(404).body("question/not-found");
     Question question = questionOptional.get();
-    question.setTitle(title);
-    question.setContent(content);
+    if(title != null) question.setTitle(title);
+    if(content != null) question.setContent(content);
     questionRepository.save(question);
     return ResponseEntity.ok(QuestionDTO.questionToDTO(question));
     }
@@ -380,7 +380,12 @@ public class QuestionService {
                               .map(
                                   answer -> {
                                     Map<String, Object> map = new HashMap<>();
-                                    map.put("likes", answer.getUpvotes() - answer.getDownvotes());
+                                    double rating = 0;
+                                    for(Rating r : answer.getRatings()){
+                                      rating += r.getRating();
+                                    }
+                                    rating /= answer.getRatings().size();
+                                    map.put("likes", rating);
                                     map.put("id", question.getId());
                                     map.put("responseId", answer.getId());
                                     return map;
@@ -389,9 +394,9 @@ public class QuestionService {
                       info.put(
                           "value",
                           likesPerAnswer.stream()
-                              .map(map -> (int) map.get("likes"))
+                              .map(map -> (double) map.get("likes"))
                               .max(Comparator.naturalOrder())
-                              .orElse(0));
+                              .orElse(0.0));
                       info.put("id", question.getId());
                       info.put(
                           "netLikesId",
@@ -406,7 +411,7 @@ public class QuestionService {
                     })
                 .toList());
     maxLikes.sort(
-        (Comparator.comparing(map -> (int) ((Map<String, Object>) map).get("value"))).reversed());
+        (Comparator.comparing(map -> (Double) ((Map<String, Object>) map).get("value"))).reversed());
 
     Map<String, List<Map<String, Object>>> result = new HashMap<>();
     result.put("dates", questionDates);
@@ -444,14 +449,14 @@ public class QuestionService {
         result.put((String) item.get("id"), entry);
       }
       return result;
-    } else if (items.getFirst().get("value") instanceof Integer) {
-      int min = (int) items.getLast().get("value");
-      int max = (int) items.getFirst().get("value");
+    } else if (items.getFirst().get("value") instanceof Double) {
+      double min = (double) items.getLast().get("value");
+      double max = (double) items.getFirst().get("value");
       int size = items.size();
       Map<String, Map<String, Object>> result = new HashMap<>();
       for (int i = 0; i < size; i++) {
         Map<String, Object> item = items.get(i);
-        double score = (double) ((int) item.get("value") - min) / (max - min);
+        double score = (double) ((double) item.get("value") - min) / (max - min);
         Map<String, Object> entry = new HashMap<>();
         entry.put("value", item.get("value"));
         entry.put("score", score);

@@ -13,8 +13,7 @@ import org.hibernate.annotations.CreationTimestamp;
 @Entity
 public class Answer {
   public Answer() {
-    this.upvotes = 0;
-    this.downvotes = 0;
+
   }
 
   @Id
@@ -46,9 +45,6 @@ public class Answer {
   @OneToMany(mappedBy = "answer", cascade = CascadeType.ALL)
   private Set<AnswerFiles> answerFiles;
 
-  @Column(nullable = false)
-  private int upvotes;
-
-  @Column(nullable = false)
-  private int downvotes;
+  @OneToMany(mappedBy = "answer", cascade = CascadeType.ALL)
+  private Set<Rating> ratings;
 }

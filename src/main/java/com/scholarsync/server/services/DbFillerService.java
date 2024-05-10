@@ -25,6 +25,8 @@ public class DbFillerService {
     @Autowired private AnswerRepository answerRepository;
 
     private static final Logger log = LoggerFactory.getLogger(DbFillerService.class);
+    @Autowired
+    private RatingRepository ratingRepository;
 
     @Transactional
     public void fillDatabase() {
@@ -89,8 +91,14 @@ public class DbFillerService {
             answer.setQuestion(question);
             answer.setUser(user);
             answer.setGroup(group);
-            answer.setUpvotes(random.nextInt(1000));
-            answer.setDownvotes(random.nextInt(1000));
+            Rating rating = new Rating();
+            rating.setRating(random.nextDouble(5));
+            rating.setAnswer(answer);
+            rating.setUserId(user);
+            if(answer.getRatings() == null) answer.setRatings(new HashSet<>());
+            answer.getRatings().add(rating);
+            ratingRepository.save(rating);
+            userRepository.save(user);
             answerRepository.save(answer);
         }
         log.info("Finished filling database.");

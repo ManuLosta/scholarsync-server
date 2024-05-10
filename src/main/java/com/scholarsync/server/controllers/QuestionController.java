@@ -37,6 +37,14 @@ public class QuestionController {
     }
   }
 
+  @PostMapping("/edit-question")
+  public ResponseEntity<Object> editQuestion(@RequestBody Map<String, String> body) {
+    String questionId = body.get("question_id");
+    String title = body.get("title");
+    String content = body.get("content");
+    return ResponseEntity.ok(questionService.editQuestion(questionId, title, content));
+  }
+
   @GetMapping(value = "/get-question")
   public ResponseEntity<Object> getQuestion(String id) {
     return ResponseEntity.ok(questionService.getQuestion(id));
@@ -94,25 +102,30 @@ public class QuestionController {
   }
 
   @GetMapping("/get-questions-by-score")
-    public ResponseEntity<Object> getQuestionsByScore(@RequestParam(name = "offset") int offset, @RequestParam(name = "limit") int limit, @RequestParam(name = "user_id") String userId) throws ExecutionException, InterruptedException {
-        return ResponseEntity.ok(questionService.getQuestionsByScore(offset, limit, userId));
-    }
+  public ResponseEntity<Object> getQuestionsByScore(
+      @RequestParam(name = "offset") int offset,
+      @RequestParam(name = "limit") int limit,
+      @RequestParam(name = "user_id") String userId)
+      throws ExecutionException, InterruptedException {
+    return ResponseEntity.ok(questionService.getQuestionsByScore(offset, limit, userId));
+  }
 
   @GetMapping("/get-answers-by-question")
-  public ResponseEntity<Object> getAnswersByQuestion(@RequestParam(name = "question_id") String questionId) {
+  public ResponseEntity<Object> getAnswersByQuestion(
+      @RequestParam(name = "question_id") String questionId) {
     return ResponseEntity.ok(questionService.getAnswersByQuestion(questionId));
   }
 
   @PostMapping("/delete-question")
-  public ResponseEntity<Object> deleteQuestion(@RequestBody Map<String,String> body) {
+  public ResponseEntity<Object> deleteQuestion(@RequestBody Map<String, String> body) {
     String questionId = body.get("question_id");
     return ResponseEntity.ok(questionService.deleteQuestion(questionId));
   }
 
-    @PostMapping("/delete-files")
-    public ResponseEntity<Object> deleteFiles(@RequestBody Map<String,Object> body) {
-        String questionId = (String) body.get("question_id");
-        List<String> files = (List<String>) body.get("files");
-        return ResponseEntity.ok(questionService.deleteFiles(questionId, files));
-    }
+  @PostMapping("/delete-files")
+  public ResponseEntity<Object> deleteFiles(@RequestBody Map<String, Object> body) {
+    String questionId = (String) body.get("question_id");
+    List<String> files = (List<String>) body.get("files");
+    return ResponseEntity.ok(questionService.deleteFiles(questionId, files));
+  }
 }

@@ -28,16 +28,12 @@ public class AnswerController {
     return answerService.answerQuestion(questionId, content, userId, groupId, files);
   }
 
-  @PostMapping("/upvote")
-  public ResponseEntity<Object> upVoteAnswer(@RequestBody Map<String, String> body) {
-    String answerId = body.get("answerId");
-    return answerService.upVoteAnswer(answerId);
-  }
-
-  @PostMapping("/downvote")
-  public ResponseEntity<Object> downVoteAnswer(@RequestBody Map<String, String> body) {
-    String answerId = body.get("answerId");
-    return answerService.downVoteAnswer(answerId);
+  @PostMapping("/rate-answer")
+  public ResponseEntity<Object> rateAnswer(@RequestBody Map<String, Object> body) {
+    String answerId = (String) body.get("answer_id");
+    String userId = (String) body.get("user_id");
+    double rating = (double) body.get("rating");
+    return answerService.rateAnswer(answerId, userId, rating);
   }
 
   @PostMapping("/edit")
