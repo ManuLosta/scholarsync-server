@@ -112,6 +112,7 @@ public class AnswerService {
               .collect(Collectors.toSet());
 
       answer.setAnswerFiles(answerFiles);
+      answerRepository.save(answer);
       return;
     }
   }
@@ -141,6 +142,7 @@ public class AnswerService {
     return ResponseEntity.ok("answer/down-voted");
   }
 
+  @Transactional
   public ResponseEntity<Object> getImages(String answerId) {
     List<Map<String, String>> images;
     try {

@@ -250,6 +250,44 @@ public class QuestionService {
     return ResponseEntity.ok(result);
   }
 
+  @Transactional
+  public ResponseEntity<Object> deleteQuestion(String id) {
+    Optional<Question> questionOptional = questionRepository.findById(id);
+    if(questionOptional.isEmpty()) return ResponseEntity.status(404).body("question/not-found");
+    Question question = questionOptional.get();
+    questionRepository.delete(question);
+    return ResponseEntity.ok("question/deleted");
+  }
+
+  @Transactional
+  public ResponseEntity<Object> editQuestion(String id, String title, String content) {
+    Optional<Question> questionOptional = questionRepository.findById(id);
+    if(questionOptional.isEmpty()) return ResponseEntity.status(404).body("question/not-found");
+    Question question = questionOptional.get();
+    question.setTitle(title);
+    question.setContent(content);
+    questionRepository.save(question);
+    return ResponseEntity.ok(QuestionDTO.questionToDTO(question));
+    }
+
+  @Transactional
+  public ResponseEntity<Object> deleteFiles(String id, List<String> fileIds) {
+    Optional<Question> questionOptional = questionRepository.findById(id);
+    if(questionOptional.isEmpty()) return ResponseEntity.status(404).body("question/not-found");
+    Question question = questionOptional.get();
+    Set<QuestionFiles> questionFiles = question.getQuestionFiles();
+    for(String fileId : fileIds){
+      Optional<QuestionFiles> questionFileOptional = questionFiles.stream().filter(qf -> qf.getId().equals(fileId)).findFirst();
+      if(questionFileOptional.isEmpty()) return ResponseEntity.status(404).body("file/not-found");
+      QuestionFiles questionFile = questionFileOptional.get();
+      questionFiles.remove(questionFile);
+      questionFileRepository.delete(questionFile);
+    }
+    question.setQuestionFiles(questionFiles);
+    questionRepository.save(question);
+    return ResponseEntity.ok(QuestionDTO.questionToDTO(question));
+    }
+
   // --------------------------------helper methods----------------------------------------------
 
   public List<Map<String, Object>> getQuestionsFinalScore(

@@ -48,8 +48,7 @@ public class AnswerController {
   }
 
   @GetMapping("/get-images")
-  public ResponseEntity<Object> getImages(@RequestBody Map<String, String> body) {
-    String answerId = body.get("answer_id");
+  public ResponseEntity<Object> getImages(@RequestParam String answerId) {
     return answerService.getImages(answerId);
   }
 

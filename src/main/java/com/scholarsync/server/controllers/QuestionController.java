@@ -102,4 +102,17 @@ public class QuestionController {
   public ResponseEntity<Object> getAnswersByQuestion(@RequestParam(name = "question_id") String questionId) {
     return ResponseEntity.ok(questionService.getAnswersByQuestion(questionId));
   }
+
+  @PostMapping("/delete-question")
+  public ResponseEntity<Object> deleteQuestion(@RequestBody Map<String,String> body) {
+    String questionId = body.get("question_id");
+    return ResponseEntity.ok(questionService.deleteQuestion(questionId));
+  }
+
+    @PostMapping("/delete-files")
+    public ResponseEntity<Object> deleteFiles(@RequestBody Map<String,Object> body) {
+        String questionId = (String) body.get("question_id");
+        List<String> files = (List<String>) body.get("files");
+        return ResponseEntity.ok(questionService.deleteFiles(questionId, files));
+    }
 }
