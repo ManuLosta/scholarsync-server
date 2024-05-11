@@ -133,7 +133,7 @@ public class AnswerService {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("user/not-found");
     }
 
-    Optional<Rating> rating1 = ratingRepository.findByAnswerIdAndUserId(answerId, userId);
+    Optional<Rating> rating1 = ratingRepository.findByAnswerAndUserId(answer, optionalUser.get());
     if(rating1.isPresent()){
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("rating/already-exists");
     }
