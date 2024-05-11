@@ -138,16 +138,16 @@ public class AnswerService {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("rating/already-exists");
     }
     User user = optionalUser.get();
-    Rating rating1 = new Rating();
-    rating1.setRating(rating);
-    rating1.setAnswer(answer);
-    rating1.setUserId(user);
+    Rating newRating = new Rating();
+    newRating.setRating(rating);
+    newRating.setAnswer(answer);
+    newRating.setUserId(user);
     if(answer.getRatings() == null) answer.setRatings(new HashSet<>());
-    answer.getRatings().add(rating1);
-    user.getRatings().add(rating1);
+    answer.getRatings().add(newRating);
+    user.getRatings().add(newRating);
     answerRepository.save(answer);
     userRepository.save(user);
-    ratingRepository.save(rating1);
+    ratingRepository.save(newRating);
 
     int ratingCount = answer.getRatings().size();
     double ratingAverage =
