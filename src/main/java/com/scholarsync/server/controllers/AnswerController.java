@@ -32,7 +32,7 @@ public class AnswerController {
   public ResponseEntity<Object> rateAnswer(@RequestBody Map<String, Object> body) {
     String answerId = (String) body.get("answer_id");
     String userId = (String) body.get("user_id");
-    double rating = (double) body.get("rating");
+    int rating = (int) body.get("rating");
     return answerService.rateAnswer(answerId, userId, rating);
   }
 

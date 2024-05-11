@@ -135,19 +135,19 @@ public class AnswerService {
 
     Optional<Rating> rating1 = ratingRepository.findByAnswerAndUserId(answer, optionalUser.get());
     if(rating1.isPresent()){
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("rating/already-exists");
+      rating1.get().setRating(rating);
+      ratingRepository.save(rating1.get());
+    } else {
+      User user = optionalUser.get();
+      Rating newRating = new Rating();
+      newRating.setRating(rating);
+      newRating.setAnswer(answer);
+      newRating.setUserId(user);
+      if(answer.getRatings() == null) answer.setRatings(new HashSet<>());
+      answer.getRatings().add(newRating);
+      user.getRatings().add(newRating);
+      ratingRepository.save(newRating);
     }
-    User user = optionalUser.get();
-    Rating newRating = new Rating();
-    newRating.setRating(rating);
-    newRating.setAnswer(answer);
-    newRating.setUserId(user);
-    if(answer.getRatings() == null) answer.setRatings(new HashSet<>());
-    answer.getRatings().add(newRating);
-    user.getRatings().add(newRating);
-    answerRepository.save(answer);
-    userRepository.save(user);
-    ratingRepository.save(newRating);
 
     int ratingCount = answer.getRatings().size();
     double ratingAverage =
