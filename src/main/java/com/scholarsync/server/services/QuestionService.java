@@ -455,7 +455,6 @@ public class QuestionService {
     }
   }
 
-  @Getter
   public record QuestionScoreDTO(QuestionDTO question, double score) {
   }
 }
