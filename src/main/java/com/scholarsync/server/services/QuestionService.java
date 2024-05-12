@@ -382,7 +382,7 @@ public class QuestionService {
                                     for (Rating r : answer.getRatings()) {
                                       rating += r.getRating();
                                     }
-                                    rating /= answer.getRatings().size();
+                                    if(!answer.getRatings().isEmpty()) rating /= answer.getRatings().size();
                                     map.put("likes", rating);
                                     map.put("id", question.getId());
                                     map.put("responseId", answer.getId());
@@ -455,6 +455,6 @@ public class QuestionService {
     }
   }
 
-  public record QuestionScoreDTO(QuestionDTO question, double score) {
+    public record QuestionScoreDTO(QuestionDTO question, double score) {
   }
 }
