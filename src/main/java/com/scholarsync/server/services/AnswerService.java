@@ -120,7 +120,7 @@ public class AnswerService {
   }
 
   public ResponseEntity<Object> rateAnswer(String answerId, String userId, double rating) {
-    if(rating<0 || rating>5){
+    if (rating < 0 || rating > 5) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("rating/invalid");
     }
     Optional<Answer> optionalAnswer = answerRepository.findById(answerId);
@@ -134,7 +134,7 @@ public class AnswerService {
     }
 
     Optional<Rating> rating1 = ratingRepository.findByAnswerAndUserId(answer, optionalUser.get());
-    if(rating1.isPresent()){
+    if (rating1.isPresent()) {
       rating1.get().setRating(rating);
       ratingRepository.save(rating1.get());
     } else {
@@ -143,7 +143,7 @@ public class AnswerService {
       newRating.setRating(rating);
       newRating.setAnswer(answer);
       newRating.setUserId(user);
-      if(answer.getRatings() == null) answer.setRatings(new HashSet<>());
+      if (answer.getRatings() == null) answer.setRatings(new HashSet<>());
       answer.getRatings().add(newRating);
       user.getRatings().add(newRating);
       ratingRepository.save(newRating);
@@ -193,15 +193,45 @@ public class AnswerService {
     return images;
   }
 
-  public ResponseEntity<Object> editAnswer(String answerId, String content) {
+  @Transactional
+  public ResponseEntity<Object> editAnswer(String userId,String answerId, String content, List<MultipartFile> files) {
     Optional<Answer> optionalAnswer = answerRepository.findById(answerId);
     if (optionalAnswer.isEmpty()) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("answer/not-found");
     }
+    Optional<User> optionalUser = userRepository.findById(userId);
+    if (optionalUser.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("user/not-found");
+    }
+    if (!optionalAnswer.get().getUser().getId().equals(userId)) {
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body("user/not-authorized");
+    }
     Answer answer = optionalAnswer.get();
     answer.setContent(content);
+    if (files != null) {
+      answerFileRepository.deleteAll(answer.getAnswerFiles());
+      addFiles(files, answer);
+    }
     answerRepository.save(answer);
     return ResponseEntity.ok("answer/edited");
+  }
+
+  @Transactional
+  public ResponseEntity<Object> deleteAnswer(String userId, String answerId) {
+    Optional<Answer> optionalAnswer = answerRepository.findById(answerId);
+    if (optionalAnswer.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("answer/not-found");
+    }
+    Optional<User> optionalUser = userRepository.findById(userId);
+    if (optionalUser.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("user/not-found");
+    }
+    if (!optionalAnswer.get().getUser().getId().equals(userId)) {
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body("user/not-authorized");
+    }
+    Answer answer = optionalAnswer.get();
+    answerRepository.delete(answer);
+    return ResponseEntity.ok("answer/deleted");
   }
 
   @Transactional

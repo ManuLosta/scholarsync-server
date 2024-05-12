@@ -38,11 +38,12 @@ public class QuestionController {
   }
 
   @PostMapping("/edit-question")
-  public ResponseEntity<Object> editQuestion(@RequestBody Map<String, String> body) {
-    String questionId = body.get("question_id");
-    String title = body.get("title");
-    String content = body.get("content");
-    return ResponseEntity.ok(questionService.editQuestion(questionId, title, content));
+  public ResponseEntity<Object> editQuestion(
+      @RequestParam String id,
+      @RequestParam String title,
+      @RequestParam String content,
+      @RequestParam List<MultipartFile> files) {
+    return ResponseEntity.ok(questionService.editQuestion(id, title, content, files));
   }
 
   @GetMapping(value = "/get-question")
@@ -119,13 +120,8 @@ public class QuestionController {
   @PostMapping("/delete-question")
   public ResponseEntity<Object> deleteQuestion(@RequestBody Map<String, String> body) {
     String questionId = body.get("question_id");
-    return ResponseEntity.ok(questionService.deleteQuestion(questionId));
+    String userId = body.get("user_id");
+    return ResponseEntity.ok(questionService.deleteQuestion(userId, questionId));
   }
 
-  @PostMapping("/delete-files")
-  public ResponseEntity<Object> deleteFiles(@RequestBody Map<String, Object> body) {
-    String questionId = (String) body.get("question_id");
-    List<String> files = (List<String>) body.get("files");
-    return ResponseEntity.ok(questionService.deleteFiles(questionId, files));
-  }
 }

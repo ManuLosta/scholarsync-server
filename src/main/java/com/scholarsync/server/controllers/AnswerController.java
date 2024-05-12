@@ -36,11 +36,21 @@ public class AnswerController {
     return answerService.rateAnswer(answerId, userId, rating);
   }
 
+  @PostMapping("/delete")
+  public ResponseEntity<Object> deleteAnswer(@RequestBody Map<String, String> body) {
+    String user_id = body.get("user_id");
+    String id = body.get("id");
+    return answerService.deleteAnswer(user_id, id);
+  }
+
   @PostMapping("/edit")
-  public ResponseEntity<Object> editAnswer(@RequestBody Map<String, String> body) {
-    String answerId = body.get("answer_id");
-    String content = body.get("content");
-    return answerService.editAnswer(answerId, content);
+  public ResponseEntity<Object> editAnswer(
+      @RequestParam String user_id,
+      @RequestParam String id,
+      @RequestParam String content,
+      @RequestParam List<MultipartFile> files) {
+
+    return answerService.editAnswer(user_id, id, content, files);
   }
 
   @GetMapping("/get-images")

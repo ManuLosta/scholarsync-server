@@ -12,7 +12,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -32,8 +31,7 @@ public class QuestionService {
   @Autowired UserRepository userRepository;
   @Autowired private GroupRepository groupRepository;
   @Autowired private QuestionFileRepository questionFileRepository;
-  @Autowired
-  private AnswerRepository answerRepository;
+  @Autowired private AnswerRepository answerRepository;
 
   @Transactional
   public ResponseEntity<Object> getQuestion(String id) {
@@ -223,14 +221,17 @@ public class QuestionService {
   }
 
   @Transactional
-  public ResponseEntity<Object> getAnswersByQuestion(String questionId){
+  public ResponseEntity<Object> getAnswersByQuestion(String questionId) {
     Optional<Question> questionOptional = questionRepository.findById(questionId);
     if (questionOptional.isEmpty()) {
       return ResponseEntity.status(404).body("question/not-found");
     }
     Question question = questionOptional.get();
     List<Answer> answers = new ArrayList<>(question.getAnswers());
-    List<Answer> sortedAnswers = answers.stream().sorted((a1, a2) -> a2.getCreatedAt().compareTo(a1.getCreatedAt())).toList();
+    List<Answer> sortedAnswers =
+        answers.stream()
+            .sorted((a1, a2) -> a2.getCreatedAt().compareTo(a1.getCreatedAt()))
+            .toList();
     List<AnswerDTO> answerDTOS = sortedAnswers.stream().map(AnswerDTO::answerToDTO).toList();
     return ResponseEntity.ok(answerDTOS);
   }
@@ -239,8 +240,9 @@ public class QuestionService {
   public ResponseEntity<List<QuestionScoreDTO>> getQuestionsByScore(
       int offset, int limit, String userId) {
     List<Map<String, Object>> normalizedQuestions = generateNormalizedQuestions(userId);
-    List<Map<String,Object>> filteredQuestions = normalizedQuestions.subList(
-        offset * limit, Math.min(normalizedQuestions.size(), offset * limit + limit));
+    List<Map<String, Object>> filteredQuestions =
+        normalizedQuestions.subList(
+            offset * limit, Math.min(normalizedQuestions.size(), offset * limit + limit));
     List<QuestionScoreDTO> result = new ArrayList<>();
     for (Map<String, Object> question : filteredQuestions) {
       Question questionEntity = questionRepository.getReferenceById((String) question.get("id"));
@@ -251,42 +253,34 @@ public class QuestionService {
   }
 
   @Transactional
-  public ResponseEntity<Object> deleteQuestion(String id) {
+  public ResponseEntity<Object> deleteQuestion(String id, String userId) {
     Optional<Question> questionOptional = questionRepository.findById(id);
-    if(questionOptional.isEmpty()) return ResponseEntity.status(404).body("question/not-found");
+    if (questionOptional.isEmpty()) return ResponseEntity.status(404).body("question/not-found");
     Question question = questionOptional.get();
+    Optional<User> userOptional = userRepository.findById(userId);
+    if (userOptional.isEmpty()) return ResponseEntity.status(404).body("user/not-found");
+    User user = userOptional.get();
+    if (!question.getAuthor().getId().equals(user.getId()))
+      return ResponseEntity.status(403).body("user/not-authorized");
     questionRepository.delete(question);
     return ResponseEntity.ok("question/deleted");
   }
 
   @Transactional
-  public ResponseEntity<Object> editQuestion(String id, String title, String content) {
+  public ResponseEntity<Object> editQuestion(
+      String id, String title, String content, List<MultipartFile> files) {
     Optional<Question> questionOptional = questionRepository.findById(id);
-    if(questionOptional.isEmpty()) return ResponseEntity.status(404).body("question/not-found");
+    if (questionOptional.isEmpty()) return ResponseEntity.status(404).body("question/not-found");
     Question question = questionOptional.get();
-    if(title != null) question.setTitle(title);
-    if(content != null) question.setContent(content);
+    if (title != null) question.setTitle(title);
+    if (content != null) question.setContent(content);
+    if (files != null) {
+      questionFileRepository.deleteAll(question.getQuestionFiles());
+      addFiles(files, id);
+    }
     questionRepository.save(question);
     return ResponseEntity.ok(QuestionDTO.questionToDTO(question));
-    }
-
-  @Transactional
-  public ResponseEntity<Object> deleteFiles(String id, List<String> fileIds) {
-    Optional<Question> questionOptional = questionRepository.findById(id);
-    if(questionOptional.isEmpty()) return ResponseEntity.status(404).body("question/not-found");
-    Question question = questionOptional.get();
-    Set<QuestionFiles> questionFiles = question.getQuestionFiles();
-    for(String fileId : fileIds){
-      Optional<QuestionFiles> questionFileOptional = questionFiles.stream().filter(qf -> qf.getId().equals(fileId)).findFirst();
-      if(questionFileOptional.isEmpty()) return ResponseEntity.status(404).body("file/not-found");
-      QuestionFiles questionFile = questionFileOptional.get();
-      questionFiles.remove(questionFile);
-      questionFileRepository.delete(questionFile);
-    }
-    question.setQuestionFiles(questionFiles);
-    questionRepository.save(question);
-    return ResponseEntity.ok(QuestionDTO.questionToDTO(question));
-    }
+  }
 
   // --------------------------------helper methods----------------------------------------------
 
@@ -313,7 +307,11 @@ public class QuestionService {
       item.put("dateScore", dateScore);
       item.put("likeScore", likeScore);
       item.put("authorLevelScore", authorLevel.ordinal() + 1);
-      item.put("likeLevelScore", likeLevelId == null ? 0 : answerRepository.getReferenceById(likeLevelId).getUser().getLevel().ordinal() + 1);
+      item.put(
+          "likeLevelScore",
+          likeLevelId == null
+              ? 0
+              : answerRepository.getReferenceById(likeLevelId).getUser().getLevel().ordinal() + 1);
       item.put(
           "totalScore",
           dateScore * 0.1
@@ -381,7 +379,7 @@ public class QuestionService {
                                   answer -> {
                                     Map<String, Object> map = new HashMap<>();
                                     double rating = 0;
-                                    for(Rating r : answer.getRatings()){
+                                    for (Rating r : answer.getRatings()) {
                                       rating += r.getRating();
                                     }
                                     rating /= answer.getRatings().size();
@@ -411,7 +409,8 @@ public class QuestionService {
                     })
                 .toList());
     maxLikes.sort(
-        (Comparator.comparing(map -> (Double) ((Map<String, Object>) map).get("value"))).reversed());
+        (Comparator.comparing(map -> (Double) ((Map<String, Object>) map).get("value")))
+            .reversed());
 
     Map<String, List<Map<String, Object>>> result = new HashMap<>();
     result.put("dates", questionDates);
@@ -426,23 +425,11 @@ public class QuestionService {
     }
 
     if (items.getFirst().get("value") instanceof LocalDateTime) {
-      int min =
-          (int)
-              ((LocalDateTime) items.getLast().get("value"))
-                  .toEpochSecond(java.time.ZoneOffset.UTC);
-      int max =
-          (int)
-              ((LocalDateTime) items.getFirst().get("value"))
-                  .toEpochSecond(java.time.ZoneOffset.UTC);
-      int size = items.size();
+      int min = (int) ((LocalDateTime) items.getLast().get("value")).toEpochSecond(java.time.ZoneOffset.UTC);
+      int max = (int) ((LocalDateTime) items.getFirst().get("value")).toEpochSecond(java.time.ZoneOffset.UTC);
       Map<String, Map<String, Object>> result = new HashMap<>();
-      for (int i = 0; i < size; i++) {
-        Map<String, Object> item = items.get(i);
-        double score =
-            (double)
-                    (((LocalDateTime) item.get("value")).toEpochSecond(java.time.ZoneOffset.UTC)
-                        - min)
-                / (max - min);
+      for (Map<String, Object> item : items) {
+        double score = (double) (((LocalDateTime) item.get("value")).toEpochSecond(java.time.ZoneOffset.UTC) - min) / (max - min);
         Map<String, Object> entry = new HashMap<>();
         entry.put("value", item.get("value"));
         entry.put("score", score);
@@ -454,15 +441,14 @@ public class QuestionService {
       double max = (double) items.getFirst().get("value");
       int size = items.size();
       Map<String, Map<String, Object>> result = new HashMap<>();
-      for (int i = 0; i < size; i++) {
-        Map<String, Object> item = items.get(i);
-        double score = (double) ((double) item.get("value") - min) / (max - min);
-        Map<String, Object> entry = new HashMap<>();
-        entry.put("value", item.get("value"));
-        entry.put("score", score);
-        entry.put("netLikesId", item.get("netLikesId"));
-        result.put((String) item.get("id"), entry);
-      }
+        for (Map<String, Object> item : items) {
+            double score = (double) ((double) item.get("value") - min) / (max - min);
+            Map<String, Object> entry = new HashMap<>();
+            entry.put("value", item.get("value"));
+            entry.put("score", score);
+            entry.put("netLikesId", item.get("netLikesId"));
+            result.put((String) item.get("id"), entry);
+        }
       return result;
     } else {
       throw new IllegalArgumentException("Invalid type");
@@ -470,13 +456,6 @@ public class QuestionService {
   }
 
   @Getter
-  public static class QuestionScoreDTO {
-    private final QuestionDTO question;
-    private final double score;
-
-    public QuestionScoreDTO(QuestionDTO question, double score) {
-      this.question = question;
-      this.score = score;
-    }
+  public record QuestionScoreDTO(QuestionDTO question, double score) {
   }
 }
