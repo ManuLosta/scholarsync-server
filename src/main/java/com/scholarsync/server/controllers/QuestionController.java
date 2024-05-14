@@ -42,7 +42,7 @@ public class QuestionController {
       @RequestParam String id,
       @RequestParam String title,
       @RequestParam String content,
-      @RequestParam List<MultipartFile> files) {
+      @RequestParam(required = false) List<MultipartFile> files) {
     return ResponseEntity.ok(questionService.editQuestion(id, title, content, files));
   }
 
@@ -88,7 +88,7 @@ public class QuestionController {
       @RequestParam String content,
       @RequestParam String authorId,
       @RequestParam String groupId,
-      @RequestParam List<MultipartFile> files) {
+      @RequestParam(required = false) List<MultipartFile> files) {
     QuestionInputDTO info = new QuestionInputDTO();
     info.setTitle(title);
     info.setContent(content);

@@ -7,6 +7,7 @@ import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.validator.constraints.Length;
 
 @Getter
 @Setter
@@ -20,7 +21,8 @@ public class Answer {
   @GeneratedValue(strategy = GenerationType.UUID)
   private String id;
 
-  @Column(nullable = false)
+  @Column(nullable = false, length = 5000)
+  @Length(min = 10, max = 5000)
   private String content;
 
   @ManyToOne
