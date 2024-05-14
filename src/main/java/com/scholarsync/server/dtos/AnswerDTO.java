@@ -16,8 +16,10 @@ public class AnswerDTO {
   private String questionId;
   private String content;
   private String answerId;
-  private String userId;
+  private ProfileDTO author;
   private String groupId;
+  private String groupTitle;
+  private List<FileDTO> files;
   private LocalDateTime createdAt;
   private List<RatingDTO> ratings;
 
@@ -26,9 +28,10 @@ public class AnswerDTO {
     answerDTO.setAnswerId(answer.getId());
     answerDTO.setQuestionId(answer.getQuestion().getId());
     answerDTO.setContent(answer.getContent());
-    answerDTO.setUserId(answer.getUser().getId());
+    answerDTO.setAuthor(ProfileDTO.userToProfileDTO(answer.getUser()));
     answerDTO.setGroupId(answer.getGroup().getId());
     answerDTO.setCreatedAt(answer.getCreatedAt());
+    answerDTO.setFiles(answer.getAnswerFiles().stream().map(FileDTO::fileToDTO).toList());
     List<RatingDTO> ratings = new ArrayList<>();
     Set<Rating> ratingsSet = answer.getRatings();
 
