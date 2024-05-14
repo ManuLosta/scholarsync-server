@@ -210,9 +210,11 @@ public class AnswerService {
       addFiles(files, answer);
     }
     answerRepository.save(answer);
-    return ResponseEntity.ok("answer/edited");
+
+    return ResponseEntity.ok(AnswerDTO.answerToDTO(answer));
   }
 
+  @SuppressWarnings("DuplicatedCode")
   @Transactional
   public ResponseEntity<Object> deleteAnswer(String userId, String answerId) {
     Optional<Answer> optionalAnswer = answerRepository.findById(answerId);
