@@ -76,10 +76,6 @@ public class AnswerService {
     User user = optionalUser.get();
     answer.setUser(user);
 
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
     Group group = question.getGroup();
     answer.setGroup(group);
 
@@ -193,6 +189,7 @@ public class AnswerService {
     return images;
   }
 
+  @SuppressWarnings("DuplicatedCode")
   @Transactional
   public ResponseEntity<Object> editAnswer(String userId, String answerId, String content, List<MultipartFile> files) {
     Optional<Answer> optionalAnswer = answerRepository.findById(answerId);
