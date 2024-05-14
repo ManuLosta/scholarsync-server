@@ -44,12 +44,12 @@ public class AnswerController {
 
   @PostMapping("/edit")
   public ResponseEntity<Object> editAnswer(
-      @RequestParam String user_id,
-      @RequestParam String id,
+      @RequestParam String userId,
+      @RequestParam String answerId,
       @RequestParam String content,
-      @RequestParam List<MultipartFile> files) {
+      @RequestParam(required = false) List<MultipartFile> files) {
 
-    return answerService.editAnswer(user_id, id, content, files);
+    return answerService.editAnswer(userId, answerId, content, files);
   }
 
   @GetMapping("/get-images")

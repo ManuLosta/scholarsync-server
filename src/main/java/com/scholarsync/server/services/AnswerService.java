@@ -76,7 +76,10 @@ public class AnswerService {
     User user = optionalUser.get();
     answer.setUser(user);
 
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
     Group group = question.getGroup();
     answer.setGroup(group);
 
@@ -191,7 +194,7 @@ public class AnswerService {
   }
 
   @Transactional
-  public ResponseEntity<Object> editAnswer(String userId,String answerId, String content, List<MultipartFile> files) {
+  public ResponseEntity<Object> editAnswer(String userId, String answerId, String content, List<MultipartFile> files) {
     Optional<Answer> optionalAnswer = answerRepository.findById(answerId);
     if (optionalAnswer.isEmpty()) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("answer/not-found");
