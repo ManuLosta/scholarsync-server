@@ -23,9 +23,8 @@ public class AnswerController {
       @RequestParam String questionId,
       @RequestParam String content,
       @RequestParam String userId,
-      @RequestParam String groupId,
       @RequestParam(required = false) List<MultipartFile> files) {
-    return answerService.answerQuestion(questionId, content, userId, groupId, files);
+    return answerService.answerQuestion(questionId, content, userId, files);
   }
 
   @PostMapping("/rate-answer")

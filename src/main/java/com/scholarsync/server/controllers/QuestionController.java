@@ -111,6 +111,30 @@ public class QuestionController {
     return ResponseEntity.ok(questionService.getQuestionsByScore(offset, limit, userId));
   }
 
+    @GetMapping("/get-questions-by-group")
+    public ResponseEntity<Object> getQuestionsByGroup(
+        @RequestParam(name = "group_id") String groupId,
+        @RequestParam(name="offset") int offset,
+        @RequestParam(name="limit") int limit) {
+        return ResponseEntity.ok(questionService.getQuestionsByGroup(groupId, offset, limit));
+    }
+
+    @GetMapping("/get-questions-by-date-and-user")
+    public ResponseEntity<Object> getQuestionsByDateAndUser(
+        @RequestParam(name = "user_id") String userId,
+        @RequestParam(name = "offset") int offset,
+        @RequestParam(name = "limit") int limit) {
+        return ResponseEntity.ok(questionService.getQuestionsByDateAndUser(userId, offset, limit));
+    }
+
+    @GetMapping("/get-questions-by-date-and-group")
+    public ResponseEntity<Object> getQuestionsByDateAndGroup(
+        @RequestParam(name = "group_id") String groupId,
+        @RequestParam(name = "offset") int offset,
+        @RequestParam(name = "limit") int limit) {
+        return ResponseEntity.ok(questionService.getQuestionsByDateAndGroup(groupId, offset, limit));
+    }
+
   @GetMapping("/get-answers-by-question")
   public ResponseEntity<Object> getAnswersByQuestion(
       @RequestParam(name = "question_id") String questionId) {

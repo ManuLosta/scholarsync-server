@@ -43,10 +43,10 @@ public class AnswerService {
 
   @Transactional
   public ResponseEntity<Object> answerQuestion(
-      String questionId, String content, String userId, String groupId, List<MultipartFile> files) {
+      String questionId, String content, String userId, List<MultipartFile> files) {
     Answer answer;
     try {
-      answer = createAnswer(questionId, content, userId, groupId);
+      answer = createAnswer(questionId, content, userId);
     } catch (RuntimeException e) {
       return ResponseEntity.status(errorMap.get(e.getMessage())).body(e.getMessage());
     }
@@ -58,7 +58,7 @@ public class AnswerService {
     return ResponseEntity.ok(AnswerDTO.answerToDTO(answer));
   }
 
-  private Answer createAnswer(String questionId, String content, String userId, String groupId) {
+  private Answer createAnswer(String questionId, String content, String userId) {
     Answer answer = new Answer();
     answer.setContent(content);
 
@@ -76,11 +76,8 @@ public class AnswerService {
     User user = optionalUser.get();
     answer.setUser(user);
 
-    Optional<Group> optionalGroup = groupRepository.findById(groupId);
-    if (optionalGroup.isEmpty()) {
-      throw new RuntimeException("group/not-found");
-    }
-    Group group = optionalGroup.get();
+
+    Group group = question.getGroup();
     answer.setGroup(group);
 
     userRepository.save(user);

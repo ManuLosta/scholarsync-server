@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
@@ -237,19 +236,11 @@ public class QuestionService {
   }
 
   @Transactional
-  public ResponseEntity<List<QuestionScoreDTO>> getQuestionsByScore(
-      int offset, int limit, String userId) {
-    List<Map<String, Object>> normalizedQuestions = generateNormalizedQuestions(userId);
-    List<Map<String, Object>> filteredQuestions =
-        normalizedQuestions.subList(
-            offset * limit, Math.min(normalizedQuestions.size(), offset * limit + limit));
-    List<QuestionScoreDTO> result = new ArrayList<>();
-    for (Map<String, Object> question : filteredQuestions) {
-      Question questionEntity = questionRepository.getReferenceById((String) question.get("id"));
-      QuestionDTO questionDTO = QuestionDTO.questionToDTO(questionEntity);
-      result.add(new QuestionScoreDTO(questionDTO, (double) question.get("totalScore")));
-    }
-    return ResponseEntity.ok(result);
+  public ResponseEntity<Object> getQuestionsByScore(int offset, int limit, String userId) {
+    Optional<User> userOptional = userRepository.findById(userId);
+    if (userOptional.isEmpty()) return ResponseEntity.status(404).body("user/not-found");
+    List<Map<String, Object>> normalizedQuestions = generateNormalizedQuestionsFromUser(userId);
+    return generateScoreDto(offset, limit, normalizedQuestions);
   }
 
   @Transactional
@@ -280,6 +271,60 @@ public class QuestionService {
     }
     questionRepository.save(question);
     return ResponseEntity.ok(QuestionDTO.questionToDTO(question));
+  }
+
+  @Transactional
+  public ResponseEntity<Object> getQuestionsByGroup(String groupId, int offset, int limit ) {
+    Optional<Group> groupOptional = groupRepository.findById(groupId);
+    if (groupOptional.isEmpty()) {
+      return ResponseEntity.status(404).body("group/not-found");
+    }
+    List<Map<String, Object>> normalizedQuestions = generateNormalizedQuestionsFromGroup(groupId);
+    return generateScoreDto(offset, limit, normalizedQuestions);
+  }
+
+  @Transactional
+  public ResponseEntity<Object> getQuestionsByDateAndGroup(String groupId, int offset, int limit) {
+    Optional<Group> groupOptional = groupRepository.findById(groupId);
+    if (groupOptional.isEmpty()) {
+      return ResponseEntity.status(404).body("group/not-found");
+    }
+    Group group = groupOptional.get();
+    List<Question> questions = new ArrayList<>(group.getQuestions());
+    questions.sort(Comparator.comparing(Question::getCreatedAt).reversed());
+    List<QuestionDTO> questionDTOS = questions.stream().map(QuestionDTO::questionToDTO).toList();
+    questionDTOS.subList(offset * limit, Math.min(questionDTOS.size(), offset * limit + limit));
+    return ResponseEntity.ok(questionDTOS);
+  }
+
+    @Transactional
+    public ResponseEntity<Object> getQuestionsByDateAndUser(String userId, int offset, int limit) {
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (userOptional.isEmpty()) {
+            return ResponseEntity.status(404).body("user/not-found");
+        }
+        User user = userOptional.get();
+        List<Question> userQuestions = new ArrayList<>();
+        for (Group group : user.getGroups()) {
+            userQuestions.addAll(group.getQuestions());
+        }
+        userQuestions.sort(Comparator.comparing(Question::getCreatedAt).reversed());
+        List<QuestionDTO> questionDTOS = userQuestions.stream().map(QuestionDTO::questionToDTO).toList();
+        questionDTOS.subList(offset * limit, Math.min(questionDTOS.size(), offset * limit + limit));
+        return ResponseEntity.ok(questionDTOS);
+    }
+
+  private ResponseEntity<Object> generateScoreDto(int offset, int limit, List<Map<String, Object>> normalizedQuestions) {
+    List<Map<String, Object>> filteredQuestions =
+            normalizedQuestions.subList(
+                    offset * limit, Math.min(normalizedQuestions.size(), offset * limit + limit));
+    List<QuestionScoreDTO> result = new ArrayList<>();
+    for (Map<String, Object> question : filteredQuestions) {
+      Question questionEntity = questionRepository.getReferenceById((String) question.get("id"));
+      QuestionDTO questionDTO = QuestionDTO.questionToDTO(questionEntity);
+      result.add(new QuestionScoreDTO(questionDTO, (double) question.get("totalScore")));
+    }
+    return ResponseEntity.ok(result);
   }
 
   // --------------------------------helper methods----------------------------------------------
@@ -331,7 +376,7 @@ public class QuestionService {
     return questionScores;
   }
 
-  private List<Map<String, Object>> generateNormalizedQuestions(String userId) {
+  private List<Map<String, Object>> generateNormalizedQuestionsFromUser(String userId) {
     List<Question> questions = questionRepository.findAll();
     User user = userRepository.findById(userId).orElse(null);
     List<Question> userQuestions =
@@ -339,7 +384,19 @@ public class QuestionService {
             .filter(question -> question.getGroup().getUsers().contains(user))
             .collect(Collectors.toList());
 
-    Map<String, List<Map<String, Object>>> questionData = extractQuestionData(userQuestions);
+    return getMaps(userQuestions);
+  }
+  private List<Map<String, Object>> generateNormalizedQuestionsFromGroup(String groupId) {
+    Optional<Group> group = groupRepository.findById(groupId);
+    if (group.isEmpty()) return new ArrayList<>();
+    Set<Question> questions = group.get().getQuestions();
+    List<Question> groupQuestions = new ArrayList<>(questions);
+
+    return getMaps(groupQuestions);
+  }
+
+  private List<Map<String, Object>> getMaps(List<Question> groupQuestions) {
+    Map<String, List<Map<String, Object>>> questionData = extractQuestionData(groupQuestions);
 
     List<Map<String, Object>> likes = questionData.get("likes");
     List<Map<String, Object>> dates = questionData.get("dates");
