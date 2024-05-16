@@ -7,21 +7,20 @@ import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.validator.constraints.Length;
 
 @Getter
 @Setter
 @Entity
 public class Answer {
-  public Answer() {
-    this.upvotes = 0;
-    this.downvotes = 0;
-  }
+  public Answer() {}
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
   private String id;
 
-  @Column(nullable = false)
+  @Column(nullable = false, length = 5000)
+  @Length(min = 10, max = 5000)
   private String content;
 
   @ManyToOne
@@ -46,9 +45,6 @@ public class Answer {
   @OneToMany(mappedBy = "answer", cascade = CascadeType.ALL)
   private Set<AnswerFiles> answerFiles;
 
-  @Column(nullable = false)
-  private int upvotes;
-
-  @Column(nullable = false)
-  private int downvotes;
+  @OneToMany(mappedBy = "answer", cascade = CascadeType.ALL)
+  private Set<Rating> ratings;
 }

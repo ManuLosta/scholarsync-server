@@ -23,7 +23,9 @@ public class TokenFilter extends OncePerRequestFilter {
   @Override
   protected boolean shouldNotFilter(HttpServletRequest request) {
     String path = request.getServletPath();
-    return path.contains("/api/v1/auth") || "OPTIONS".equalsIgnoreCase(request.getMethod())|| path.contains("/api/v1/questions");
+    return path.contains("/api/v1/auth")
+        || "OPTIONS".equalsIgnoreCase(request.getMethod())
+        || path.contains("/api/v1/filler");
   }
 
   @Override

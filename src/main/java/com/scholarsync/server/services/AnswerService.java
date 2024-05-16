@@ -28,6 +28,8 @@ public class AnswerService {
 
   @Autowired AnswerFileRepository answerFileRepository;
 
+  @Autowired RatingRepository ratingRepository;
+
   Map<String, HttpStatusCode> errorMap =
       Map.of(
           "question/not-found",
@@ -41,10 +43,10 @@ public class AnswerService {
 
   @Transactional
   public ResponseEntity<Object> answerQuestion(
-      String questionId, String content, String userId, String groupId, List<MultipartFile> files) {
+      String questionId, String content, String userId, List<MultipartFile> files) {
     Answer answer;
     try {
-      answer = createAnswer(questionId, content, userId, groupId);
+      answer = createAnswer(questionId, content, userId);
     } catch (RuntimeException e) {
       return ResponseEntity.status(errorMap.get(e.getMessage())).body(e.getMessage());
     }
@@ -56,7 +58,7 @@ public class AnswerService {
     return ResponseEntity.ok(AnswerDTO.answerToDTO(answer));
   }
 
-  private Answer createAnswer(String questionId, String content, String userId, String groupId) {
+  private Answer createAnswer(String questionId, String content, String userId) {
     Answer answer = new Answer();
     answer.setContent(content);
 
@@ -74,11 +76,7 @@ public class AnswerService {
     User user = optionalUser.get();
     answer.setUser(user);
 
-    Optional<Group> optionalGroup = groupRepository.findById(groupId);
-    if (optionalGroup.isEmpty()) {
-      throw new RuntimeException("group/not-found");
-    }
-    Group group = optionalGroup.get();
+    Group group = question.getGroup();
     answer.setGroup(group);
 
     userRepository.save(user);
@@ -112,35 +110,51 @@ public class AnswerService {
               .collect(Collectors.toSet());
 
       answer.setAnswerFiles(answerFiles);
+      answerRepository.save(answer);
       return;
     }
   }
 
-  public ResponseEntity<Object> upVoteAnswer(String answerId) {
+  public ResponseEntity<Object> rateAnswer(String answerId, String userId, double rating) {
+    if (rating < 0 || rating > 5) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("rating/invalid");
+    }
     Optional<Answer> optionalAnswer = answerRepository.findById(answerId);
     if (optionalAnswer.isEmpty()) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("answer/not-found");
     }
     Answer answer = optionalAnswer.get();
-    answer.setUpvotes(answer.getUpvotes() + 1);
-    answerRepository.save(answer);
-    User user = answer.getUser();
-    user.addCredits(user);
-    userRepository.save(user);
-    return ResponseEntity.ok("answer/up-voted");
-  }
-
-  public ResponseEntity<Object> downVoteAnswer(String answerId) {
-    Optional<Answer> optionalAnswer = answerRepository.findById(answerId);
-    if (optionalAnswer.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("answer/not-found");
+    Optional<User> optionalUser = userRepository.findById(userId);
+    if (optionalUser.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("user/not-found");
     }
-    Answer answer = optionalAnswer.get();
-    answer.setDownvotes(answer.getDownvotes() + 1);
-    answerRepository.save(answer);
-    return ResponseEntity.ok("answer/down-voted");
+
+    Optional<Rating> rating1 = ratingRepository.findByAnswerAndUserId(answer, optionalUser.get());
+    if (rating1.isPresent()) {
+      rating1.get().setRating(rating);
+      ratingRepository.save(rating1.get());
+    } else {
+      User user = optionalUser.get();
+      Rating newRating = new Rating();
+      newRating.setRating(rating);
+      newRating.setAnswer(answer);
+      newRating.setUserId(user);
+      if (answer.getRatings() == null) answer.setRatings(new HashSet<>());
+      answer.getRatings().add(newRating);
+      user.getRatings().add(newRating);
+      ratingRepository.save(newRating);
+    }
+
+    int ratingCount = answer.getRatings().size();
+    double ratingAverage =
+        answer.getRatings().stream().mapToDouble(Rating::getRating).average().orElse(0);
+    Map<String, Object> answerMap = new HashMap<>();
+    answerMap.put("ratingCount", ratingCount);
+    answerMap.put("ratingAverage", ratingAverage);
+    return ResponseEntity.ok(answerMap);
   }
 
+  @Transactional
   public ResponseEntity<Object> getImages(String answerId) {
     List<Map<String, String>> images;
     try {
@@ -175,15 +189,49 @@ public class AnswerService {
     return images;
   }
 
-  public ResponseEntity<Object> editAnswer(String answerId, String content) {
+  @SuppressWarnings("DuplicatedCode")
+  @Transactional
+  public ResponseEntity<Object> editAnswer(
+      String userId, String answerId, String content, List<MultipartFile> files) {
     Optional<Answer> optionalAnswer = answerRepository.findById(answerId);
     if (optionalAnswer.isEmpty()) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("answer/not-found");
     }
+    Optional<User> optionalUser = userRepository.findById(userId);
+    if (optionalUser.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("user/not-found");
+    }
+    if (!optionalAnswer.get().getUser().getId().equals(userId)) {
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body("user/not-authorized");
+    }
     Answer answer = optionalAnswer.get();
     answer.setContent(content);
+    if (files != null) {
+      answerFileRepository.deleteAll(answer.getAnswerFiles());
+      addFiles(files, answer);
+    }
     answerRepository.save(answer);
-    return ResponseEntity.ok("answer/edited");
+
+    return ResponseEntity.ok(AnswerDTO.answerToDTO(answer));
+  }
+
+  @SuppressWarnings("DuplicatedCode")
+  @Transactional
+  public ResponseEntity<Object> deleteAnswer(String userId, String answerId) {
+    Optional<Answer> optionalAnswer = answerRepository.findById(answerId);
+    if (optionalAnswer.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("answer/not-found");
+    }
+    Optional<User> optionalUser = userRepository.findById(userId);
+    if (optionalUser.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("user/not-found");
+    }
+    if (!optionalAnswer.get().getUser().getId().equals(userId)) {
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body("user/not-authorized");
+    }
+    Answer answer = optionalAnswer.get();
+    answerRepository.delete(answer);
+    return ResponseEntity.ok("answer/deleted");
   }
 
   @Transactional

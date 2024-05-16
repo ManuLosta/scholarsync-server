@@ -2,6 +2,9 @@ package com.scholarsync.server.dtos;
 
 import com.scholarsync.server.entities.Question;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -11,8 +14,10 @@ public class QuestionDTO {
   private String id;
   private String title;
   private String content;
-  private String authorId;
+  private ProfileDTO author;
   private String groupId;
+  private String groupTitle;
+  private List<FileDTO> files;
   private LocalDateTime createdAt;
 
   public static QuestionDTO questionToDTO(Question question) {
@@ -20,8 +25,14 @@ public class QuestionDTO {
         question.getId(),
         question.getTitle(),
         question.getContent(),
-        question.getAuthor().getId(),
+        ProfileDTO.userToProfileDTO(question.getAuthor()),
         question.getGroup().getId(),
+        question.getGroup().getTitle(),
+        question.getQuestionFiles() != null
+            ? question.getQuestionFiles().stream()
+                .map(FileDTO::fileToDTO)
+                .collect(Collectors.toList())
+            : new ArrayList<>(),
         question.getCreatedAt());
   }
 }

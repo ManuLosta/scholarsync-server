@@ -23,33 +23,37 @@ public class AnswerController {
       @RequestParam String questionId,
       @RequestParam String content,
       @RequestParam String userId,
-      @RequestParam String groupId,
-      @RequestParam List<MultipartFile> files) {
-    return answerService.answerQuestion(questionId, content, userId, groupId, files);
+      @RequestParam(required = false) List<MultipartFile> files) {
+    return answerService.answerQuestion(questionId, content, userId, files);
   }
 
-  @PostMapping("/upvote")
-  public ResponseEntity<Object> upVoteAnswer(@RequestBody Map<String, String> body) {
-    String answerId = body.get("answerId");
-    return answerService.upVoteAnswer(answerId);
+  @PostMapping("/rate-answer")
+  public ResponseEntity<Object> rateAnswer(@RequestBody Map<String, Object> body) {
+    String answerId = (String) body.get("answer_id");
+    String userId = (String) body.get("user_id");
+    int rating = (int) body.get("rating");
+    return answerService.rateAnswer(answerId, userId, rating);
   }
 
-  @PostMapping("/downvote")
-  public ResponseEntity<Object> downVoteAnswer(@RequestBody Map<String, String> body) {
-    String answerId = body.get("answerId");
-    return answerService.downVoteAnswer(answerId);
+  @PostMapping("/delete")
+  public ResponseEntity<Object> deleteAnswer(@RequestBody Map<String, String> body) {
+    String user_id = body.get("user_id");
+    String id = body.get("id");
+    return answerService.deleteAnswer(user_id, id);
   }
 
   @PostMapping("/edit")
-  public ResponseEntity<Object> editAnswer(@RequestBody Map<String, String> body) {
-    String answerId = body.get("answer_id");
-    String content = body.get("content");
-    return answerService.editAnswer(answerId, content);
+  public ResponseEntity<Object> editAnswer(
+      @RequestParam String userId,
+      @RequestParam String answerId,
+      @RequestParam String content,
+      @RequestParam(required = false) List<MultipartFile> files) {
+
+    return answerService.editAnswer(userId, answerId, content, files);
   }
 
   @GetMapping("/get-images")
-  public ResponseEntity<Object> getImages(@RequestBody Map<String, String> body) {
-    String answerId = body.get("answer_id");
+  public ResponseEntity<Object> getImages(@RequestParam String answerId) {
     return answerService.getImages(answerId);
   }
 

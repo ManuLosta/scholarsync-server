@@ -94,6 +94,9 @@ public class User {
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
   private Set<Answer> answers;
 
+  @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL)
+  private Set<Rating> ratings;
+
   public User() {
     this.credits = 100;
     this.xp = 0;

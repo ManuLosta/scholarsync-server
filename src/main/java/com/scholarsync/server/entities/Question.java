@@ -25,8 +25,8 @@ public class Question {
   @Length(min = 10, max = 200)
   String title;
 
-  @Column(nullable = false, length = 1000)
-  @Length(min = 10, max = 1000)
+  @Column(nullable = false, length = 5000)
+  @Length(min = 10, max = 5000)
   String content;
 
   @CreationTimestamp
@@ -45,4 +45,7 @@ public class Question {
 
   @OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
   private Set<QuestionFiles> questionFiles;
+
+  @OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
+  private Set<Answer> answers;
 }

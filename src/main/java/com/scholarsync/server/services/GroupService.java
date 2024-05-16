@@ -1,5 +1,6 @@
 package com.scholarsync.server.services;
 
+import com.scholarsync.server.dtos.ProfileDTO;
 import com.scholarsync.server.entities.Group;
 import com.scholarsync.server.entities.GroupInvitation;
 import com.scholarsync.server.entities.User;
@@ -39,29 +40,6 @@ public class GroupService {
     groupMap.put("createdBy", group.getCreatedBy().getId());
   }
 
-  /**
-   * Método createGroup
-   *
-   * <p>Este método se encarga de crear un nuevo grupo en la base de datos.
-   *
-   * @param group Es un Map que contiene la información necesaria para crear el grupo. Los campos
-   *     que debe contener son:<br>
-   *     - "title" <br>
-   *     - "description"<br>
-   *     - "isPrivate"<br>
-   *     - "userId"<br>
-   * @return ResponseEntity<Object> Este método retorna un objeto ResponseEntity que puede contener
-   *     diferentes estados HTTP:<br>
-   *     - HttpStatus.OK (200): Si el grupo se creó con éxito. El cuerpo de la respuesta será "Group
-   *     Generated".<br>
-   *     - HttpStatus.NOT_FOUND (404): Si el ID del usuario proporcionado no se encuentra en la base
-   *     de datos. El cuerpo de la respuesta será "user/not-found".<br>
-   *     - HttpStatus.BAD_REQUEST (400): Si el título del grupo ya está en uso. El cuerpo de la
-   *     respuesta será "group/title-already-in-use".<br>
-   *     - HttpStatus.BAD_REQUEST (400): Para cualquier otro error no especificado.<br>
-   * @throws DataIntegrityViolationException Esta excepción se lanza si se viola alguna restricción
-   *     de integridad de la base de datos, como por ejemplo, si el título del grupo ya está en uso.
-   */
   public ResponseEntity<Object> createGroup(Map<String, Object> group) {
     try {
       Group generatedGroup = new Group();
@@ -99,19 +77,6 @@ public class GroupService {
     }
   }
 
-  /**
-   * Método getGroups
-   *
-   * <p>Este método se encarga de obtener los grupos a los que pertenece un usuario.
-   *
-   * @param id Es el ID del usuario del que se quieren obtener los grupos.
-   * @return ResponseEntity<Object> Este método retorna un objeto ResponseEntity que puede contener
-   *     diferentes estados HTTP:<br>
-   *     - HttpStatus.OK (200): Si el usuario se encuentra en la base de datos. El cuerpo de la
-   *     respuesta será un Set de objetos Group.<br>
-   *     - HttpStatus.NOT_FOUND (404): Si el ID del usuario proporcionado no se encuentra en la base
-   *     de datos. El cuerpo de la respuesta será "user/not-found".<br>
-   */
   public ResponseEntity<Object> getGroups(String id) {
     Optional<User> optionalUser = userRepository.findById(id);
     if (optionalUser.isEmpty()) {
@@ -123,19 +88,6 @@ public class GroupService {
     }
   }
 
-  /**
-   * Método getGroup
-   *
-   * <p>Este método se encarga de obtener un grupo en específico.
-   *
-   * @param id Es el ID del grupo que se quiere obtener.
-   * @return ResponseEntity<Object> Este método retorna un objeto ResponseEntity que puede contener
-   *     diferentes estados HTTP:<br>
-   *     - HttpStatus.OK (200): Si el grupo se encuentra en la base de datos. El cuerpo de la
-   *     respuesta será un objeto Group.<br>
-   *     - HttpStatus.NOT_FOUND (404): Si el ID del grupo proporcionado no se encuentra en la base
-   *     de datos. El cuerpo de la respuesta será "group/not-found".<br>
-   */
   public ResponseEntity<Object> getGroup(String id) {
     Optional<Group> optionalGroup = groupRepository.findById(id);
     if (optionalGroup.isEmpty()) {
@@ -146,15 +98,11 @@ public class GroupService {
       createGroup(group, response);
       Set<User> users = group.getUsers();
       Set<GroupInvitation> invitations = group.getGroupInvitations();
-      List<Map<String, Object>> usersList = new ArrayList<>();
+      List<ProfileDTO> usersList = new ArrayList<>();
       List<Map<String, Object>> invitedUsers = new ArrayList<>();
       for (User user : users) {
-        Map<String, Object> userMap = new HashMap<>();
-        userMap.put("id", user.getId());
-        userMap.put("firstName", user.getFirstName());
-        userMap.put("lastName", user.getLastName());
-        userMap.put("username", user.getUsername());
-        usersList.add(userMap);
+        ProfileDTO profile = ProfileDTO.userToProfileDTO(user);
+        usersList.add(profile);
       }
       for (GroupInvitation groupInvitation : invitations) {
         Map<String, Object> map = new HashMap<>();

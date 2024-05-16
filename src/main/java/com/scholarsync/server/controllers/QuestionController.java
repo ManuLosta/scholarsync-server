@@ -5,6 +5,8 @@ import com.scholarsync.server.services.QuestionService;
 import io.github.bucket4j.*;
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +34,15 @@ public class QuestionController {
     } catch (BucketExceptions.BucketExecutionException e) {
       return ResponseEntity.status(429).body("Too many requests");
     }
+  }
+
+  @PostMapping("/edit-question")
+  public ResponseEntity<Object> editQuestion(
+      @RequestParam String id,
+      @RequestParam String title,
+      @RequestParam String content,
+      @RequestParam(required = false) List<MultipartFile> files) {
+    return ResponseEntity.ok(questionService.editQuestion(id, title, content, files));
   }
 
   @GetMapping(value = "/get-question")
@@ -76,7 +87,7 @@ public class QuestionController {
       @RequestParam String content,
       @RequestParam String authorId,
       @RequestParam String groupId,
-      @RequestParam List<MultipartFile> files) {
+      @RequestParam(required = false) List<MultipartFile> files) {
     QuestionInputDTO info = new QuestionInputDTO();
     info.setTitle(title);
     info.setContent(content);
@@ -87,6 +98,52 @@ public class QuestionController {
 
   @PostMapping("/publish-no-doc-question")
   public ResponseEntity<Object> publishNoDocQuestion(@RequestBody QuestionInputDTO inputQuestion) {
-    return ResponseEntity.ok(questionService.publishNoDocQuestion(inputQuestion));
+    return questionService.publishNoDocQuestion(inputQuestion);
+  }
+
+  @GetMapping("/get-questions-by-score")
+  public ResponseEntity<Object> getQuestionsByScore(
+      @RequestParam(name = "offset") int offset,
+      @RequestParam(name = "limit") int limit,
+      @RequestParam(name = "user_id") String userId)
+      throws ExecutionException, InterruptedException {
+    return ResponseEntity.ok(questionService.getQuestionsByScore(offset, limit, userId));
+  }
+
+  @GetMapping("/get-questions-by-group")
+  public ResponseEntity<Object> getQuestionsByGroup(
+      @RequestParam(name = "group_id") String groupId,
+      @RequestParam(name = "offset") int offset,
+      @RequestParam(name = "limit") int limit) {
+    return ResponseEntity.ok(questionService.getQuestionsByGroup(groupId, offset, limit));
+  }
+
+  @GetMapping("/get-questions-by-date-and-user")
+  public ResponseEntity<Object> getQuestionsByDateAndUser(
+      @RequestParam(name = "user_id") String userId,
+      @RequestParam(name = "offset") int offset,
+      @RequestParam(name = "limit") int limit) {
+    return ResponseEntity.ok(questionService.getQuestionsByDateAndUser(userId, offset, limit));
+  }
+
+  @GetMapping("/get-questions-by-date-and-group")
+  public ResponseEntity<Object> getQuestionsByDateAndGroup(
+      @RequestParam(name = "group_id") String groupId,
+      @RequestParam(name = "offset") int offset,
+      @RequestParam(name = "limit") int limit) {
+    return ResponseEntity.ok(questionService.getQuestionsByDateAndGroup(groupId, offset, limit));
+  }
+
+  @GetMapping("/get-answers-by-question")
+  public ResponseEntity<Object> getAnswersByQuestion(
+      @RequestParam(name = "question_id") String questionId) {
+    return ResponseEntity.ok(questionService.getAnswersByQuestion(questionId));
+  }
+
+  @PostMapping("/delete-question")
+  public ResponseEntity<Object> deleteQuestion(@RequestBody Map<String, String> body) {
+    String questionId = body.get("question_id");
+    String userId = body.get("user_id");
+    return ResponseEntity.ok(questionService.deleteQuestion(userId, questionId));
   }
 }
