@@ -22,6 +22,11 @@ dependencies {
     implementation 'org.hibernate.validator:hibernate-validator:8.0.1.Final'
     implementation("com.bucket4j:bucket4j-core:8.10.1")
     implementation 'org.apache.tika:tika-core:1.27'
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation("org.springframework:spring-messaging")
+    implementation 'org.springframework.security:spring-security-messaging'
+    implementation 'org.springframework.security:spring-security-config'
     runtimeOnly 'org.postgresql:postgresql'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     compileOnly 'org.projectlombok:lombok:1.18.32'
