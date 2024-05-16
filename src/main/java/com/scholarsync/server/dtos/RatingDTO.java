@@ -7,15 +7,15 @@ import lombok.Setter;
 @Setter
 @Getter
 public class RatingDTO {
-    private String id;
-    private double rating;
-    private String userId;
+  private String id;
+  private double rating;
+  private String userId;
 
-    public static RatingDTO ratingToDTO(Rating rating) {
-        RatingDTO ratingDTO = new RatingDTO();
-        ratingDTO.setId(rating.getId());
-        ratingDTO.setRating(rating.getRating());
-        ratingDTO.setUserId(rating.getUserId().getId());
-        return ratingDTO;
-    }
+  public static RatingDTO ratingToDTO(Rating rating) {
+    RatingDTO ratingDTO = new RatingDTO();
+    ratingDTO.setId(rating.getId());
+    ratingDTO.setRating(rating.getRating());
+    ratingDTO.setUserId(rating.getUserId().getId());
+    return ratingDTO;
+  }
 }

@@ -13,9 +13,7 @@ import org.hibernate.validator.constraints.Length;
 @Setter
 @Entity
 public class Answer {
-  public Answer() {
-
-  }
+  public Answer() {}
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)

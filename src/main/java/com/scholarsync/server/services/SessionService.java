@@ -1,7 +1,6 @@
 package com.scholarsync.server.services;
 
 import com.scholarsync.server.dtos.ProfileDTO;
-import com.scholarsync.server.dtos.RefreshDTO;
 import com.scholarsync.server.entities.Session;
 import com.scholarsync.server.entities.User;
 import com.scholarsync.server.repositories.SessionRepository;

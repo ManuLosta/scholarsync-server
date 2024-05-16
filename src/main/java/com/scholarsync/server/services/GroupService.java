@@ -40,7 +40,6 @@ public class GroupService {
     groupMap.put("createdBy", group.getCreatedBy().getId());
   }
 
-
   public ResponseEntity<Object> createGroup(Map<String, Object> group) {
     try {
       Group generatedGroup = new Group();
@@ -77,7 +76,6 @@ public class GroupService {
       }
     }
   }
-
 
   public ResponseEntity<Object> getGroups(String id) {
     Optional<User> optionalUser = userRepository.findById(id);

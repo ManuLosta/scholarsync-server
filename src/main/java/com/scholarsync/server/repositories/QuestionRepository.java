@@ -1,7 +1,6 @@
 package com.scholarsync.server.repositories;
 
 import com.scholarsync.server.entities.Question;
-
 import java.time.LocalDateTime;
 import java.util.Set;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -15,7 +15,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
@@ -274,7 +273,7 @@ public class QuestionService {
   }
 
   @Transactional
-  public ResponseEntity<Object> getQuestionsByGroup(String groupId, int offset, int limit ) {
+  public ResponseEntity<Object> getQuestionsByGroup(String groupId, int offset, int limit) {
     Optional<Group> groupOptional = groupRepository.findById(groupId);
     if (groupOptional.isEmpty()) {
       return ResponseEntity.status(404).body("group/not-found");
@@ -297,27 +296,29 @@ public class QuestionService {
     return ResponseEntity.ok(questionDTOS);
   }
 
-    @Transactional
-    public ResponseEntity<Object> getQuestionsByDateAndUser(String userId, int offset, int limit) {
-        Optional<User> userOptional = userRepository.findById(userId);
-        if (userOptional.isEmpty()) {
-            return ResponseEntity.status(404).body("user/not-found");
-        }
-        User user = userOptional.get();
-        List<Question> userQuestions = new ArrayList<>();
-        for (Group group : user.getGroups()) {
-            userQuestions.addAll(group.getQuestions());
-        }
-        userQuestions.sort(Comparator.comparing(Question::getCreatedAt).reversed());
-        List<QuestionDTO> questionDTOS = userQuestions.stream().map(QuestionDTO::questionToDTO).toList();
-        questionDTOS.subList(offset * limit, Math.min(questionDTOS.size(), offset * limit + limit));
-        return ResponseEntity.ok(questionDTOS);
+  @Transactional
+  public ResponseEntity<Object> getQuestionsByDateAndUser(String userId, int offset, int limit) {
+    Optional<User> userOptional = userRepository.findById(userId);
+    if (userOptional.isEmpty()) {
+      return ResponseEntity.status(404).body("user/not-found");
     }
+    User user = userOptional.get();
+    List<Question> userQuestions = new ArrayList<>();
+    for (Group group : user.getGroups()) {
+      userQuestions.addAll(group.getQuestions());
+    }
+    userQuestions.sort(Comparator.comparing(Question::getCreatedAt).reversed());
+    List<QuestionDTO> questionDTOS =
+        userQuestions.stream().map(QuestionDTO::questionToDTO).toList();
+    questionDTOS.subList(offset * limit, Math.min(questionDTOS.size(), offset * limit + limit));
+    return ResponseEntity.ok(questionDTOS);
+  }
 
-  private ResponseEntity<Object> generateScoreDto(int offset, int limit, List<Map<String, Object>> normalizedQuestions) {
+  private ResponseEntity<Object> generateScoreDto(
+      int offset, int limit, List<Map<String, Object>> normalizedQuestions) {
     List<Map<String, Object>> filteredQuestions =
-            normalizedQuestions.subList(
-                    offset * limit, Math.min(normalizedQuestions.size(), offset * limit + limit));
+        normalizedQuestions.subList(
+            offset * limit, Math.min(normalizedQuestions.size(), offset * limit + limit));
     List<QuestionScoreDTO> result = new ArrayList<>();
     for (Map<String, Object> question : filteredQuestions) {
       Question questionEntity = questionRepository.getReferenceById((String) question.get("id"));
@@ -386,6 +387,7 @@ public class QuestionService {
 
     return getMaps(userQuestions);
   }
+
   private List<Map<String, Object>> generateNormalizedQuestionsFromGroup(String groupId) {
     Optional<Group> group = groupRepository.findById(groupId);
     if (group.isEmpty()) return new ArrayList<>();
@@ -439,7 +441,8 @@ public class QuestionService {
                                     for (Rating r : answer.getRatings()) {
                                       rating += r.getRating();
                                     }
-                                    if(!answer.getRatings().isEmpty()) rating /= answer.getRatings().size();
+                                    if (!answer.getRatings().isEmpty())
+                                      rating /= answer.getRatings().size();
                                     map.put("likes", rating);
                                     map.put("id", question.getId());
                                     map.put("responseId", answer.getId());
@@ -482,11 +485,21 @@ public class QuestionService {
     }
 
     if (items.getFirst().get("value") instanceof LocalDateTime) {
-      int min = (int) ((LocalDateTime) items.getLast().get("value")).toEpochSecond(java.time.ZoneOffset.UTC);
-      int max = (int) ((LocalDateTime) items.getFirst().get("value")).toEpochSecond(java.time.ZoneOffset.UTC);
+      int min =
+          (int)
+              ((LocalDateTime) items.getLast().get("value"))
+                  .toEpochSecond(java.time.ZoneOffset.UTC);
+      int max =
+          (int)
+              ((LocalDateTime) items.getFirst().get("value"))
+                  .toEpochSecond(java.time.ZoneOffset.UTC);
       Map<String, Map<String, Object>> result = new HashMap<>();
       for (Map<String, Object> item : items) {
-        double score = (double) (((LocalDateTime) item.get("value")).toEpochSecond(java.time.ZoneOffset.UTC) - min) / (max - min);
+        double score =
+            (double)
+                    (((LocalDateTime) item.get("value")).toEpochSecond(java.time.ZoneOffset.UTC)
+                        - min)
+                / (max - min);
         Map<String, Object> entry = new HashMap<>();
         entry.put("value", item.get("value"));
         entry.put("score", score);
@@ -498,20 +511,19 @@ public class QuestionService {
       double max = (double) items.getFirst().get("value");
       int size = items.size();
       Map<String, Map<String, Object>> result = new HashMap<>();
-        for (Map<String, Object> item : items) {
-            double score = (double) ((double) item.get("value") - min) / (max - min);
-            Map<String, Object> entry = new HashMap<>();
-            entry.put("value", item.get("value"));
-            entry.put("score", score);
-            entry.put("netLikesId", item.get("netLikesId"));
-            result.put((String) item.get("id"), entry);
-        }
+      for (Map<String, Object> item : items) {
+        double score = (double) ((double) item.get("value") - min) / (max - min);
+        Map<String, Object> entry = new HashMap<>();
+        entry.put("value", item.get("value"));
+        entry.put("score", score);
+        entry.put("netLikesId", item.get("netLikesId"));
+        result.put((String) item.get("id"), entry);
+      }
       return result;
     } else {
       throw new IllegalArgumentException("Invalid type");
     }
   }
 
-    public record QuestionScoreDTO(QuestionDTO question, double score) {
-  }
+  public record QuestionScoreDTO(QuestionDTO question, double score) {}
 }

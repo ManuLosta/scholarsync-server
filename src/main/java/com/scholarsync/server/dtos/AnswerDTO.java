@@ -2,13 +2,14 @@ package com.scholarsync.server.dtos;
 
 import com.scholarsync.server.entities.Answer;
 import com.scholarsync.server.entities.Rating;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import lombok.Getter;
+import lombok.Setter;
 
 @Setter
 @Getter
@@ -31,7 +32,9 @@ public class AnswerDTO {
     answerDTO.setAuthor(ProfileDTO.userToProfileDTO(answer.getUser()));
     answerDTO.setGroupId(answer.getGroup().getId());
     answerDTO.setCreatedAt(answer.getCreatedAt());
-    answerDTO.setFiles(answer.getAnswerFiles().stream().map(FileDTO::fileToDTO).toList());
+    answerDTO.setFiles(answer.getAnswerFiles() != null
+            ? answer.getAnswerFiles().stream().map(FileDTO::fileToDTO).toList()
+            : new ArrayList<>());
     List<RatingDTO> ratings = new ArrayList<>();
     Set<Rating> ratingsSet = answer.getRatings();
 

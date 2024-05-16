@@ -2,11 +2,10 @@ package com.scholarsync.server.dtos;
 
 import com.scholarsync.server.entities.Group;
 import com.scholarsync.server.entities.User;
+import com.scholarsync.server.types.levelType;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
-
-import com.scholarsync.server.types.levelType;
 import lombok.Getter;
 import lombok.Setter;
 
