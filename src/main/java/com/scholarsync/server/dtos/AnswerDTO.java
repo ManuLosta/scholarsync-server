@@ -6,8 +6,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
-
 import lombok.Getter;
 import lombok.Setter;
 
@@ -32,7 +30,8 @@ public class AnswerDTO {
     answerDTO.setAuthor(ProfileDTO.userToProfileDTO(answer.getUser()));
     answerDTO.setGroupId(answer.getGroup().getId());
     answerDTO.setCreatedAt(answer.getCreatedAt());
-    answerDTO.setFiles(answer.getAnswerFiles() != null
+    answerDTO.setFiles(
+        answer.getAnswerFiles() != null
             ? answer.getAnswerFiles().stream().map(FileDTO::fileToDTO).toList()
             : new ArrayList<>());
     List<RatingDTO> ratings = new ArrayList<>();

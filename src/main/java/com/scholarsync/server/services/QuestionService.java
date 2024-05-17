@@ -292,7 +292,9 @@ public class QuestionService {
     List<Question> questions = new ArrayList<>(group.getQuestions());
     questions.sort(Comparator.comparing(Question::getCreatedAt).reversed());
     List<QuestionDTO> questionDTOS = questions.stream().map(QuestionDTO::questionToDTO).toList();
-    questionDTOS.subList(Math.min(offset * limit, questionDTOS.size()), Math.min(questionDTOS.size(), offset * limit + limit));
+    questionDTOS.subList(
+        Math.min(offset * limit, questionDTOS.size()),
+        Math.min(questionDTOS.size(), offset * limit + limit));
     return ResponseEntity.ok(questionDTOS);
   }
 
@@ -310,14 +312,18 @@ public class QuestionService {
     userQuestions.sort(Comparator.comparing(Question::getCreatedAt).reversed());
     List<QuestionDTO> questionDTOS =
         userQuestions.stream().map(QuestionDTO::questionToDTO).toList();
-    questionDTOS.subList(Math.min(offset * limit, questionDTOS.size()), Math.min(questionDTOS.size(), offset * limit + limit));
+    questionDTOS.subList(
+        Math.min(offset * limit, questionDTOS.size()),
+        Math.min(questionDTOS.size(), offset * limit + limit));
     return ResponseEntity.ok(questionDTOS);
   }
 
   private ResponseEntity<Object> generateScoreDto(
       int offset, int limit, List<Map<String, Object>> normalizedQuestions) {
     List<Map<String, Object>> filteredQuestions =
-        normalizedQuestions.subList(Math.min(offset * limit, normalizedQuestions.size()), Math.min(normalizedQuestions.size(), offset * limit + limit));
+        normalizedQuestions.subList(
+            Math.min(offset * limit, normalizedQuestions.size()),
+            Math.min(normalizedQuestions.size(), offset * limit + limit));
     List<QuestionScoreDTO> result = new ArrayList<>();
     for (Map<String, Object> question : filteredQuestions) {
       Question questionEntity = questionRepository.getReferenceById((String) question.get("id"));
@@ -382,6 +388,7 @@ public class QuestionService {
     List<Question> userQuestions =
         questions.stream()
             .filter(question -> question.getGroup().getUsers().contains(user))
+            .filter(question -> !question.getAuthor().getId().equals(userId))
             .collect(Collectors.toList());
 
     return getMaps(userQuestions);
@@ -460,8 +467,8 @@ public class QuestionService {
                           likesPerAnswer.stream()
                               .min(
                                   (map1, map2) ->
-                                      Integer.compare(
-                                          (int) map2.get("likes"), (int) map1.get("likes")))
+                                      Double.compare(
+                                          (double) map2.get("likes"), (double) map1.get("likes")))
                               .map(map -> map.get("responseId"))
                               .orElse(null));
                       return info;
