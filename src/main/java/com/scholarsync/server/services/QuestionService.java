@@ -292,7 +292,7 @@ public class QuestionService {
     List<Question> questions = new ArrayList<>(group.getQuestions());
     questions.sort(Comparator.comparing(Question::getCreatedAt).reversed());
     List<QuestionDTO> questionDTOS = questions.stream().map(QuestionDTO::questionToDTO).toList();
-    questionDTOS.subList(offset * limit, Math.min(questionDTOS.size(), offset * limit + limit));
+    questionDTOS.subList(Math.min(offset * limit, questionDTOS.size()), Math.min(questionDTOS.size(), offset * limit + limit));
     return ResponseEntity.ok(questionDTOS);
   }
 
@@ -310,15 +310,14 @@ public class QuestionService {
     userQuestions.sort(Comparator.comparing(Question::getCreatedAt).reversed());
     List<QuestionDTO> questionDTOS =
         userQuestions.stream().map(QuestionDTO::questionToDTO).toList();
-    questionDTOS.subList(offset * limit, Math.min(questionDTOS.size(), offset * limit + limit));
+    questionDTOS.subList(Math.min(offset * limit, questionDTOS.size()), Math.min(questionDTOS.size(), offset * limit + limit));
     return ResponseEntity.ok(questionDTOS);
   }
 
   private ResponseEntity<Object> generateScoreDto(
       int offset, int limit, List<Map<String, Object>> normalizedQuestions) {
     List<Map<String, Object>> filteredQuestions =
-        normalizedQuestions.subList(
-            offset * limit, Math.min(normalizedQuestions.size(), offset * limit + limit));
+        normalizedQuestions.subList(Math.min(offset * limit, normalizedQuestions.size()), Math.min(normalizedQuestions.size(), offset * limit + limit));
     List<QuestionScoreDTO> result = new ArrayList<>();
     for (Map<String, Object> question : filteredQuestions) {
       Question questionEntity = questionRepository.getReferenceById((String) question.get("id"));
