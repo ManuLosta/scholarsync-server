@@ -7,11 +7,10 @@ import com.scholarsync.server.repositories.FriendRequestRepository;
 import com.scholarsync.server.repositories.NotificationRepository;
 import com.scholarsync.server.repositories.UserRepository;
 import com.scholarsync.server.types.NotificationType;
-import java.util.*;
-import java.util.stream.Collectors;
-
 import com.scholarsync.server.webSocket.CustomNotificationDTO;
 import com.scholarsync.server.webSocket.WebSocketNotificationService;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

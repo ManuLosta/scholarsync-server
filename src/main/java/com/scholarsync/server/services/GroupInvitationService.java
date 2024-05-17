@@ -3,11 +3,10 @@ package com.scholarsync.server.services;
 import com.scholarsync.server.dtos.GroupNotificationDTO;
 import com.scholarsync.server.entities.*;
 import com.scholarsync.server.repositories.*;
-import java.util.*;
-
 import com.scholarsync.server.types.NotificationType;
 import com.scholarsync.server.webSocket.CustomNotificationDTO;
 import com.scholarsync.server.webSocket.WebSocketNotificationService;
+import java.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;

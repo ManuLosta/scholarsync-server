@@ -1,10 +1,11 @@
 const { Client } = require('@stomp/stompjs');
 const WebSocket = require('ws');
 
-var client = new Client({
+const client = new Client({
     connectHeaders: {
-        Authorization: 'Bearer fcbb4e43-5919-40cc-93f9-a314cf7cca32'
+        Authorization: 'Bearer a24327f0-dece-4801-946e-a13cbf461ef9'
     },
+    brokerURL:'ws://localhost:8080/message-broker',
     webSocketFactory: () => new WebSocket('ws://localhost:8080/message-broker'),
     onConnect: (frame) => {
         console.log('Connected: ' + frame);
@@ -15,6 +16,9 @@ var client = new Client({
     onStompError: (frame) => {
         console.log('Broker reported error: ' + frame.headers['message']);
         console.log('Additional details: ' + frame.body);
+    },
+    onWebSocketError: (event) => {
+        console.log('WebSocket error: ', event);
     },
 });
 

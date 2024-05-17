@@ -18,7 +18,7 @@ public class FilterConfig {
     TokenFilter tokenFilter = new TokenFilter(sessionRepository);
 
     registrationBean.setFilter(tokenFilter);
-    registrationBean.setOrder(1);
+    registrationBean.setOrder(-1);
 
     return registrationBean;
   }

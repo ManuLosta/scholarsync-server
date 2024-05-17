@@ -4,20 +4,17 @@ import com.scholarsync.server.types.NotificationType;
 import lombok.Getter;
 import lombok.Setter;
 
-
 @Getter
 @Setter
 public class CustomNotificationDTO {
 
-    NotificationType notificationType;
+  NotificationType notificationType;
 
-    String groupId;
+  String groupId;
 
-    String from;
+  String from;
 
-    String to;
+  String to;
 
-    String message = "fetch again";
-
-
+  String message = "fetch again";
 }

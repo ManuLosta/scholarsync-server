@@ -7,14 +7,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class WebSocketNotificationService {
 
-    private final SimpMessagingTemplate template;
+  private final SimpMessagingTemplate template;
 
-    @Autowired
-    public WebSocketNotificationService(SimpMessagingTemplate template) {
-        this.template = template;
-    }
+  @Autowired
+  public WebSocketNotificationService(SimpMessagingTemplate template) {
+    this.template = template;
+  }
 
-    public void sendNotification(String user, CustomNotificationDTO customNotification) {
-        template.convertAndSendToUser(user, "/notification", customNotification);
-    }
+  public void sendNotification(String user, CustomNotificationDTO customNotification) {
+    template.convertAndSendToUser(user, "/notification", customNotification);
+  }
 }
