@@ -10,6 +10,7 @@ import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.web.multipart.MultipartFile;
 
 @Entity
 @Table(name = "users")
@@ -52,6 +53,10 @@ public class User {
   @Column(name = "level", nullable = false)
   @Enumerated(EnumType.STRING)
   private levelType level;
+
+  @Lob
+  @Column(name = "profile_picture")
+  private byte[] profilePicture;
 
   @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
   @PrimaryKeyJoinColumn

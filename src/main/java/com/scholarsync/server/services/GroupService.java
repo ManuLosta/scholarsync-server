@@ -8,11 +8,14 @@ import com.scholarsync.server.repositories.GroupInvitationRepository;
 import com.scholarsync.server.repositories.GroupRepository;
 import com.scholarsync.server.repositories.UserRepository;
 import java.util.*;
+
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class GroupService {
@@ -207,5 +210,43 @@ public class GroupService {
     }
     deleteGroup(group);
     return new ResponseEntity<>("group/deleted", HttpStatus.OK);
+  }
+
+  @Transactional
+  public ResponseEntity<Object> updateGroupPicture(
+      MultipartFile file, String groupId, String userId) {
+    if (file.getContentType() == null || !file.getContentType().startsWith("image/")) {
+      return new ResponseEntity<>("group/image-invalid", HttpStatus.BAD_REQUEST);
+    }
+    Optional<Group> optionalGroup = groupRepository.findById(groupId);
+    if (optionalGroup.isEmpty()) {
+      return new ResponseEntity<>("group/not-found", HttpStatus.NOT_FOUND);
+    }
+    Group group = optionalGroup.get();
+    if (!group.getCreatedBy().getId().equals(userId)) {
+      return new ResponseEntity<>("user/not-owner", HttpStatus.FORBIDDEN);
+    }
+    try {
+      group.setImage(file.getBytes());
+      groupRepository.save(group);
+      return new ResponseEntity<>("group/image-updated", HttpStatus.OK);
+    } catch (Exception e) {
+      return new ResponseEntity<>("group/image-update-failed", HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @Transactional
+  public ResponseEntity<Object> getGroupPicture(String groupId) {
+    Optional<Group> optionalGroup = groupRepository.findById(groupId);
+    if (optionalGroup.isEmpty()) {
+      return new ResponseEntity<>("group/not-found", HttpStatus.NOT_FOUND);
+    }
+    Group group = optionalGroup.get();
+    if (group.getImage() == null) {
+      return new ResponseEntity<>("group/image-not-found", HttpStatus.NOT_FOUND);
+    }
+    byte[] image = group.getImage();
+    String encodedString = Base64.getEncoder().encodeToString(image);
+    return new ResponseEntity<>(encodedString, HttpStatus.OK);
   }
 }

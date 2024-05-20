@@ -19,9 +19,9 @@ public class WebSocketNotificationService {
     template.convertAndSendToUser(user, "/notification", customNotification);
   }
 
-  @Scheduled(fixedRate = 3000)
+  @Scheduled(fixedRate = 60000)
   public void sendPingToAllUsers() {
-    System.out.println("Sending ping to all users");
+    System.out.println("pinging all users");
     template.convertAndSend("/global/ping", "ping");
   }
 }

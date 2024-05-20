@@ -101,37 +101,23 @@ public class QuestionController {
     return questionService.publishNoDocQuestion(inputQuestion);
   }
 
-  @GetMapping("/get-questions-by-score")
-  public ResponseEntity<Object> getQuestionsByScore(
+  @GetMapping("/get-questions")
+  public ResponseEntity<Object> getQuestions(
+      @RequestParam(name = "type") String type,
+      @RequestParam(name = "id") String id,
       @RequestParam(name = "offset") int offset,
-      @RequestParam(name = "limit") int limit,
-      @RequestParam(name = "user_id") String userId)
+      @RequestParam(name = "limit") int limit)
       throws ExecutionException, InterruptedException {
-    return ResponseEntity.ok(questionService.getQuestionsByScore(offset, limit, userId));
-  }
 
-  @GetMapping("/get-questions-by-group")
-  public ResponseEntity<Object> getQuestionsByGroup(
-      @RequestParam(name = "group_id") String groupId,
-      @RequestParam(name = "offset") int offset,
-      @RequestParam(name = "limit") int limit) {
-    return ResponseEntity.ok(questionService.getQuestionsByGroup(groupId, offset, limit));
-  }
-
-  @GetMapping("/get-questions-by-date-and-user")
-  public ResponseEntity<Object> getQuestionsByDateAndUser(
-      @RequestParam(name = "user_id") String userId,
-      @RequestParam(name = "offset") int offset,
-      @RequestParam(name = "limit") int limit) {
-    return ResponseEntity.ok(questionService.getQuestionsByDateAndUser(userId, offset, limit));
-  }
-
-  @GetMapping("/get-questions-by-date-and-group")
-  public ResponseEntity<Object> getQuestionsByDateAndGroup(
-      @RequestParam(name = "group_id") String groupId,
-      @RequestParam(name = "offset") int offset,
-      @RequestParam(name = "limit") int limit) {
-    return ResponseEntity.ok(questionService.getQuestionsByDateAndGroup(groupId, offset, limit));
+    return switch (type) {
+      case "score" -> ResponseEntity.ok(questionService.getQuestionsByScore(offset, limit, id));
+      case "group" -> ResponseEntity.ok(questionService.getQuestionsByGroup(id, offset, limit));
+      case "date-user" ->
+          ResponseEntity.ok(questionService.getQuestionsByDateAndUser(id, offset, limit));
+      case "date-group" ->
+          ResponseEntity.ok(questionService.getQuestionsByDateAndGroup(id, offset, limit));
+      default -> ResponseEntity.badRequest().body("Invalid type parameter");
+    };
   }
 
   @GetMapping("/get-answers-by-question")

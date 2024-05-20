@@ -30,6 +30,10 @@ public class Group {
   @Column(name = "isPrivate")
   boolean isPrivate;
 
+  @Lob
+  @Column(name = "image")
+  byte[] image;
+
   @ManyToOne
   @JoinColumn(name = "created_by")
   @JsonBackReference

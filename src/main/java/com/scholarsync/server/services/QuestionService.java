@@ -214,7 +214,8 @@ public class QuestionService {
       return noQuestionInfo;
     }
     QuestionDTO question = (QuestionDTO) noQuestionInfo.getBody();
-    String questionId = question.getId();
+      assert question != null;
+      String questionId = question.getId();
     return addFiles(files, questionId);
   }
 
@@ -515,7 +516,6 @@ public class QuestionService {
     } else if (items.getFirst().get("value") instanceof Double) {
       double min = (double) items.getLast().get("value");
       double max = (double) items.getFirst().get("value");
-      int size = items.size();
       Map<String, Map<String, Object>> result = new HashMap<>();
       for (Map<String, Object> item : items) {
         double score = (double) ((double) item.get("value") - min) / (max - min);
