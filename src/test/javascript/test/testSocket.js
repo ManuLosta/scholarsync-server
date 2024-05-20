@@ -1,5 +1,6 @@
 const StompJs = require("@stomp/stompjs");
 const WebSocket = require('ws');
+const process = require('process');
 
 // rest of your code
 const stompClient = new StompJs.Client({
@@ -13,7 +14,6 @@ stompClient.onConnect = (frame) => {
         if (message.isBinaryBody) {
             const textDecoder = new TextDecoder();
             const messageContent = textDecoder.decode(message.binaryBody);
-            console.log('Received message: ', messageContent);
             showMessage(messageContent);
         } else {
             console.log('Received message: ', message);
@@ -22,8 +22,14 @@ stompClient.onConnect = (frame) => {
     });
 };
 
+stompClient.onWebSocketClose = (event) => {
+    setConnected(false);
+    console.log('Disconnected: '+ event.code + ' ' + event.reason);
+    process.exit(0);
+
+}
+
 function showMessage(message) {
-    console.log('Message content: ', message);
     console.log(`Received message: ${message}`);
 }
 
@@ -41,10 +47,6 @@ function setConnected(connected) {
     console.log(`Connection status: ${connected}`);
 }
 
-function showMessage(message) {
-    console.log('Message content: ', message);
-    console.log(`Received message: ${message}`);
-}
 
 function connect() {
     stompClient.activate();
