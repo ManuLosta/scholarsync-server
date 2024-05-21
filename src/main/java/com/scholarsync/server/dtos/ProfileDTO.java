@@ -56,7 +56,7 @@ public class ProfileDTO {
     for (Group group : groups) {
       Map<String, Object> groupMap = new HashMap<>();
       groupMap.put("id", group.getId());
-      groupMap.put("name", group.getTitle());
+      groupMap.put("title", group.getTitle());
       groupsList.add(groupMap);
     }
 

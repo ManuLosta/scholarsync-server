@@ -50,11 +50,6 @@ public class QuestionController {
     return ResponseEntity.ok(questionService.getQuestion(id));
   }
 
-  @GetMapping(value = "/download-files", produces = "application/zip")
-  public ResponseEntity<Object> downloadFiles(String id) {
-    ResponseEntity<Object> response = questionService.downloadFiles(id);
-    return response;
-  }
 
   @GetMapping("/get-images")
   public ResponseEntity<Object> getImages(String id) {
@@ -67,14 +62,6 @@ public class QuestionController {
     return ResponseEntity.ok(questionService.addFiles(files, questionId));
   }
 
-  @GetMapping(value = "/download-file")
-  public ResponseEntity<Object> downloadFile(String id) {
-    ResponseEntity<Object> response = questionService.downloadFile(id);
-    MediaType contentType = response.getHeaders().getContentType();
-    HttpHeaders headers = response.getHeaders();
-    Object body = response.getBody();
-    return ResponseEntity.ok().contentType(contentType).headers(headers).body(body);
-  }
 
   @GetMapping("/get-question-files")
   public ResponseEntity<Object> getQuestionFiles(String id) {
@@ -96,35 +83,6 @@ public class QuestionController {
     return ResponseEntity.ok(questionService.publishQuestion(info, files));
   }
 
-  @PostMapping("/publish-no-doc-question")
-  public ResponseEntity<Object> publishNoDocQuestion(@RequestBody QuestionInputDTO inputQuestion) {
-    return questionService.publishNoDocQuestion(inputQuestion);
-  }
-
-  @GetMapping("/get-questions")
-  public ResponseEntity<Object> getQuestions(
-      @RequestParam(name = "type") String type,
-      @RequestParam(name = "id") String id,
-      @RequestParam(name = "offset") int offset,
-      @RequestParam(name = "limit") int limit)
-      throws ExecutionException, InterruptedException {
-
-    return switch (type) {
-      case "score" -> ResponseEntity.ok(questionService.getQuestionsByScore(offset, limit, id));
-      case "group" -> ResponseEntity.ok(questionService.getQuestionsByGroup(id, offset, limit));
-      case "date-user" ->
-          ResponseEntity.ok(questionService.getQuestionsByDateAndUser(id, offset, limit));
-      case "date-group" ->
-          ResponseEntity.ok(questionService.getQuestionsByDateAndGroup(id, offset, limit));
-      default -> ResponseEntity.badRequest().body("Invalid type parameter");
-    };
-  }
-
-  @GetMapping("/get-answers-by-question")
-  public ResponseEntity<Object> getAnswersByQuestion(
-      @RequestParam(name = "question_id") String questionId) {
-    return ResponseEntity.ok(questionService.getAnswersByQuestion(questionId));
-  }
 
   @PostMapping("/delete-question")
   public ResponseEntity<Object> deleteQuestion(@RequestBody Map<String, String> body) {

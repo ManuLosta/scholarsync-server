@@ -84,7 +84,7 @@ public class DbFillerService {
           question.getId(), groupCreationDate.plusMonths(random.nextInt(60)));
 
       Answer answer = new Answer();
-      answer.setContent("Answer" + i);
+      answer.setContent("Answer Interesting:" + i);
       answer.setQuestion(question);
       answer.setUser(user);
       answer.setGroup(group);

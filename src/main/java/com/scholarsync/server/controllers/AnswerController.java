@@ -57,13 +57,8 @@ public class AnswerController {
     return answerService.getImages(answerId);
   }
 
-  @GetMapping("/download-file")
-  public ResponseEntity<Object> downloadFile(@RequestBody Map<String, String> body) {
-    String fileId = body.get("file_id");
-    ResponseEntity<Object> standard = answerService.downloadFile(fileId);
-    MediaType contentType = standard.getHeaders().getContentType();
-    HttpHeaders headers = standard.getHeaders();
-    Object responseBody = standard.getBody();
-    return ResponseEntity.ok().contentType(contentType).headers(headers).body(responseBody);
-  }
+  @GetMapping("answers-by-question")
+    public ResponseEntity<Object> getAnswersByQuestion(@RequestParam String questionId) {
+        return answerService.getAnswersByQuestion(questionId);
+    }
 }
