@@ -90,11 +90,11 @@ public class FeedGeneratorService {
                 normalizedQuestions.subList(
                         Math.min(offset * limit, normalizedQuestions.size()),
                         Math.min(normalizedQuestions.size(), offset * limit + limit));
-        List<QuestionScoreDTO> result = new ArrayList<>();
+        List<QuestionDTO> result = new ArrayList<>();
         for (Map<String, Object> question : filteredQuestions) {
             Question questionEntity = questionRepository.getReferenceById((String) question.get("id"));
             QuestionDTO questionDTO = QuestionDTO.questionToDTO(questionEntity);
-            result.add(new QuestionScoreDTO(questionDTO, (double) question.get("totalScore")));
+            result.add(questionDTO);
         }
         return ResponseEntity.ok(result);
     }
@@ -295,6 +295,4 @@ public class FeedGeneratorService {
             throw new IllegalArgumentException("Invalid type");
         }
     }
-
-    public record QuestionScoreDTO(QuestionDTO question, double score) {}
 }
