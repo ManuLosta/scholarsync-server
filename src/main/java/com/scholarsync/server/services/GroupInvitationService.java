@@ -19,6 +19,8 @@ public class GroupInvitationService {
   @Autowired private UserRepository userRepository;
   @Autowired private NotificationRepository notificationRepository;
   @Autowired private WebSocketNotificationService webSocketNotificationService;
+  @Autowired
+  private SessionRepository sessionRepository;
 
   public ResponseEntity<Object> sendGroupInvitation(Map<String, Object> groupInvitationBody) {
     String groupId = (String) groupInvitationBody.get("group_id");
@@ -57,7 +59,10 @@ public class GroupInvitationService {
     customNotification.setFrom(group.getCreatedBy().getId());
     customNotification.setTo(to.getId());
     customNotification.setNotificationType(NotificationType.GROUP_INVITE);
-    webSocketNotificationService.sendNotification(to.getId(), customNotification);
+    Optional<Session> session = sessionRepository.findSessionByUserId(to.getId());
+    if (session.isPresent()) {
+      webSocketNotificationService.sendNotification(session.get().getId(), customNotification);
+    }
     // --
 
     return ResponseEntity.ok("group-invitation/sent");

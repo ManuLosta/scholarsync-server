@@ -1,69 +1,44 @@
-const StompJs = require("@stomp/stompjs");
-const WebSocket = require('ws');
-const process = require('process');
+const SockJS = require('sockjs-client');
+const Stomp = require('stompjs');
 
-// rest of your code
-const stompClient = new StompJs.Client({
-    webSocketFactory: () => new WebSocket('ws://localhost:8080/message-broker')
-});
-
-stompClient.onConnect = (frame) => {
-    setConnected(true);
-    console.log('Connected: ' + frame);
-    stompClient.subscribe('/global/ping', (message) => {
-        if (message.isBinaryBody) {
-            const textDecoder = new TextDecoder();
-            const messageContent = textDecoder.decode(message.binaryBody);
-            showMessage(messageContent);
-        } else {
-            console.log('Received message: ', message);
-            showMessage(JSON.parse(message.body).content);
-        }
-    });
-};
-
-stompClient.onWebSocketClose = (event) => {
-    setConnected(false);
-    console.log('Disconnected: '+ event.code + ' ' + event.reason);
-    process.exit(0);
-
-}
-
-function showMessage(message) {
-    console.log(`Received message: ${message}`);
-}
-
-stompClient.onWebSocketError = (error) => {
-    console.error('Error with websocket', error);
-};
-
-stompClient.onStompError = (frame) => {
-    console.error('Broker reported error: ' + frame.headers['message']);
-    console.error('Additional details: ' + frame.body);
-};
-
-function setConnected(connected) {
-    // Implement your logic here
-    console.log(`Connection status: ${connected}`);
-}
-
+const WEBSOCKET_URL = 'http://localhost:8080/message-broker'; // Adjust this URL to your WebSocket endpoint
+const USER_SESSION_ID = 'c8380da9-9cb7-43b3-b172-d0f76dd5ae80'; // Replace with the actual session ID
 
 function connect() {
-    stompClient.activate();
-}
+    const socket = new SockJS(WEBSOCKET_URL);
+    const stompClient = Stomp.over(socket);
 
-function disconnect() {
-    stompClient.deactivate();
-    setConnected(false);
-    console.log("Disconnected");
-}
+    // Log subscription path
 
-function sendMessage() {
-    stompClient.publish({
-        destination: "/app/message",
-        body: JSON.stringify({'content': document.getElementById("message").value})
+    stompClient.connect({}, function (frame) {
+        console.log('Connected2: ' + frame);
+        const subscriptionPath = `/individual/${USER_SESSION_ID}/notification`;
+        stompClient.subscribe(subscriptionPath, function (message) {
+            console.log('received message', '/session/' + USER_SESSION_ID + '/notification', message)
+            handleNotification(message);
+            // message.ack();
+        })
+        stompClient.subscribe("/global/ping", function (message) {
+            console.log('received message', "/global/ping", message)
+            handleNotification(message);
+            // message.ack();
+        });
+
+        stompClient.debug(function (msg) {
+            console.log('debug received message', msg)
+        })
+    }, function (error) {
+        console.error('Connection error: ' + error);
     });
+
 }
 
-// Call the connect function to initiate the WebSocket connection
+function handleNotification(message) {
+    showNotification(message.body);
+}
+
+function showNotification(message) {
+    console.log('Received notification: ', message);
+}
+
 connect();

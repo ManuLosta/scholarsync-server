@@ -15,13 +15,14 @@ public class WebSocketNotificationService {
     this.template = template;
   }
 
-  public void sendNotification(String user, CustomNotificationDTO customNotification) {
-    template.convertAndSendToUser(user, "/notification", customNotification);
+  public void sendNotification(String sessionId, CustomNotificationDTO customNotification) {
+    System.out.println("sending notification to user");
+    this.template.convertAndSend("/individual/" + sessionId + "/notification", customNotification);
   }
 
-  @Scheduled(fixedRate = 60000)
+  @Scheduled(fixedRate = 5000)
   public void sendPingToAllUsers() {
     System.out.println("pinging all users");
-    template.convertAndSend("/global/ping", "ping");
+    this.template.convertAndSend("/global/ping", "ping");
   }
 }

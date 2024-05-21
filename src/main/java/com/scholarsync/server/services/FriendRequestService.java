@@ -2,9 +2,11 @@ package com.scholarsync.server.services;
 
 import com.scholarsync.server.dtos.FriendRequestInvitationDTO;
 import com.scholarsync.server.entities.FriendRequest;
+import com.scholarsync.server.entities.Session;
 import com.scholarsync.server.entities.User;
 import com.scholarsync.server.repositories.FriendRequestRepository;
 import com.scholarsync.server.repositories.NotificationRepository;
+import com.scholarsync.server.repositories.SessionRepository;
 import com.scholarsync.server.repositories.UserRepository;
 import com.scholarsync.server.types.NotificationType;
 import com.scholarsync.server.webSocket.CustomNotificationDTO;
@@ -23,6 +25,7 @@ public class FriendRequestService {
   @Autowired private FriendRequestRepository friendRequestRepository;
   @Autowired private UserRepository userRepository;
   @Autowired private WebSocketNotificationService webSocketNotificationService;
+  @Autowired private SessionRepository sessionRepository;
 
   public ResponseEntity<Object> sendFriendRequest(Map<String, String> friendRequestBody) {
     Optional<User> fromEntry = userRepository.findById(friendRequestBody.get("from_id"));
@@ -50,7 +53,10 @@ public class FriendRequestService {
     webSocketMessage.setNotificationType(NotificationType.FRIEND_REQUEST);
     webSocketMessage.setFrom(fromEntry.get().getId());
     webSocketMessage.setTo(toEntry.get().getId());
-    webSocketNotificationService.sendNotification(toEntry.get().getId(), webSocketMessage);
+    Optional<Session> session = sessionRepository.findSessionByUserId(toEntry.get().getId());
+    if (session.isPresent()) {
+      webSocketNotificationService.sendNotification(session.get().getId(), webSocketMessage);
+    }
     // stomp
 
     return ResponseEntity.ok("friend-request/sent");
