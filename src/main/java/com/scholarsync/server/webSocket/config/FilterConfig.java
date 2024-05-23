@@ -1,5 +1,6 @@
-package com.scholarsync.server.filters;
+package com.scholarsync.server.webSocket.config;
 
+import com.scholarsync.server.filters.TokenFilter;
 import com.scholarsync.server.repositories.SessionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -13,13 +14,15 @@ public class FilterConfig {
   @Autowired SessionRepository sessionRepository;
 
   @Bean
-  public FilterRegistrationBean<TokenFilter> filterRegistrationBean() {
+  public FilterRegistrationBean<TokenFilter> customFilter() {
     FilterRegistrationBean<TokenFilter> registrationBean = new FilterRegistrationBean<>();
     TokenFilter tokenFilter = new TokenFilter(sessionRepository);
 
     registrationBean.setFilter(tokenFilter);
-    registrationBean.setOrder(1);
+    registrationBean.addUrlPatterns("/*");
+    registrationBean.setOrder(-1);
 
     return registrationBean;
   }
+
 }

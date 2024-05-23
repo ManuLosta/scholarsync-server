@@ -85,35 +85,7 @@ public class AnswerService {
     return answer;
   }
 
-  private void addFiles(List<MultipartFile> files, Answer answer) {
 
-    if (files != null) {
-      if (files.isEmpty()) {
-        return;
-      }
-      Set<AnswerFiles> answerFiles =
-          files.stream()
-              .map(
-                  file -> {
-                    AnswerFiles answerFile = new AnswerFiles();
-                    try {
-                      answerFile.setFile(file.getBytes());
-                      answerFile.setFileName(file.getOriginalFilename());
-                      answerFile.setFileType(file.getContentType());
-                    } catch (IOException e) {
-                      e.printStackTrace();
-                    }
-                    answerFile.setAnswer(answer);
-                    answerFileRepository.save(answerFile);
-                    return answerFile;
-                  })
-              .collect(Collectors.toSet());
-
-      answer.setAnswerFiles(answerFiles);
-      answerRepository.save(answer);
-      return;
-    }
-  }
 
   public ResponseEntity<Object> rateAnswer(String answerId, String userId, double rating) {
     if (rating < 0 || rating > 5) {
@@ -165,29 +137,7 @@ public class AnswerService {
     return ResponseEntity.ok(images);
   }
 
-  public List<Map<String, String>> getImagesList(String answerId) {
-    Optional<Answer> answerOptional = answerRepository.findById(answerId);
-    if (answerOptional.isEmpty()) {
-      throw new RuntimeException("answer/not-found");
-    }
-    Answer answer = answerOptional.get();
 
-    List<Map<String, String>> images =
-        answer.getAnswerFiles().stream()
-            .filter(answerFiles -> answerFiles.getFileType().contains("image"))
-            .map(
-                answerFiles -> {
-                  Map<String, String> imageMap = new HashMap<>();
-                  imageMap.put("fileType", answerFiles.getFileType());
-                  imageMap.put(
-                      "base64Encoding", Base64.getEncoder().encodeToString(answerFiles.getFile()));
-                  imageMap.put("name", answer.getId());
-                  return imageMap;
-                })
-            .collect(Collectors.toList());
-
-    return images;
-  }
 
   @SuppressWarnings("DuplicatedCode")
   @Transactional
@@ -234,19 +184,81 @@ public class AnswerService {
     return ResponseEntity.ok("answer/deleted");
   }
 
-  @Transactional
-  public ResponseEntity<Object> downloadFile(String id) {
-    Optional<AnswerFiles> answerFilesOptional = answerFileRepository.findById(id);
-    if (answerFilesOptional.isEmpty()) {
-      return ResponseEntity.status(404).body("file/not-found");
-    }
-    AnswerFiles answerFiles = answerFilesOptional.get();
-    byte[] file = answerFiles.getFile();
-    String fileName = answerFiles.getFileName();
-    HttpHeaders headers = new HttpHeaders();
-    headers.add("Content-Disposition", "attachment; filename=" + fileName);
-    headers.add("Content-Type", answerFiles.getFileType());
 
-    return ResponseEntity.ok().headers(headers).body(file);
+  @Transactional
+  public ResponseEntity<Object> getAnswersByQuestion(String questionId) {
+    Optional<Question> questionOptional = questionRepository.findById(questionId);
+    if (questionOptional.isEmpty()) {
+      return ResponseEntity.status(404).body("question/not-found");
+    }
+    Question question = questionOptional.get();
+    List<Answer> answers = new ArrayList<>(question.getAnswers());
+    List<Answer> sortedAnswers =
+            answers.stream()
+                    .sorted((a1, a2) -> a2.getCreatedAt().compareTo(a1.getCreatedAt()))
+                    .toList();
+    List<AnswerDTO> answerDTOS = sortedAnswers.stream().map(AnswerDTO::answerToDTO).toList();
+    return ResponseEntity.ok(answerDTOS);
   }
+
+
+
+
+  // ------helper methods------------------------------------------
+
+  private void addFiles(List<MultipartFile> files, Answer answer) {
+
+    if (files != null) {
+      if (files.isEmpty()) {
+        return;
+      }
+      Set<AnswerFiles> answerFiles =
+              files.stream()
+                      .map(
+                              file -> {
+                                AnswerFiles answerFile = new AnswerFiles();
+                                try {
+                                  answerFile.setFile(file.getBytes());
+                                  answerFile.setFileName(file.getOriginalFilename());
+                                  answerFile.setFileType(file.getContentType());
+                                } catch (IOException e) {
+                                  e.printStackTrace();
+                                }
+                                answerFile.setAnswer(answer);
+                                answerFileRepository.save(answerFile);
+                                return answerFile;
+                              })
+                      .collect(Collectors.toSet());
+
+      answer.setAnswerFiles(answerFiles);
+      answerRepository.save(answer);
+      return;
+    }
+  }
+
+  public List<Map<String, String>> getImagesList(String answerId) {
+    Optional<Answer> answerOptional = answerRepository.findById(answerId);
+    if (answerOptional.isEmpty()) {
+      throw new RuntimeException("answer/not-found");
+    }
+    Answer answer = answerOptional.get();
+
+    List<Map<String, String>> images =
+            answer.getAnswerFiles().stream()
+                    .filter(answerFiles -> answerFiles.getFileType().contains("image"))
+                    .map(
+                            answerFiles -> {
+                              Map<String, String> imageMap = new HashMap<>();
+                              imageMap.put("fileType", answerFiles.getFileType());
+                              imageMap.put(
+                                      "base64Encoding", Base64.getEncoder().encodeToString(answerFiles.getFile()));
+                              imageMap.put("name", answer.getId());
+                              return imageMap;
+                            })
+                    .collect(Collectors.toList());
+
+    return images;
+  }
+
+
 }

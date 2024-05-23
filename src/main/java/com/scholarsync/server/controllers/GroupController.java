@@ -5,6 +5,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/groups")
@@ -40,5 +41,18 @@ public class GroupController {
   @PostMapping("/delete-group")
   public ResponseEntity<Object> deleteGroup(@RequestBody Map<String, String> groupInfo) {
     return groupService.deleteGroup(groupInfo);
+  }
+
+  @PostMapping("/update-picture")
+  public ResponseEntity<Object> updateGroupPicture(
+      @RequestParam(name = "group_id") String groupId,
+      @RequestParam(name = "file") MultipartFile file,
+      @RequestParam(name = "user_id") String userId) {
+    return groupService.updateGroupPicture(file, groupId, userId);
+  }
+
+  @GetMapping("/get-picture")
+  public ResponseEntity<Object> getGroupPicture(@RequestParam(name = "group_id") String groupId) {
+    return groupService.getGroupPicture(groupId);
   }
 }
