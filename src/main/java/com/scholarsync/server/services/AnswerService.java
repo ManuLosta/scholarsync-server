@@ -156,7 +156,7 @@ public class AnswerService {
     Answer answer = optionalAnswer.get();
     answer.setContent(content);
     if (files != null) {
-      fileRepository.deleteAll(answer.getAnswerFiles());
+      fileRepository.deleteAll(answer.getFiles());
       addFiles(files, answer);
     }
     answerRepository.save(answer);
@@ -211,11 +211,11 @@ public class AnswerService {
       if (files.isEmpty()) {
         return;
       }
-      Set<File> answerFiles =
+      Set<Files> answerFiles =
               files.stream()
                       .map(
                               file -> {
-                                File answerFile = new File();
+                                Files answerFile = new Files();
                                 try {
                                   answerFile.setFile(file.getBytes());
                                   answerFile.setFileName(file.getOriginalFilename());
@@ -228,7 +228,7 @@ public class AnswerService {
                               })
                       .collect(Collectors.toSet());
 
-      answer.setAnswerFiles(answerFiles);
+      answer.setFiles(answerFiles);
       answerRepository.save(answer);
       return;
     }
@@ -242,7 +242,7 @@ public class AnswerService {
     Answer answer = answerOptional.get();
 
     List<Map<String, String>> images =
-            answer.getAnswerFiles().stream()
+            answer.getFiles().stream()
                     .filter(answerFiles -> answerFiles.getFileType().contains("image"))
                     .map(
                             answerFiles -> {

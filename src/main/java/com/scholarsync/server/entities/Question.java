@@ -45,7 +45,7 @@ public class Question {
   private Group group;
 
   @OneToMany
-  private Set<File> questionFiles;
+  private Set<Files> files;
 
   @OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
   private Set<Answer> answers;

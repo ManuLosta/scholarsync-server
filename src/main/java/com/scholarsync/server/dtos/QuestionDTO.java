@@ -28,8 +28,8 @@ public class QuestionDTO {
         ProfileDTO.userToProfileDTO(question.getAuthor()),
         question.getGroup().getId(),
         question.getGroup().getTitle(),
-        question.getQuestionFiles() != null
-            ? question.getQuestionFiles().stream()
+        question.getFiles() != null
+            ? question.getFiles().stream()
                 .map(FileDTO::fileToDTO)
                 .collect(Collectors.toList())
             : new ArrayList<>(),

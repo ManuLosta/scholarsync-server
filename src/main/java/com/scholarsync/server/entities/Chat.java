@@ -32,8 +32,8 @@ public class Chat {
   private Group group;
 
 
-  @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL)
-  private Set<ChatFile> chatFiles;
+  @OneToMany
+  private Set<Files> files;
 
 
   @CreationTimestamp
