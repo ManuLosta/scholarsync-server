@@ -18,8 +18,8 @@ public class DownloadController {
 
   @GetMapping
   public ResponseEntity<Object> downloadFile(
-      @RequestParam String id, @RequestParam boolean isQuestion) {
-    ResponseEntity<Object> response = downloadService.downloadFile(id, isQuestion);
+      @RequestParam String id) {
+    ResponseEntity<Object> response = downloadService.downloadFile(id);
     if (response.getStatusCode().isError()) return response;
     MediaType contentType = response.getHeaders().getContentType();
     HttpHeaders headers = response.getHeaders();

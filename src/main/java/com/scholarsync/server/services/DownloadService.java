@@ -1,9 +1,7 @@
 package com.scholarsync.server.services;
 
-import com.scholarsync.server.entities.AnswerFiles;
-import com.scholarsync.server.entities.QuestionFiles;
-import com.scholarsync.server.repositories.AnswerFileRepository;
-import com.scholarsync.server.repositories.QuestionFileRepository;
+import com.scholarsync.server.entities.File;
+import com.scholarsync.server.repositories.FileRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -15,57 +13,39 @@ import java.util.Optional;
 @Service
 public class DownloadService {
 
-  @Autowired QuestionFileRepository questionFileRepository;
-  @Autowired AnswerFileRepository answerFileRepository;
+  @Autowired
+  FileRepository fileRepository;
 
-  record Result(Object file, String resultMsg) {};
+  record Result(File file, String resultMsg) {
+  }
 
   @Transactional
-  public ResponseEntity<Object> downloadFile(String id, boolean isQuestion) {
-    Result result;
-    if (isQuestion) {
-      result = downloadQuestionFile(id);
-    } else {
-      result = downloadAnswerFile(id);
-    }
+  public ResponseEntity<Object> downloadFile(String id) {
+    Result result = fetchFile(id);
 
     if (result.resultMsg.equals("file/not-found")) {
       return ResponseEntity.notFound().build();
     }
 
-    QuestionFiles questionFile = null;
-    AnswerFiles answerFile = null;
-    if (isQuestion) {
-      questionFile = (QuestionFiles) result.file;
-    } else {
-      answerFile = (AnswerFiles) result.file;
-    }
+    File file = result.file;
 
     HttpHeaders headers = new HttpHeaders();
-    byte[] file = isQuestion ? questionFile.getFile() : answerFile.getFile();
+    byte[] fileBytes = file.getFile();
     headers.add(
-        "Content-Disposition",
-        "attachment; filename="
-            + (isQuestion ? questionFile.getFileName() : answerFile.getFileName()));
+            "Content-Disposition",
+            "attachment; filename="
+                    + (file.getFileName()));
     headers.add(
-        "Content-Type", (isQuestion ? questionFile.getFileType() : answerFile.getFileType()));
+            "Content-Type", (file.getFileType()));
 
     return ResponseEntity.ok().headers(headers).body(file);
   }
 
-  private Result downloadAnswerFile(String id) {
-    Optional<AnswerFiles> answerFilesOptional = answerFileRepository.findById(id);
-    if (answerFilesOptional.isEmpty()) {
+  private Result fetchFile(String id) {
+    Optional<File> optionalFile = fileRepository.findById(id);
+    if (optionalFile.isEmpty()) {
       return new Result(null, "file/not-found");
     }
-    return new Result(answerFilesOptional.get(), "file/found");
-  }
-
-  private Result downloadQuestionFile(String id) {
-    Optional<QuestionFiles> questionFileOptional = questionFileRepository.findById(id);
-    if (questionFileOptional.isEmpty()) {
-      return new Result(null, "file/not-found");
-    }
-    return new Result(questionFileOptional.get(), "file/found");
+    return new Result(optionalFile.get(), "file/found");
   }
 }
