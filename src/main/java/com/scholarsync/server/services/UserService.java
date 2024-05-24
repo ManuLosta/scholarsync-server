@@ -40,9 +40,7 @@ public class UserService {
     if (!picture.getContentType().contains("image")) {
       return ResponseEntity.badRequest().body("file/not-image");
     }
-    if (picture == null) {
-      return ResponseEntity.badRequest().body("file/not-found");
-    }
+
     updatedUser.setProfilePicture(picture.getBytes());
     userRepository.save(updatedUser);
     return ResponseEntity.ok("profile-picture/updated");

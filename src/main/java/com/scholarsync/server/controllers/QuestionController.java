@@ -30,7 +30,7 @@ public class QuestionController {
   public ResponseEntity<Object> getQuestionsByTitle(String title) {
     try {
       bucket.tryConsume(1);
-      return ResponseEntity.ok(questionService.getQuestionsByTitle(title));
+      return questionService.getQuestionsByTitle(title);
     } catch (BucketExceptions.BucketExecutionException e) {
       return ResponseEntity.status(429).body("Too many requests");
     }
@@ -42,30 +42,30 @@ public class QuestionController {
       @RequestParam String title,
       @RequestParam String content,
       @RequestParam(required = false) List<MultipartFile> files) {
-    return ResponseEntity.ok(questionService.editQuestion(id, title, content, files));
+    return questionService.editQuestion(id, title, content, files);
   }
 
   @GetMapping(value = "/get-question")
   public ResponseEntity<Object> getQuestion(String id) {
-    return ResponseEntity.ok(questionService.getQuestion(id));
+    return questionService.getQuestion(id);
   }
 
 
   @GetMapping("/get-images")
   public ResponseEntity<Object> getImages(String id) {
-    return ResponseEntity.ok(questionService.getImages(id));
+    return questionService.getImages(id);
   }
 
   @PostMapping("/upload-images")
   public ResponseEntity<Object> uploadImages(
       @RequestParam("files") List<MultipartFile> files, @RequestParam String questionId) {
-    return ResponseEntity.ok(questionService.addFiles(files, questionId));
+    return questionService.addFiles(files, questionId);
   }
 
 
   @GetMapping("/get-question-files")
   public ResponseEntity<Object> getQuestionFiles(String id) {
-    return ResponseEntity.ok(questionService.getFiles(id));
+    return questionService.getFiles(id);
   }
 
   @PostMapping("/publish-question")
@@ -80,7 +80,7 @@ public class QuestionController {
     info.setContent(content);
     info.setAuthorId(authorId);
     info.setGroupId(groupId);
-    return ResponseEntity.ok(questionService.publishQuestion(info, files));
+    return questionService.publishQuestion(info, files);
   }
 
 
@@ -88,6 +88,6 @@ public class QuestionController {
   public ResponseEntity<Object> deleteQuestion(@RequestBody Map<String, String> body) {
     String questionId = body.get("question_id");
     String userId = body.get("user_id");
-    return ResponseEntity.ok(questionService.deleteQuestion(userId, questionId));
+    return questionService.deleteQuestion(userId, questionId);
   }
 }

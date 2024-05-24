@@ -29,6 +29,8 @@ public class AnswerService {
 
   @Autowired RatingRepository ratingRepository;
 
+  @Autowired CreditService creditService;
+
   Map<String, HttpStatusCode> errorMap =
       Map.of(
           "question/not-found",
@@ -85,7 +87,6 @@ public class AnswerService {
   }
 
 
-
   public ResponseEntity<Object> rateAnswer(String answerId, String userId, double rating) {
     if (rating < 0 || rating > 5) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("rating/invalid");
@@ -114,11 +115,12 @@ public class AnswerService {
       answer.getRatings().add(newRating);
       user.getRatings().add(newRating);
       ratingRepository.save(newRating);
+
+      creditService.awardAnswer(answer, user, newRating);
     }
 
     int ratingCount = answer.getRatings().size();
-    double ratingAverage =
-        answer.getRatings().stream().mapToDouble(Rating::getRating).average().orElse(0);
+    double ratingAverage = getAnswerRatingAverage(answer);
     Map<String, Object> answerMap = new HashMap<>();
     answerMap.put("ratingCount", ratingCount);
     answerMap.put("ratingAverage", ratingAverage);
@@ -201,8 +203,6 @@ public class AnswerService {
   }
 
 
-
-
   // ------helper methods------------------------------------------
 
   private void addFiles(List<MultipartFile> files, Answer answer) {
@@ -258,5 +258,7 @@ public class AnswerService {
     return images;
   }
 
-
+  public double getAnswerRatingAverage(Answer answer) {
+    return answer.getRatings().stream().mapToDouble(Rating::getRating).average().orElse(0);
+  }
 }

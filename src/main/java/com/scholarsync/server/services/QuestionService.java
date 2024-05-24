@@ -13,6 +13,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,8 @@ public class QuestionService {
   @Autowired UserRepository userRepository;
   @Autowired private GroupRepository groupRepository;
   @Autowired private FileRepository fileRepository;
-  @Autowired private AnswerRepository answerRepository;
+  @Autowired private CreditService creditService;
+  @Autowired private LevelService levelService;
 
   @Transactional
   public ResponseEntity<Object> getQuestion(String id) {
@@ -81,7 +83,12 @@ public class QuestionService {
     if (group.isEmpty()) {
       return ResponseEntity.status(404).body("group/not-found");
     }
-    author.get().removeCredits(author.get());
+    if (author.get().getCredits() - 20 < 0) {
+      return new ResponseEntity<>("user/not-enough-credits", HttpStatus.METHOD_NOT_ALLOWED);
+    }
+
+    creditService.giveCredits(author.get(), -20);
+    levelService.giveXp(author.get(), 20);
     question.setAuthor(author.get());
     question.setGroup(group.get());
 
@@ -93,9 +100,8 @@ public class QuestionService {
   }
 
 
-
   @Transactional
-  public Object publishQuestion(QuestionInputDTO info, List<MultipartFile> files) {
+  public ResponseEntity<Object> publishQuestion(QuestionInputDTO info, List<MultipartFile> files) {
 
     ResponseEntity<Object> noQuestionInfo = publishNoDocQuestion(info);
     if (noQuestionInfo.getStatusCode() != HttpStatusCode.valueOf(200)) {
@@ -106,9 +112,6 @@ public class QuestionService {
     String questionId = question.getId();
     return addFiles(files, questionId);
   }
-
-
-
 
 
   @Transactional
@@ -167,9 +170,7 @@ public class QuestionService {
   }
 
 
-
   // ------helper methods------------------------------------------
-
 
   @Transactional
   public ResponseEntity<Object> addFiles(List<MultipartFile> images, String questionId) {
@@ -206,4 +207,4 @@ public class QuestionService {
     return ResponseEntity.ok(QuestionDTO.questionToDTO(question));
   }
 
-  }
+}
