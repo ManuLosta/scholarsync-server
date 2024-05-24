@@ -1,21 +1,22 @@
-package com.scholarsync.server.webSocket;
+package com.scholarsync.server.services;
 
+import com.scholarsync.server.dtos.liveNotificationDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.scheduling.annotation.Scheduled;
 
 @Service
-public class WebSocketNotificationService {
+public class LiveNotificationService {
 
   private final SimpMessagingTemplate template;
 
   @Autowired
-  public WebSocketNotificationService(SimpMessagingTemplate template) {
+  public LiveNotificationService(SimpMessagingTemplate template) {
     this.template = template;
   }
 
-  public void sendNotification(String sessionId, CustomNotificationDTO customNotification) {
+  public void sendNotification(String sessionId, liveNotificationDTO customNotification) {
     System.out.println("sending notification to user");
     this.template.convertAndSend("/individual/" + sessionId + "/notification", customNotification);
   }

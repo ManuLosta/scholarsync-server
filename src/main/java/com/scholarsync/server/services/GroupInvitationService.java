@@ -4,8 +4,8 @@ import com.scholarsync.server.dtos.GroupNotificationDTO;
 import com.scholarsync.server.entities.*;
 import com.scholarsync.server.repositories.*;
 import com.scholarsync.server.types.NotificationType;
-import com.scholarsync.server.webSocket.CustomNotificationDTO;
-import com.scholarsync.server.webSocket.WebSocketNotificationService;
+import com.scholarsync.server.dtos.liveNotificationDTO;
+
 import java.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,9 +18,8 @@ public class GroupInvitationService {
   @Autowired private GroupRepository groupRepository;
   @Autowired private UserRepository userRepository;
   @Autowired private NotificationRepository notificationRepository;
-  @Autowired private WebSocketNotificationService webSocketNotificationService;
-  @Autowired
-  private SessionRepository sessionRepository;
+  @Autowired private LiveNotificationService liveNotificationService;
+  @Autowired private SessionRepository sessionRepository;
 
   public ResponseEntity<Object> sendGroupInvitation(Map<String, Object> groupInvitationBody) {
     String groupId = (String) groupInvitationBody.get("group_id");
@@ -54,14 +53,14 @@ public class GroupInvitationService {
     groupInvitationRepository.save(groupInvitation); // save invitation
 
     // stomp messaging push notification
-    CustomNotificationDTO customNotification = new CustomNotificationDTO();
+    liveNotificationDTO customNotification = new liveNotificationDTO();
     customNotification.setGroupId(groupId);
     customNotification.setFrom(group.getCreatedBy().getId());
     customNotification.setTo(to.getId());
     customNotification.setNotificationType(NotificationType.GROUP_INVITE);
     Optional<Session> session = sessionRepository.findSessionByUserId(to.getId());
     if (session.isPresent()) {
-      webSocketNotificationService.sendNotification(session.get().getId(), customNotification);
+      liveNotificationService.sendNotification(session.get().getId(), customNotification);
     }
     // --
 

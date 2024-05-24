@@ -1,4 +1,4 @@
-package com.scholarsync.server.webSocket;
+package com.scholarsync.server.dtos;
 
 import com.scholarsync.server.types.NotificationType;
 import lombok.Getter;
@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CustomNotificationDTO {
+public class liveNotificationDTO {
 
   NotificationType notificationType;
 

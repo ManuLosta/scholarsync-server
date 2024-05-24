@@ -9,8 +9,8 @@ import com.scholarsync.server.repositories.NotificationRepository;
 import com.scholarsync.server.repositories.SessionRepository;
 import com.scholarsync.server.repositories.UserRepository;
 import com.scholarsync.server.types.NotificationType;
-import com.scholarsync.server.webSocket.CustomNotificationDTO;
-import com.scholarsync.server.webSocket.WebSocketNotificationService;
+import com.scholarsync.server.dtos.liveNotificationDTO;
+
 import java.util.*;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +20,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class FriendRequestService {
-  @Autowired private NotificationRepository notificationRepository;
 
+  @Autowired private NotificationRepository notificationRepository;
   @Autowired private FriendRequestRepository friendRequestRepository;
   @Autowired private UserRepository userRepository;
-  @Autowired private WebSocketNotificationService webSocketNotificationService;
+  @Autowired private LiveNotificationService liveNotificationService;
   @Autowired private SessionRepository sessionRepository;
 
   public ResponseEntity<Object> sendFriendRequest(Map<String, String> friendRequestBody) {
@@ -49,13 +49,13 @@ public class FriendRequestService {
     friendRequestRepository.save(friendRequest);
 
     // stomp
-    CustomNotificationDTO webSocketMessage = new CustomNotificationDTO();
+    liveNotificationDTO webSocketMessage = new liveNotificationDTO();
     webSocketMessage.setNotificationType(NotificationType.FRIEND_REQUEST);
     webSocketMessage.setFrom(fromEntry.get().getId());
     webSocketMessage.setTo(toEntry.get().getId());
     Optional<Session> session = sessionRepository.findSessionByUserId(toEntry.get().getId());
     if (session.isPresent()) {
-      webSocketNotificationService.sendNotification(session.get().getId(), webSocketMessage);
+      liveNotificationService.sendNotification(session.get().getId(), webSocketMessage);
     }
     // stomp
 
