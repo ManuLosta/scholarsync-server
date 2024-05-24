@@ -24,7 +24,7 @@ public class QuestionService {
   @Autowired QuestionRepository questionRepository;
   @Autowired UserRepository userRepository;
   @Autowired private GroupRepository groupRepository;
-  @Autowired private QuestionFileRepository questionFileRepository;
+  @Autowired private FileRepository fileRepository;
   @Autowired private AnswerRepository answerRepository;
 
   @Transactional
@@ -46,9 +46,9 @@ public class QuestionService {
       return ResponseEntity.status(404).body("question/not-found");
     }
     Question question = questionOptional.get();
-    List<QuestionFiles> files = new ArrayList<>(question.getQuestionFiles());
+    List<File> files = new ArrayList<>(question.getQuestionFiles());
     FileDTO[] fileDTOs = new FileDTO[files.size()];
-    for (QuestionFiles file : files) {
+    for (File file : files) {
       FileDTO fileDTO = FileDTO.fileToDTO(file);
       fileDTOs[files.indexOf(file)] = fileDTO;
     }
@@ -134,7 +134,7 @@ public class QuestionService {
     if (title != null) question.setTitle(title);
     if (content != null) question.setContent(content);
     if (files != null) {
-      questionFileRepository.deleteAll(question.getQuestionFiles());
+      fileRepository.deleteAll(question.getQuestionFiles());
       addFiles(files, id);
     }
     questionRepository.save(question);
@@ -181,11 +181,11 @@ public class QuestionService {
     Question question = questionOptional.get();
 
     if (images != null) {
-      Set<QuestionFiles> questionFiles =
+      Set<File> questionFiles =
               images.stream()
                       .map(
                               file -> {
-                                QuestionFiles questionFile = new QuestionFiles();
+                                File questionFile = new File();
                                 try {
                                   questionFile.setFile(file.getBytes());
                                   questionFile.setFileName(file.getOriginalFilename());
@@ -193,8 +193,7 @@ public class QuestionService {
                                 } catch (IOException e) {
                                   e.printStackTrace();
                                 }
-                                questionFile.setQuestion(question);
-                                questionFileRepository.save(questionFile);
+                                fileRepository.save(questionFile);
                                 return questionFile;
                               })
                       .collect(Collectors.toSet());

@@ -2,6 +2,7 @@ package com.scholarsync.server.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 import java.util.Set;
 import lombok.Getter;
@@ -42,8 +43,8 @@ public class Answer {
   @Column(name = "created_at")
   private LocalDateTime createdAt;
 
-  @OneToMany(mappedBy = "answer", cascade = CascadeType.ALL)
-  private Set<AnswerFiles> answerFiles;
+  @OneToMany
+  private Set<File> answerFiles;
 
   @OneToMany(mappedBy = "answer", cascade = CascadeType.ALL)
   private Set<Rating> ratings;
