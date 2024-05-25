@@ -31,6 +31,8 @@ public class AnswerService {
 
   @Autowired CreditService creditService;
 
+  @Autowired LevelService levelService;
+
   Map<String, HttpStatusCode> errorMap =
       Map.of(
           "question/not-found",
@@ -55,6 +57,8 @@ public class AnswerService {
     addFiles(files, answer);
 
     answerRepository.save(answer);
+
+    levelService.giveXp(answer.getUser(), 10);
 
     return ResponseEntity.ok(AnswerDTO.answerToDTO(answer));
   }
