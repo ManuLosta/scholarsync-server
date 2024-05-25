@@ -54,9 +54,11 @@ public class User {
   @Enumerated(EnumType.STRING)
   private levelType level;
 
-  @Lob
-  @Column(name = "profile_picture")
-  private byte[] profilePicture;
+
+
+  @OneToOne(cascade = CascadeType.ALL)
+  @JoinColumn(name = "profile_picture_id", referencedColumnName = "id")
+  private Files profilePicture;
 
   @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
   @PrimaryKeyJoinColumn

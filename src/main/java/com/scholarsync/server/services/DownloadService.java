@@ -1,6 +1,6 @@
 package com.scholarsync.server.services;
 
-import com.scholarsync.server.entities.File;
+import com.scholarsync.server.entities.Files;
 import com.scholarsync.server.repositories.FileRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +16,7 @@ public class DownloadService {
   @Autowired
   FileRepository fileRepository;
 
-  record Result(File file, String resultMsg) {
+  record Result(Files files, String resultMsg) {
   }
 
   @Transactional
@@ -27,22 +27,22 @@ public class DownloadService {
       return ResponseEntity.notFound().build();
     }
 
-    File file = result.file;
+    Files files = result.files;
 
     HttpHeaders headers = new HttpHeaders();
-    byte[] fileBytes = file.getFile();
+    byte[] fileBytes = files.getFile();
     headers.add(
             "Content-Disposition",
             "attachment; filename="
-                    + (file.getFileName()));
+                    + (files.getFileName()));
     headers.add(
-            "Content-Type", (file.getFileType()));
+            "Content-Type", (files.getFileType()));
 
-    return ResponseEntity.ok().headers(headers).body(file);
+    return ResponseEntity.ok().headers(headers).body(files);
   }
 
   private Result fetchFile(String id) {
-    Optional<File> optionalFile = fileRepository.findById(id);
+    Optional<Files> optionalFile = fileRepository.findById(id);
     if (optionalFile.isEmpty()) {
       return new Result(null, "file/not-found");
     }

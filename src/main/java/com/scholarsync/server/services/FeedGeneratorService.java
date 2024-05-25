@@ -58,10 +58,10 @@ public class FeedGeneratorService {
         List<Question> questions = new ArrayList<>(group.getQuestions());
         questions.sort(Comparator.comparing(Question::getCreatedAt).reversed());
         List<QuestionDTO> questionDTOS = questions.stream().map(QuestionDTO::questionToDTO).toList();
-        questionDTOS.subList(
+        List<QuestionDTO> filteredQuestions = questionDTOS.subList(
                 Math.min(offset * limit, questionDTOS.size()),
                 Math.min(questionDTOS.size(), offset * limit + limit));
-        return ResponseEntity.ok(questionDTOS);
+        return ResponseEntity.ok(filteredQuestions);
     }
 
     @Transactional
@@ -78,10 +78,10 @@ public class FeedGeneratorService {
         userQuestions.sort(Comparator.comparing(Question::getCreatedAt).reversed());
         List<QuestionDTO> questionDTOS =
                 userQuestions.stream().map(QuestionDTO::questionToDTO).toList();
-        questionDTOS.subList(
+        List<QuestionDTO> filteredQuestions = questionDTOS.subList(
                 Math.min(offset * limit, questionDTOS.size()),
                 Math.min(questionDTOS.size(), offset * limit + limit));
-        return ResponseEntity.ok(questionDTOS);
+        return ResponseEntity.ok(filteredQuestions);
     }
 
     private ResponseEntity<Object> generateScoreDto(

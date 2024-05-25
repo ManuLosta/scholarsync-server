@@ -88,6 +88,6 @@ public class QuestionController {
   public ResponseEntity<Object> deleteQuestion(@RequestBody Map<String, String> body) {
     String questionId = body.get("question_id");
     String userId = body.get("user_id");
-    return ResponseEntity.ok(questionService.deleteQuestion(userId, questionId));
+    return questionService.deleteQuestion(questionId, userId);
   }
 }

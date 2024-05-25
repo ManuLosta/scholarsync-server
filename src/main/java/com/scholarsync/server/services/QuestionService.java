@@ -46,9 +46,9 @@ public class QuestionService {
       return ResponseEntity.status(404).body("question/not-found");
     }
     Question question = questionOptional.get();
-    List<File> files = new ArrayList<>(question.getQuestionFiles());
+    List<Files> files = new ArrayList<>(question.getFiles());
     FileDTO[] fileDTOs = new FileDTO[files.size()];
-    for (File file : files) {
+    for (Files file : files) {
       FileDTO fileDTO = FileDTO.fileToDTO(file);
       fileDTOs[files.indexOf(file)] = fileDTO;
     }
@@ -121,6 +121,7 @@ public class QuestionService {
     User user = userOptional.get();
     if (!question.getAuthor().getId().equals(user.getId()))
       return ResponseEntity.status(403).body("user/not-authorized");
+    fileRepository.deleteAll(question.getFiles());
     questionRepository.delete(question);
     return ResponseEntity.ok("question/deleted");
   }
@@ -134,7 +135,7 @@ public class QuestionService {
     if (title != null) question.setTitle(title);
     if (content != null) question.setContent(content);
     if (files != null) {
-      fileRepository.deleteAll(question.getQuestionFiles());
+      fileRepository.deleteAll(question.getFiles());
       addFiles(files, id);
     }
     questionRepository.save(question);
@@ -150,7 +151,7 @@ public class QuestionService {
     Question question = questionOptional.get();
 
     List<Map<String, String>> images =
-            question.getQuestionFiles().stream()
+            question.getFiles().stream()
                     .filter(questionFile -> questionFile.getFileType().contains("image"))
                     .map(
                             questionFile -> {
@@ -181,11 +182,11 @@ public class QuestionService {
     Question question = questionOptional.get();
 
     if (images != null) {
-      Set<File> questionFiles =
+      Set<Files> questionFiles =
               images.stream()
                       .map(
                               file -> {
-                                File questionFile = new File();
+                                Files questionFile = new Files();
                                 try {
                                   questionFile.setFile(file.getBytes());
                                   questionFile.setFileName(file.getOriginalFilename());
@@ -198,7 +199,7 @@ public class QuestionService {
                               })
                       .collect(Collectors.toSet());
 
-      question.setQuestionFiles(questionFiles);
+      question.setFiles(questionFiles);
     }
 
     questionRepository.save(question);

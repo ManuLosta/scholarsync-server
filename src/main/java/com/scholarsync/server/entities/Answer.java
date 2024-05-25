@@ -44,7 +44,7 @@ public class Answer {
   private LocalDateTime createdAt;
 
   @OneToMany
-  private Set<File> answerFiles;
+  private Set<Files> files;
 
   @OneToMany(mappedBy = "answer", cascade = CascadeType.ALL)
   private Set<Rating> ratings;
