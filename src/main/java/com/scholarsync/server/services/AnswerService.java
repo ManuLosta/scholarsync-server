@@ -179,6 +179,7 @@ public class AnswerService {
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body("user/not-authorized");
     }
     Answer answer = optionalAnswer.get();
+    fileRepository.deleteAll(answer.getFiles());
     answerRepository.delete(answer);
     return ResponseEntity.ok("answer/deleted");
   }

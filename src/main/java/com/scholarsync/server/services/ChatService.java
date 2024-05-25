@@ -201,6 +201,8 @@ public class ChatService {
     return chatRepository.existsByNameAndGroupId(name, groupId);
   }
 
+
+  @SuppressWarnings("BooleanMethodIsAlwaysInverted")
   private boolean isUserInGroup(User user, Group group) {
     Set<User> users = group.getUsers();
     return group.getUsers().contains(user);

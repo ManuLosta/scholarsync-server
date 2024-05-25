@@ -121,6 +121,7 @@ public class QuestionService {
     User user = userOptional.get();
     if (!question.getAuthor().getId().equals(user.getId()))
       return ResponseEntity.status(403).body("user/not-authorized");
+    fileRepository.deleteAll(question.getFiles());
     questionRepository.delete(question);
     return ResponseEntity.ok("question/deleted");
   }

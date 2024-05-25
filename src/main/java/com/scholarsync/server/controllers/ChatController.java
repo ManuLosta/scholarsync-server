@@ -20,12 +20,12 @@ import java.util.Map;
 import java.util.Optional;
 
 @Controller
+@Deprecated
 public class ChatController {
 
   @Autowired ChatService chatService;
   @Autowired private UserRepository userRepository;
-  @Autowired
-  private GroupRepository groupRepository;
+  @Autowired private GroupRepository groupRepository;
 
   @MessageMapping("/chat/join")
   public void joinChat(String userId, String chatId) {
@@ -74,14 +74,8 @@ public class ChatController {
     return chatService.deleteChat(chatId, userId);
   }
 
-
   @MessageMapping("/chat/delete-file")
   public void deleteChat(String fileId, String chatId, String userId) {
     chatService.deleteChatFile(fileId, chatId, userId);
   }
-
-
-
-
-
 }
