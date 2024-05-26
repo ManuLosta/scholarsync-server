@@ -56,7 +56,7 @@ public class User {
 
 
 
-  @OneToOne(cascade = CascadeType.ALL)
+  @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   @JoinColumn(name = "profile_picture_id", referencedColumnName = "id")
   private Files profilePicture;
 
