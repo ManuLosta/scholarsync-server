@@ -1,5 +1,6 @@
 package com.scholarsync.server.dtos;
 
+import com.scholarsync.server.constants.LevelMap;
 import com.scholarsync.server.entities.Group;
 import com.scholarsync.server.entities.User;
 import com.scholarsync.server.types.levelType;
@@ -20,10 +21,15 @@ public class ProfileDTO {
   private String firstName;
   private String lastName;
   private LocalDate birthDate;
+  private String email;
   private LocalDateTime createdAt;
   private int credits;
   private levelType level;
+  private int prevLevel;
+  private int nextLevel;
   private int xp;
+  private int questions;
+  private int answers;
   private List<Map<String, Object>> friends;
   private List<Map<String, Object>> groups;
 
@@ -38,6 +44,11 @@ public class ProfileDTO {
     profileDTO.setCredits(user.getCredits());
     profileDTO.setLevel(user.getLevel());
     profileDTO.setXp(user.getXp());
+    profileDTO.setNextLevel(LevelMap.getNextLevelNumber(user.getLevel()));
+    profileDTO.setPrevLevel(LevelMap.getKeyFromLevel(user.getLevel()));
+    profileDTO.setEmail(user.getEmail());
+    profileDTO.setAnswers(user.getAnswers().size());
+    profileDTO.setQuestions(user.getQuestions().size());
     Set<User> friends = user.getFriends();
     Set<Group> groups = user.getGroups();
     List<Map<String, Object>> friendsList = new ArrayList<>();
