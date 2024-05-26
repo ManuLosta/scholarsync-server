@@ -8,21 +8,11 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 
-@Getter
-@Setter
-public class MessageFromServerDTO {
 
-  String message;
+public record MessageFromServerDTO (String message, User sender, LocalDateTime time){
 
-  User sender;
-
-  LocalDateTime time;
 
   static public MessageFromServerDTO fromUserToServer(MessageFromUserDTO message, User sender){
-    MessageFromServerDTO messageFromServerDTO = new MessageFromServerDTO();
-    messageFromServerDTO.setMessage(message.getMessage());
-    messageFromServerDTO.setTime(LocalDateTime.now());
-    messageFromServerDTO.setSender(sender);
-    return messageFromServerDTO;
+    return new MessageFromServerDTO(message.message(), sender, LocalDateTime.now());
   }
 }

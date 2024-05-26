@@ -6,46 +6,50 @@ import com.scholarsync.server.entities.User;
 import com.scholarsync.server.repositories.GroupRepository;
 import com.scholarsync.server.repositories.UserRepository;
 import com.scholarsync.server.services.ChatService;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
+import java.io.Serializable;
 import java.util.Map;
 import java.util.Optional;
 
 @Controller
-@Deprecated
 public class ChatController {
 
   @Autowired ChatService chatService;
   @Autowired private UserRepository userRepository;
   @Autowired private GroupRepository groupRepository;
 
+  public record JoinChatType(String user_id, String chat_id) {}
+
   @MessageMapping("/chat/join")
-  public void joinChat(String userId, String chatId) {
-    chatService.joinChat(userId, chatId);
+  public void joinChat(@Payload JoinChatType joinChatType) {
+    chatService.joinChat(joinChatType.user_id, joinChatType.chat_id);
   }
 
   @MessageMapping("/chat/leave")
-  public void leaveChat(String userId, String chatId) {
-    chatService.leaveChat(userId, chatId);
+  public void leaveChat(@Payload JoinChatType joinChatType) {
+    chatService.leaveChat(joinChatType.user_id, joinChatType.chat_id);
   }
 
   @MessageMapping("/chat/send-message")
-  public void sendMessage(MessageFromUserDTO messageFromUserDTO) {
+  public void sendMessage(@Payload MessageFromUserDTO messageFromUserDTO) {
     chatService.sendChatMessage(messageFromUserDTO);
   }
 
   @PostMapping("/api/v1/chat/upload-file")
   public void uploadFile(
-      @RequestParam MultipartFile file, @RequestParam String userId, @RequestParam String chatId)
-      throws IOException {
+      @RequestParam MultipartFile file, @RequestParam String userId, @RequestParam String chatId) {
     chatService.uploadFile(file, chatId, userId);
   }
 
@@ -69,13 +73,16 @@ public class ChatController {
 
   @PostMapping("/api/v1/chat/delete-chat")
   public ResponseEntity<Object> deleteChat(@RequestBody Map<String, String> body) {
-    String userId = body.get("userId");
-    String chatId = body.get("chatId");
+    String userId = body.get("sender_id");
+    String chatId = body.get("chat_id");
     return chatService.deleteChat(chatId, userId);
   }
 
-  @MessageMapping("/chat/delete-file")
-  public void deleteChat(String fileId, String chatId, String userId) {
+  @PostMapping("/api/v1/chat/delete-file")
+  public void deleteChatFile(@RequestBody Map<String, String> body) {
+    String userId = body.get("sender_id");
+    String chatId = body.get("chat_id");
+    String fileId = body.get("file_id");
     chatService.deleteChatFile(fileId, chatId, userId);
   }
 }

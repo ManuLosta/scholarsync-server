@@ -23,7 +23,7 @@ public class GroupInvitationService {
 
   public ResponseEntity<Object> sendGroupInvitation(Map<String, Object> groupInvitationBody) {
     String groupId = (String) groupInvitationBody.get("group_id");
-    String toId = (String) groupInvitationBody.get("user_id");
+    String toId = (String) groupInvitationBody.get("sender_id");
     Optional<Group> groupInvitedBy = groupRepository.findById(groupId);
     Optional<User> user = userRepository.findById(toId);
     if (groupInvitedBy.isEmpty()) {

@@ -42,10 +42,10 @@ public class ChatService {
     if (chat.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("chat/not-found");
     if (!isUserInGroup(user.get(), chat.get().getGroup()))
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body("user/not-in-chat");
-    for(Files file: chat.get().getFiles()){
+    for (Files file : chat.get().getFiles()) {
       fileRepository.deleteById(file.getId());
     }
-    for(User chatUser: chat.get().getGroup().getUsers()){
+    for (User chatUser : chat.get().getGroup().getUsers()) {
       sender.convertAndSend("/individual/" + chatUser.getId() + "/chat", "chat/deleted");
     }
     chatRepository.deleteById(chatId);
@@ -78,8 +78,10 @@ public class ChatService {
 
   public ResponseEntity<Object> createChat(Group group, String name, User user) {
 
-    if (!isUserInGroup(user, group)) return ResponseEntity.status(HttpStatus.FORBIDDEN).body("user/not-in-group");
-    if (checkCompositeKey(name, group.getId())) return ResponseEntity.status(HttpStatus.CONFLICT).body("chat/exists");
+    if (!isUserInGroup(user, group))
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body("user/not-in-group");
+    if (checkCompositeKey(name, group.getId()))
+      return ResponseEntity.status(HttpStatus.CONFLICT).body("chat/exists");
 
     Chat chat = new Chat();
     chat.setGroup(group);
@@ -122,7 +124,6 @@ public class ChatService {
     sender.convertAndSend("/chat/" + chatId, "user " + user.getUsername() + " joined chat");
   }
 
-
   public void leaveChat(String userId, String chatId) {
     Optional<User> userOptional = userRepository.findById(userId);
     if (userOptional.isEmpty()) {
@@ -140,20 +141,19 @@ public class ChatService {
     sender.convertAndSend("/chat/" + chatId, "user " + user.getUsername() + " left chat");
   }
 
-
   public List<Chat> getActiveChatsByGroup(Group group) {
     return chatRepository.findByGroup(group);
   }
 
   public void sendChatMessage(MessageFromUserDTO payload) {
-    Optional<User> user = userRepository.findById(payload.getSenderId());
+    Optional<User> user = userRepository.findById(payload.sender_id());
     if (user.isEmpty()) {
-      userNotFoundError(payload.getSenderId());
+      userNotFoundError(payload.sender_id());
       return;
     }
-    Optional<Chat> chat = chatRepository.findById(payload.getChatId());
+    Optional<Chat> chat = chatRepository.findById(payload.chat_id());
     if (chat.isEmpty()) {
-      chatNotFoundError(payload.getSenderId());
+      chatNotFoundError(payload.sender_id());
       return;
     }
     if (!isUserInGroup(user.get(), chat.get().getGroup())) {
@@ -161,21 +161,19 @@ public class ChatService {
       return;
     }
     MessageFromServerDTO message = MessageFromServerDTO.fromUserToServer(payload, user.get());
-    sender.convertAndSend("/chat/" + payload.getChatId(), message);
+    sender.convertAndSend("/chat/" + payload.chat_id(), message);
   }
 
   private void userNotInGroupError(MessageFromUserDTO payload) {
     ErrorMessage errorMessage = new ErrorMessage();
     errorMessage.setMessage("User not in chat");
     errorMessage.setError("user/not-in-chat");
-    sender.convertAndSend("/individual/" + payload.getSenderId() + "/error", errorMessage);
+    sender.convertAndSend("/individual/" + payload.sender_id() + "/error", errorMessage);
     return;
   }
 
-
   @Transactional
-  public ResponseEntity<Object> uploadFile(MultipartFile file, String chatId, String userId)
-      throws IOException {
+  public ResponseEntity<Object> uploadFile(MultipartFile file, String chatId, String userId) {
     Optional<User> user = userRepository.findById(userId);
     if (user.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("user/not-found");
     Optional<Chat> chat = chatRepository.findById(chatId);
@@ -183,7 +181,13 @@ public class ChatService {
     if (!isUserInGroup(user.get(), chat.get().getGroup()))
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body("user/not-in-chat");
     // upload file
-    byte[] bytes = file.getBytes();
+
+    byte[] bytes;
+    try {
+      bytes = file.getBytes();
+    } catch (IOException e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("file/not-found");
+    }
     Files chatFiles = new Files();
     chatFiles.setFile(bytes);
     chatFiles.setFileName(file.getOriginalFilename());
@@ -201,13 +205,11 @@ public class ChatService {
     return chatRepository.existsByNameAndGroupId(name, groupId);
   }
 
-
   @SuppressWarnings("BooleanMethodIsAlwaysInverted")
   private boolean isUserInGroup(User user, Group group) {
     Set<User> users = group.getUsers();
     return group.getUsers().contains(user);
   }
-
 
   private void chatNotFoundError(String userId) {
     ErrorMessage errorMessage = new ErrorMessage();
@@ -225,8 +227,6 @@ public class ChatService {
     return;
   }
 
-
-
   private void userNotFoundError(String userId) {
     ErrorMessage errorMessage = new ErrorMessage();
     errorMessage.setMessage("User not found");
@@ -234,5 +234,4 @@ public class ChatService {
     sender.convertAndSend("/individual/" + userId + "/error", errorMessage);
     return;
   }
-
 }

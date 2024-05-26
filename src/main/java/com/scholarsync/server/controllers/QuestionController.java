@@ -87,7 +87,7 @@ public class QuestionController {
   @PostMapping("/delete-question")
   public ResponseEntity<Object> deleteQuestion(@RequestBody Map<String, String> body) {
     String questionId = body.get("question_id");
-    String userId = body.get("user_id");
+    String userId = body.get("sender_id");
     return questionService.deleteQuestion(questionId, userId);
   }
 }

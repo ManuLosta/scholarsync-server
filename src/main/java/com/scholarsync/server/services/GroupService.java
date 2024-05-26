@@ -138,7 +138,7 @@ public class GroupService {
 
   public ResponseEntity<Object> removeUserFromGroupRequest(Map<String, String> groupData) {
     Optional<Group> optionalGroup = groupRepository.findById(groupData.get("group_id"));
-    Optional<User> optionalUser = userRepository.findById(groupData.get("user_id"));
+    Optional<User> optionalUser = userRepository.findById(groupData.get("sender_id"));
     if (optionalGroup.isEmpty()) {
       return new ResponseEntity<>("group/not-found", HttpStatus.NOT_FOUND);
     } else if (optionalUser.isEmpty()) {
@@ -157,7 +157,7 @@ public class GroupService {
 
   public ResponseEntity<Object> joinPublicGroup(Map<String, String> groupData) {
     Optional<Group> optionalGroup = groupRepository.findById(groupData.get("group_id"));
-    Optional<User> optionalUser = userRepository.findById(groupData.get("user_id"));
+    Optional<User> optionalUser = userRepository.findById(groupData.get("sender_id"));
     if (optionalGroup.isEmpty()) {
       return new ResponseEntity<>("group/not-found", HttpStatus.NOT_FOUND);
     } else if (optionalUser.isEmpty()) {
@@ -191,7 +191,7 @@ public class GroupService {
 
   public ResponseEntity<Object> deleteGroup(Map<String, String> groupInfo) {
     String group_id = groupInfo.get("group_id");
-    String user_id = groupInfo.get("user_id");
+    String user_id = groupInfo.get("sender_id");
     Optional<Group> groupOptional = groupRepository.findById(group_id);
     Optional<User> userOptional = userRepository.findById(user_id);
     if (groupOptional.isEmpty() && userOptional.isEmpty()) {
