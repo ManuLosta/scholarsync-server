@@ -38,4 +38,16 @@ public class LevelMap {
     }
     return 0;
   }
+
+  public static levelType getLevelByXp(Integer xp) {
+    levelType currentLevel = levelType.Newbie;
+    for (Map.Entry<Integer, levelType> entry : levelMap.entrySet()) {
+      if (xp >= entry.getKey()) {
+        currentLevel = entry.getValue();
+      } else {
+        break;
+      }
+    }
+    return currentLevel;
+  }
 }
