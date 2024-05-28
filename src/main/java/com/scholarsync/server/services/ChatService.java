@@ -1,9 +1,6 @@
 package com.scholarsync.server.services;
 
-import com.scholarsync.server.dtos.ErrorMessage;
-import com.scholarsync.server.dtos.FileDTO;
-import com.scholarsync.server.dtos.MessageFromServerDTO;
-import com.scholarsync.server.dtos.MessageFromUserDTO;
+import com.scholarsync.server.dtos.*;
 import com.scholarsync.server.entities.*;
 import com.scholarsync.server.repositories.*;
 import jakarta.transaction.Transactional;
@@ -15,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -97,7 +95,9 @@ public class ChatService {
     for (User groupUser : users) {
       Optional<Session> session = sessionRepository.findSessionByUserId(groupUser.getId());
       if (session.isEmpty()) continue;
-      sender.convertAndSend("/individual/" + groupUser.getId() + "/chat", chat.getId());
+      sender.convertAndSend(
+          "/individual/" + session.get().getId() + "/chat",
+          new ChatNotificationDTO(chat.getId(), LocalDateTime.now(), chat.getName()));
     }
   }
 
