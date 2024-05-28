@@ -56,7 +56,7 @@ public class User {
 
 
 
-  @OneToOne(cascade = CascadeType.ALL)
+  @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   @JoinColumn(name = "profile_picture_id", referencedColumnName = "id")
   private Files profilePicture;
 
@@ -108,25 +108,5 @@ public class User {
     this.credits = 100;
     this.xp = 0;
     this.level = levelType.Newbie;
-  }
-
-  public void removeCredits(User user) {
-    user.setCredits(user.getCredits() - 20);
-    user.setXp(user.getXp() + 25);
-    levelType level = LevelMap.levelMap.get(credits);
-    if (level != user.getLevel() && level != null) {
-      user.setLevel(level);
-    }
-  }
-
-  public void addCredits(User user) {
-    user.setCredits(user.getCredits() + 5);
-    user.setXp(user.getXp() + 50);
-    user.setLevel(LevelMap.levelMap.get(credits));
-
-    levelType level = LevelMap.levelMap.get(credits);
-    if (level != user.getLevel() && level != null) {
-      user.setLevel(level);
-    }
   }
 }
