@@ -23,7 +23,7 @@ public class GroupInvitationService {
 
   public ResponseEntity<Object> sendGroupInvitation(Map<String, Object> groupInvitationBody) {
     String groupId = (String) groupInvitationBody.get("group_id");
-    String toId = (String) groupInvitationBody.get("sender_id");
+    String toId = (String) groupInvitationBody.get("user_id");
     Optional<Group> groupInvitedBy = groupRepository.findById(groupId);
     Optional<User> user = userRepository.findById(toId);
     if (groupInvitedBy.isEmpty()) {
@@ -53,16 +53,13 @@ public class GroupInvitationService {
     groupInvitationRepository.save(groupInvitation); // save invitation
 
     // stomp messaging push notification
-    liveNotificationDTO customNotification = new liveNotificationDTO();
-    customNotification.setGroupId(groupId);
-    customNotification.setFrom(group.getCreatedBy().getId());
-    customNotification.setTo(to.getId());
-    customNotification.setNotificationType(NotificationType.GROUP_INVITE);
+
     Optional<Session> session = sessionRepository.findSessionByUserId(to.getId());
+    GroupNotificationDTO customNotification = GroupNotificationDTO.groupInvitationToDTO(groupInvitation);
     if (session.isPresent()) {
-      liveNotificationService.sendNotification(session.get().getId(), customNotification);
+      liveNotificationService.sendGroupNotification(session.get().getId(), customNotification);
     }
-    // --
+
 
     return ResponseEntity.ok("group-invitation/sent");
   }

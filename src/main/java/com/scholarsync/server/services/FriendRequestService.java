@@ -49,13 +49,12 @@ public class FriendRequestService {
     friendRequestRepository.save(friendRequest);
 
     // stomp
-    liveNotificationDTO webSocketMessage = new liveNotificationDTO();
-    webSocketMessage.setNotificationType(NotificationType.FRIEND_REQUEST);
-    webSocketMessage.setFrom(fromEntry.get().getId());
-    webSocketMessage.setTo(toEntry.get().getId());
+
     Optional<Session> session = sessionRepository.findSessionByUserId(toEntry.get().getId());
+    FriendRequestInvitationDTO webSocketMessage =
+        FriendRequestInvitationDTO.friendRequestToDTO(friendRequest);
     if (session.isPresent()) {
-      liveNotificationService.sendNotification(session.get().getId(), webSocketMessage);
+      liveNotificationService.sendFriendNotification(session.get().getId(), webSocketMessage);
     }
     // stomp
 

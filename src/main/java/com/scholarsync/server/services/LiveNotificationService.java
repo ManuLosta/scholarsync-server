@@ -1,5 +1,7 @@
 package com.scholarsync.server.services;
 
+import com.scholarsync.server.dtos.FriendRequestInvitationDTO;
+import com.scholarsync.server.dtos.GroupNotificationDTO;
 import com.scholarsync.server.dtos.liveNotificationDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -16,7 +18,12 @@ public class LiveNotificationService {
     this.template = template;
   }
 
-  public void sendNotification(String sessionId, liveNotificationDTO customNotification) {
+  public void sendFriendNotification(String sessionId, FriendRequestInvitationDTO customNotification) {
+    System.out.println("sending notification to user");
+    this.template.convertAndSend("/individual/" + sessionId + "/notification", customNotification);
+  }
+
+  public void sendGroupNotification(String sessionId, GroupNotificationDTO customNotification) {
     System.out.println("sending notification to user");
     this.template.convertAndSend("/individual/" + sessionId + "/notification", customNotification);
   }
