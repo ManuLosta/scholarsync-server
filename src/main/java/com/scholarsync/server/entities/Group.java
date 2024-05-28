@@ -30,9 +30,10 @@ public class Group {
   @Column(name = "isPrivate")
   boolean isPrivate;
 
-  @Lob
-  @Column(name = "image")
-  byte[] image;
+  @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @JoinColumn(name = "picture_id", referencedColumnName = "id")
+  Files picture;
+
 
   @ManyToOne
   @JoinColumn(name = "created_by")

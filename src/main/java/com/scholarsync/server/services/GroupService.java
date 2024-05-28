@@ -1,9 +1,12 @@
 package com.scholarsync.server.services;
 
+import com.scholarsync.server.dtos.FileDTO;
 import com.scholarsync.server.dtos.ProfileDTO;
+import com.scholarsync.server.entities.Files;
 import com.scholarsync.server.entities.Group;
 import com.scholarsync.server.entities.GroupInvitation;
 import com.scholarsync.server.entities.User;
+import com.scholarsync.server.repositories.FileRepository;
 import com.scholarsync.server.repositories.GroupInvitationRepository;
 import com.scholarsync.server.repositories.GroupRepository;
 import com.scholarsync.server.repositories.UserRepository;
@@ -23,6 +26,8 @@ public class GroupService {
   @Autowired private GroupInvitationRepository groupInvitationRepository;
   @Autowired private GroupRepository groupRepository;
   @Autowired private UserRepository userRepository;
+  @Autowired
+  private FileRepository fileRepository;
 
   private static List<Map<String, Object>> getGroupList(User user) {
     Set<Group> groups = user.getGroups();
@@ -226,8 +231,17 @@ public class GroupService {
     if (!group.getCreatedBy().getId().equals(userId)) {
       return new ResponseEntity<>("user/not-owner", HttpStatus.FORBIDDEN);
     }
+    Files groupPicture = group.getPicture();
+    if (groupPicture != null) {
+      fileRepository.delete(groupPicture);
+    }
     try {
-      group.setImage(file.getBytes());
+      Files newGroupPicture = new Files();
+      newGroupPicture.setFile(file.getBytes());
+      newGroupPicture.setFileName(file.getOriginalFilename());
+      newGroupPicture.setFileType(file.getContentType());
+      fileRepository.save(newGroupPicture);
+      group.setPicture(newGroupPicture);
       groupRepository.save(group);
       return new ResponseEntity<>("group/image-updated", HttpStatus.OK);
     } catch (Exception e) {
@@ -242,11 +256,16 @@ public class GroupService {
       return new ResponseEntity<>("group/not-found", HttpStatus.NOT_FOUND);
     }
     Group group = optionalGroup.get();
-    if (group.getImage() == null) {
-      return new ResponseEntity<>("group/image-not-found", HttpStatus.NOT_FOUND);
+    Files groupPicture = group.getPicture();
+    if (groupPicture == null) {
+      return new ResponseEntity<>("group/no-picture", HttpStatus.NOT_FOUND);
     }
-    byte[] image = group.getImage();
+    byte[] image = groupPicture.getFile();
+    FileDTO fileDTO = FileDTO.fileToDTO(groupPicture);
     String encodedString = Base64.getEncoder().encodeToString(image);
+    Map<String,Object> response = new HashMap<>();
+    response.put("file", fileDTO);
+    response.put("base64Encoding", encodedString);
     return new ResponseEntity<>(encodedString, HttpStatus.OK);
   }
 }
