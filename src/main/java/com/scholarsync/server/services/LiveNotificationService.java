@@ -2,7 +2,6 @@ package com.scholarsync.server.services;
 
 import com.scholarsync.server.dtos.FriendRequestInvitationDTO;
 import com.scholarsync.server.dtos.GroupNotificationDTO;
-import com.scholarsync.server.dtos.liveNotificationDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;

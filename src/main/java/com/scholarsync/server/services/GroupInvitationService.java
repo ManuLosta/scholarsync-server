@@ -3,8 +3,6 @@ package com.scholarsync.server.services;
 import com.scholarsync.server.dtos.GroupNotificationDTO;
 import com.scholarsync.server.entities.*;
 import com.scholarsync.server.repositories.*;
-import com.scholarsync.server.types.NotificationType;
-import com.scholarsync.server.dtos.liveNotificationDTO;
 
 import java.util.*;
 import org.springframework.beans.factory.annotation.Autowired;

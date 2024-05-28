@@ -9,7 +9,6 @@ import com.scholarsync.server.repositories.NotificationRepository;
 import com.scholarsync.server.repositories.SessionRepository;
 import com.scholarsync.server.repositories.UserRepository;
 import com.scholarsync.server.types.NotificationType;
-import com.scholarsync.server.dtos.liveNotificationDTO;
 
 import java.util.*;
 import java.util.stream.Collectors;
