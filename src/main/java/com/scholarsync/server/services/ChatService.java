@@ -87,7 +87,7 @@ public class ChatService {
     chatRepository.save(chat);
 
     notifyGroupMembers(group, chat);
-    return ResponseEntity.ok("chat/created");
+    return ResponseEntity.ok(new ChatNotificationDTO(chat.getId(), LocalDateTime.now(), chat.getName(), chat.getGroup().getTitle()));
   }
 
   private void notifyGroupMembers(Group group, Chat chat) {
@@ -97,7 +97,7 @@ public class ChatService {
       if (session.isEmpty()) continue;
       sender.convertAndSend(
           "/individual/" + session.get().getId() + "/chat",
-          new ChatNotificationDTO(chat.getId(), LocalDateTime.now(), chat.getName()));
+          new ChatNotificationDTO(chat.getId(), LocalDateTime.now(), chat.getName(), chat.getGroup().getTitle()));
     }
   }
 
