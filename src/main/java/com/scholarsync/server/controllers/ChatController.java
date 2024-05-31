@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -84,5 +85,15 @@ public class ChatController {
     String chatId = body.get("chat_id");
     String fileId = body.get("file_id");
     chatService.deleteChatFile(fileId, chatId, userId);
+  }
+
+  @GetMapping("/api/v1/chat/get-chat")
+  public ResponseEntity<Object> getChat(@RequestParam String chatId) {
+    return chatService.getChatById(chatId);
+  }
+
+  @GetMapping("/api/v1/chat/get-chats")
+  public ResponseEntity<Object> getChats(@RequestParam String groupId) {
+    return chatService.getActiveChatsByGroup(groupId);
   }
 }

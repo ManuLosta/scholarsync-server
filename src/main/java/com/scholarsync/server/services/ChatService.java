@@ -24,6 +24,8 @@ public class ChatService {
 
   @Autowired FileRepository fileRepository;
 
+  @Autowired GroupRepository groupRepository;
+
   private final SimpMessagingTemplate sender;
   @Autowired private SessionRepository sessionRepository;
   @Autowired private UserRepository userRepository;
@@ -141,10 +143,20 @@ public class ChatService {
     sender.convertAndSend("/chat/" + chatId, "user " + user.getUsername() + " left chat");
   }
 
-  public List<Chat> getActiveChatsByGroup(Group group) {
-    return chatRepository.findByGroup(group);
+  public ResponseEntity<Object> getActiveChatsByGroup(String groupId) {
+    Optional<Group> groupOptional = groupRepository.findById(groupId);
+    if (groupOptional.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("group/not-found");
+    List<Chat> listChats = chatRepository.findByGroup(groupOptional.get());
+    return ResponseEntity.ok(listChats);
   }
 
+  public ResponseEntity<Object> getChatById(String chatId) {
+    Optional<Chat> chat = chatRepository.findById(chatId);
+    if (chat.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("chat/not-found");
+    return ResponseEntity.ok(chat.get());
+  }
+
+  @Transactional
   public void sendChatMessage(MessageFromUserDTO payload) {
     Optional<User> user = userRepository.findById(payload.sender_id());
     if (user.isEmpty()) {
@@ -160,7 +172,7 @@ public class ChatService {
       userNotInGroupError(payload);
       return;
     }
-    MessageFromServerDTO message = MessageFromServerDTO.fromUserToServer(payload, user.get());
+    MessageFromServerDTO message = MessageFromServerDTO.fromUserToServer(payload, ProfileDTO.userToProfileDTO(user.get()));
     sender.convertAndSend("/chat/" + payload.chat_id(), message);
   }
 
@@ -208,7 +220,7 @@ public class ChatService {
   @SuppressWarnings("BooleanMethodIsAlwaysInverted")
   private boolean isUserInGroup(User user, Group group) {
     Set<User> users = group.getUsers();
-    return group.getUsers().contains(user);
+    return users.contains(user);
   }
 
   private void chatNotFoundError(String userId) {

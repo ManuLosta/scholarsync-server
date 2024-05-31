@@ -9,10 +9,10 @@ import java.util.Optional;
 
 
 
-public record MessageFromServerDTO (String message, User sender, LocalDateTime time){
+public record MessageFromServerDTO (String message, ProfileDTO sender, LocalDateTime time){
 
 
-  static public MessageFromServerDTO fromUserToServer(MessageFromUserDTO message, User sender){
+  static public MessageFromServerDTO fromUserToServer(MessageFromUserDTO message, ProfileDTO sender){
     return new MessageFromServerDTO(message.message(), sender, LocalDateTime.now());
   }
 }
