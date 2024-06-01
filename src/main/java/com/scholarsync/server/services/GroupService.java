@@ -46,6 +46,13 @@ public class GroupService {
     groupMap.put("description", group.getDescription());
     groupMap.put("isPrivate", group.isPrivate());
     groupMap.put("createdBy", group.getCreatedBy().getId());
+
+    Files groupPicture = group.getPicture();
+    if (groupPicture == null) {
+      groupMap.put("hasPicture", false);
+    }else {
+      groupMap.put("hasPicture", true);
+    }
   }
 
   public ResponseEntity<Object> createGroup(Map<String, Object> group) {
@@ -119,6 +126,12 @@ public class GroupService {
       }
       response.put("users", usersList);
       response.put("invitations", invitedUsers);
+      Files groupPicture = group.getPicture();
+      if (groupPicture == null) {
+        response.put("hasPicture", false);
+      }else {
+        response.put("hasPicture", true);
+      }
       return new ResponseEntity<>(response, HttpStatus.OK);
     }
   }

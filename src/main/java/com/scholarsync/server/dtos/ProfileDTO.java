@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.http.ResponseEntity;
 
 @Getter
 @Setter
@@ -32,6 +33,7 @@ public class ProfileDTO {
   private int answers;
   private List<Map<String, Object>> friends;
   private List<Map<String, Object>> groups;
+  private Boolean hasPicture;
 
   public static ProfileDTO userToProfileDTO(User user) {
     ProfileDTO profileDTO = new ProfileDTO();
@@ -70,7 +72,11 @@ public class ProfileDTO {
       groupMap.put("title", group.getTitle());
       groupsList.add(groupMap);
     }
-
+    if (user.getProfilePicture() == null) {
+      profileDTO.setHasPicture(false);
+    }else{
+      profileDTO.setHasPicture(true);
+    }
     profileDTO.setFriends(friendsList);
     profileDTO.setGroups(groupsList);
 
