@@ -105,6 +105,7 @@ public class User {
   @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL)
   private Set<Rating> ratings;
 
+
   @ManyToOne
   @JoinColumn(name = "chat_id")
   @JsonBackReference

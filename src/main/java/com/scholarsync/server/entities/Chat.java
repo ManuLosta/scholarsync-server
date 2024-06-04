@@ -2,6 +2,7 @@ package com.scholarsync.server.entities;
 
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,6 +37,7 @@ public class Chat {
   private Set<Files> files;
 
   @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL)
+  @JsonIgnoreProperties("chat")
   private Set<User> users;
 
 

@@ -106,6 +106,7 @@ public class ChatService {
     }
   }
 
+  @Transactional
   public void joinChat(String userId, String chatId) {
     Optional<User> userOptional = userRepository.findById(userId);
     if (userOptional.isEmpty()) {
@@ -123,14 +124,13 @@ public class ChatService {
       chatNotFoundError(userId);
       return;
     }
-
-    chatRepository.save(chat.get());
-
     user.setChat(chat.get());
+    chatRepository.save(chat.get());
     // send notification user joined chat
     sender.convertAndSend("/chat/" + chatId + "/info", new ChatInfoNotification(chat.get().getUsers().size(), user.getUsername(), true));
   }
 
+  @Transactional
   public void leaveChat(String userId, String chatId) {
     Optional<User> userOptional = userRepository.findById(userId);
     if (userOptional.isEmpty()) {
@@ -143,8 +143,8 @@ public class ChatService {
       chatNotFoundError(userId);
       return;
     }
-    chatRepository.save(chat.get());
     user.setChat(null);
+    chatRepository.save(chat.get());
     sender.convertAndSend("/chat/" + chatId + "/info", new ChatInfoNotification(chat.get().getUsers().size(), user.getUsername(), false));
   }
 
@@ -164,6 +164,7 @@ public class ChatService {
     return ResponseEntity.ok(res);
   }
 
+  @Transactional
   public ResponseEntity<Object> getChatById(String chatId) {
     Optional<Chat> chat = chatRepository.findById(chatId);
     if (chat.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("chat/not-found");
