@@ -160,13 +160,14 @@ public class ChatService {
     Optional<Group> groupOptional = groupRepository.findById(groupId);
     if (groupOptional.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("group/not-found");
     List<Chat> listChats = chatRepository.findByGroup(groupOptional.get());
-    return ResponseEntity.ok(listChats);
+    Set<ChatDTO> res = listChats.stream().map(ChatDTO::fromEntity).collect(Collectors.toSet());
+    return ResponseEntity.ok(res);
   }
 
   public ResponseEntity<Object> getChatById(String chatId) {
     Optional<Chat> chat = chatRepository.findById(chatId);
     if (chat.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("chat/not-found");
-    return ResponseEntity.ok(chat.get());
+    return ResponseEntity.ok(ChatDTO.fromEntity(chat.get()));
   }
 
   @Transactional
