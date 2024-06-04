@@ -1,5 +1,6 @@
 package com.scholarsync.server.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.scholarsync.server.constants.LevelMap;
 import com.scholarsync.server.types.levelType;
@@ -54,9 +55,11 @@ public class User {
   @Enumerated(EnumType.STRING)
   private levelType level;
 
-  @Lob
-  @Column(name = "profile_picture")
-  private byte[] profilePicture;
+
+
+  @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @JoinColumn(name = "profile_picture_id", referencedColumnName = "id")
+  private Files profilePicture;
 
   @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
   @PrimaryKeyJoinColumn
@@ -102,29 +105,14 @@ public class User {
   @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL)
   private Set<Rating> ratings;
 
+  @ManyToOne
+  @JoinColumn(name = "chat_id")
+  @JsonBackReference
+  private Chat chat;
+
   public User() {
     this.credits = 100;
     this.xp = 0;
     this.level = levelType.Newbie;
-  }
-
-  public void removeCredits(User user) {
-    user.setCredits(user.getCredits() - 20);
-    user.setXp(user.getXp() + 25);
-    levelType level = LevelMap.levelMap.get(credits);
-    if (level != user.getLevel() && level != null) {
-      user.setLevel(level);
-    }
-  }
-
-  public void addCredits(User user) {
-    user.setCredits(user.getCredits() + 5);
-    user.setXp(user.getXp() + 50);
-    user.setLevel(LevelMap.levelMap.get(credits));
-
-    levelType level = LevelMap.levelMap.get(credits);
-    if (level != user.getLevel() && level != null) {
-      user.setLevel(level);
-    }
   }
 }

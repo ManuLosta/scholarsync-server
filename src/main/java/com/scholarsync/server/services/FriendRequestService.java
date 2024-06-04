@@ -2,13 +2,14 @@ package com.scholarsync.server.services;
 
 import com.scholarsync.server.dtos.FriendRequestInvitationDTO;
 import com.scholarsync.server.entities.FriendRequest;
+import com.scholarsync.server.entities.Session;
 import com.scholarsync.server.entities.User;
 import com.scholarsync.server.repositories.FriendRequestRepository;
 import com.scholarsync.server.repositories.NotificationRepository;
+import com.scholarsync.server.repositories.SessionRepository;
 import com.scholarsync.server.repositories.UserRepository;
 import com.scholarsync.server.types.NotificationType;
-import com.scholarsync.server.webSocket.CustomNotificationDTO;
-import com.scholarsync.server.webSocket.WebSocketNotificationService;
+
 import java.util.*;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,11 +19,12 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class FriendRequestService {
-  @Autowired private NotificationRepository notificationRepository;
 
+  @Autowired private NotificationRepository notificationRepository;
   @Autowired private FriendRequestRepository friendRequestRepository;
   @Autowired private UserRepository userRepository;
-  @Autowired private WebSocketNotificationService webSocketNotificationService;
+  @Autowired private LiveNotificationService liveNotificationService;
+  @Autowired private SessionRepository sessionRepository;
 
   public ResponseEntity<Object> sendFriendRequest(Map<String, String> friendRequestBody) {
     Optional<User> fromEntry = userRepository.findById(friendRequestBody.get("from_id"));
@@ -46,11 +48,13 @@ public class FriendRequestService {
     friendRequestRepository.save(friendRequest);
 
     // stomp
-    CustomNotificationDTO webSocketMessage = new CustomNotificationDTO();
-    webSocketMessage.setNotificationType(NotificationType.FRIEND_REQUEST);
-    webSocketMessage.setFrom(fromEntry.get().getId());
-    webSocketMessage.setTo(toEntry.get().getId());
-    webSocketNotificationService.sendNotification(toEntry.get().getId(), webSocketMessage);
+
+    Optional<Session> session = sessionRepository.findSessionByUserId(toEntry.get().getId());
+    FriendRequestInvitationDTO webSocketMessage =
+        FriendRequestInvitationDTO.friendRequestToDTO(friendRequest);
+    if (session.isPresent()) {
+      liveNotificationService.sendFriendNotification(session.get().getId(), webSocketMessage);
+    }
     // stomp
 
     return ResponseEntity.ok("friend-request/sent");

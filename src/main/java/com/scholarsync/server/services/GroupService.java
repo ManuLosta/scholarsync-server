@@ -1,9 +1,12 @@
 package com.scholarsync.server.services;
 
+import com.scholarsync.server.dtos.FileDTO;
 import com.scholarsync.server.dtos.ProfileDTO;
+import com.scholarsync.server.entities.Files;
 import com.scholarsync.server.entities.Group;
 import com.scholarsync.server.entities.GroupInvitation;
 import com.scholarsync.server.entities.User;
+import com.scholarsync.server.repositories.FileRepository;
 import com.scholarsync.server.repositories.GroupInvitationRepository;
 import com.scholarsync.server.repositories.GroupRepository;
 import com.scholarsync.server.repositories.UserRepository;
@@ -23,6 +26,8 @@ public class GroupService {
   @Autowired private GroupInvitationRepository groupInvitationRepository;
   @Autowired private GroupRepository groupRepository;
   @Autowired private UserRepository userRepository;
+  @Autowired
+  private FileRepository fileRepository;
 
   private static List<Map<String, Object>> getGroupList(User user) {
     Set<Group> groups = user.getGroups();
@@ -41,6 +46,13 @@ public class GroupService {
     groupMap.put("description", group.getDescription());
     groupMap.put("isPrivate", group.isPrivate());
     groupMap.put("createdBy", group.getCreatedBy().getId());
+
+    Files groupPicture = group.getPicture();
+    if (groupPicture == null) {
+      groupMap.put("hasPicture", false);
+    }else {
+      groupMap.put("hasPicture", true);
+    }
   }
 
   public ResponseEntity<Object> createGroup(Map<String, Object> group) {
@@ -114,6 +126,12 @@ public class GroupService {
       }
       response.put("users", usersList);
       response.put("invitations", invitedUsers);
+      Files groupPicture = group.getPicture();
+      if (groupPicture == null) {
+        response.put("hasPicture", false);
+      }else {
+        response.put("hasPicture", true);
+      }
       return new ResponseEntity<>(response, HttpStatus.OK);
     }
   }
@@ -138,7 +156,7 @@ public class GroupService {
 
   public ResponseEntity<Object> removeUserFromGroupRequest(Map<String, String> groupData) {
     Optional<Group> optionalGroup = groupRepository.findById(groupData.get("group_id"));
-    Optional<User> optionalUser = userRepository.findById(groupData.get("user_id"));
+    Optional<User> optionalUser = userRepository.findById(groupData.get("sender_id"));
     if (optionalGroup.isEmpty()) {
       return new ResponseEntity<>("group/not-found", HttpStatus.NOT_FOUND);
     } else if (optionalUser.isEmpty()) {
@@ -157,7 +175,7 @@ public class GroupService {
 
   public ResponseEntity<Object> joinPublicGroup(Map<String, String> groupData) {
     Optional<Group> optionalGroup = groupRepository.findById(groupData.get("group_id"));
-    Optional<User> optionalUser = userRepository.findById(groupData.get("user_id"));
+    Optional<User> optionalUser = userRepository.findById(groupData.get("sender_id"));
     if (optionalGroup.isEmpty()) {
       return new ResponseEntity<>("group/not-found", HttpStatus.NOT_FOUND);
     } else if (optionalUser.isEmpty()) {
@@ -191,7 +209,7 @@ public class GroupService {
 
   public ResponseEntity<Object> deleteGroup(Map<String, String> groupInfo) {
     String group_id = groupInfo.get("group_id");
-    String user_id = groupInfo.get("user_id");
+    String user_id = groupInfo.get("sender_id");
     Optional<Group> groupOptional = groupRepository.findById(group_id);
     Optional<User> userOptional = userRepository.findById(user_id);
     if (groupOptional.isEmpty() && userOptional.isEmpty()) {
@@ -226,8 +244,17 @@ public class GroupService {
     if (!group.getCreatedBy().getId().equals(userId)) {
       return new ResponseEntity<>("user/not-owner", HttpStatus.FORBIDDEN);
     }
+    Files groupPicture = group.getPicture();
+    if (groupPicture != null) {
+      fileRepository.delete(groupPicture);
+    }
     try {
-      group.setImage(file.getBytes());
+      Files newGroupPicture = new Files();
+      newGroupPicture.setFile(file.getBytes());
+      newGroupPicture.setFileName(file.getOriginalFilename());
+      newGroupPicture.setFileType(file.getContentType());
+      fileRepository.save(newGroupPicture);
+      group.setPicture(newGroupPicture);
       groupRepository.save(group);
       return new ResponseEntity<>("group/image-updated", HttpStatus.OK);
     } catch (Exception e) {
@@ -242,11 +269,16 @@ public class GroupService {
       return new ResponseEntity<>("group/not-found", HttpStatus.NOT_FOUND);
     }
     Group group = optionalGroup.get();
-    if (group.getImage() == null) {
-      return new ResponseEntity<>("group/image-not-found", HttpStatus.NOT_FOUND);
+    Files groupPicture = group.getPicture();
+    if (groupPicture == null) {
+      return new ResponseEntity<>("group/no-picture", HttpStatus.NOT_FOUND);
     }
-    byte[] image = group.getImage();
+    byte[] image = groupPicture.getFile();
+    FileDTO fileDTO = FileDTO.fileToDTO(groupPicture);
     String encodedString = Base64.getEncoder().encodeToString(image);
+    Map<String,Object> response = new HashMap<>();
+    response.put("file", fileDTO);
+    response.put("base64Encoding", encodedString);
     return new ResponseEntity<>(encodedString, HttpStatus.OK);
   }
 }

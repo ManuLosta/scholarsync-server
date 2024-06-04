@@ -31,8 +31,8 @@ public class AnswerDTO {
     answerDTO.setGroupId(answer.getGroup().getId());
     answerDTO.setCreatedAt(answer.getCreatedAt());
     answerDTO.setFiles(
-        answer.getAnswerFiles() != null
-            ? answer.getAnswerFiles().stream().map(FileDTO::fileToDTO).toList()
+        answer.getFiles() != null
+            ? answer.getFiles().stream().map(FileDTO::fileToDTO).toList()
             : new ArrayList<>());
     List<RatingDTO> ratings = new ArrayList<>();
     Set<Rating> ratingsSet = answer.getRatings();

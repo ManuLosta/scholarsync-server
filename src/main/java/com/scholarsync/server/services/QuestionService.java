@@ -13,6 +13,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -24,8 +25,9 @@ public class QuestionService {
   @Autowired QuestionRepository questionRepository;
   @Autowired UserRepository userRepository;
   @Autowired private GroupRepository groupRepository;
-  @Autowired private QuestionFileRepository questionFileRepository;
-  @Autowired private AnswerRepository answerRepository;
+  @Autowired private FileRepository fileRepository;
+  @Autowired private CreditService creditService;
+  @Autowired private LevelService levelService;
 
   @Transactional
   public ResponseEntity<Object> getQuestion(String id) {
@@ -46,9 +48,9 @@ public class QuestionService {
       return ResponseEntity.status(404).body("question/not-found");
     }
     Question question = questionOptional.get();
-    List<QuestionFiles> files = new ArrayList<>(question.getQuestionFiles());
+    List<Files> files = new ArrayList<>(question.getFiles());
     FileDTO[] fileDTOs = new FileDTO[files.size()];
-    for (QuestionFiles file : files) {
+    for (Files file : files) {
       FileDTO fileDTO = FileDTO.fileToDTO(file);
       fileDTOs[files.indexOf(file)] = fileDTO;
     }
@@ -60,7 +62,6 @@ public class QuestionService {
     if (questions.isEmpty()) {
       return ResponseEntity.ok(new ArrayList<Question>());
     }
-
     List<QuestionDTO> result = questions.stream().map(QuestionDTO::questionToDTO).toList();
 
     return ResponseEntity.ok(result);
@@ -81,7 +82,12 @@ public class QuestionService {
     if (group.isEmpty()) {
       return ResponseEntity.status(404).body("group/not-found");
     }
-    author.get().removeCredits(author.get());
+    if (author.get().getCredits() - 20 < 0) {
+      return new ResponseEntity<>("user/not-enough-credits", HttpStatus.METHOD_NOT_ALLOWED);
+    }
+
+    creditService.giveCredits(author.get(), -20);
+    levelService.giveXp(author.get(), 20);
     question.setAuthor(author.get());
     question.setGroup(group.get());
 
@@ -93,9 +99,8 @@ public class QuestionService {
   }
 
 
-
   @Transactional
-  public Object publishQuestion(QuestionInputDTO info, List<MultipartFile> files) {
+  public ResponseEntity<Object> publishQuestion(QuestionInputDTO info, List<MultipartFile> files) {
 
     ResponseEntity<Object> noQuestionInfo = publishNoDocQuestion(info);
     if (noQuestionInfo.getStatusCode() != HttpStatusCode.valueOf(200)) {
@@ -108,9 +113,6 @@ public class QuestionService {
   }
 
 
-
-
-
   @Transactional
   public ResponseEntity<Object> deleteQuestion(String id, String userId) {
     Optional<Question> questionOptional = questionRepository.findById(id);
@@ -121,6 +123,7 @@ public class QuestionService {
     User user = userOptional.get();
     if (!question.getAuthor().getId().equals(user.getId()))
       return ResponseEntity.status(403).body("user/not-authorized");
+    fileRepository.deleteAll(question.getFiles());
     questionRepository.delete(question);
     return ResponseEntity.ok("question/deleted");
   }
@@ -134,7 +137,7 @@ public class QuestionService {
     if (title != null) question.setTitle(title);
     if (content != null) question.setContent(content);
     if (files != null) {
-      questionFileRepository.deleteAll(question.getQuestionFiles());
+      fileRepository.deleteAll(question.getFiles());
       addFiles(files, id);
     }
     questionRepository.save(question);
@@ -150,7 +153,7 @@ public class QuestionService {
     Question question = questionOptional.get();
 
     List<Map<String, String>> images =
-            question.getQuestionFiles().stream()
+            question.getFiles().stream()
                     .filter(questionFile -> questionFile.getFileType().contains("image"))
                     .map(
                             questionFile -> {
@@ -167,9 +170,7 @@ public class QuestionService {
   }
 
 
-
   // ------helper methods------------------------------------------
-
 
   @Transactional
   public ResponseEntity<Object> addFiles(List<MultipartFile> images, String questionId) {
@@ -181,11 +182,11 @@ public class QuestionService {
     Question question = questionOptional.get();
 
     if (images != null) {
-      Set<QuestionFiles> questionFiles =
+      Set<Files> questionFiles =
               images.stream()
                       .map(
                               file -> {
-                                QuestionFiles questionFile = new QuestionFiles();
+                                Files questionFile = new Files();
                                 try {
                                   questionFile.setFile(file.getBytes());
                                   questionFile.setFileName(file.getOriginalFilename());
@@ -193,13 +194,12 @@ public class QuestionService {
                                 } catch (IOException e) {
                                   e.printStackTrace();
                                 }
-                                questionFile.setQuestion(question);
-                                questionFileRepository.save(questionFile);
+                                fileRepository.save(questionFile);
                                 return questionFile;
                               })
                       .collect(Collectors.toSet());
 
-      question.setQuestionFiles(questionFiles);
+      question.setFiles(questionFiles);
     }
 
     questionRepository.save(question);
@@ -207,4 +207,4 @@ public class QuestionService {
     return ResponseEntity.ok(QuestionDTO.questionToDTO(question));
   }
 
-  }
+}

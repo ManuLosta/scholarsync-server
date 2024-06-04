@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -26,9 +25,13 @@ public class AnswerService {
 
   @Autowired AnswerRepository answerRepository;
 
-  @Autowired AnswerFileRepository answerFileRepository;
+  @Autowired FileRepository fileRepository;
 
   @Autowired RatingRepository ratingRepository;
+
+  @Autowired CreditService creditService;
+
+  @Autowired LevelService levelService;
 
   Map<String, HttpStatusCode> errorMap =
       Map.of(
@@ -54,6 +57,8 @@ public class AnswerService {
     addFiles(files, answer);
 
     answerRepository.save(answer);
+
+    levelService.giveXp(answer.getUser(), 10);
 
     return ResponseEntity.ok(AnswerDTO.answerToDTO(answer));
   }
@@ -86,7 +91,6 @@ public class AnswerService {
   }
 
 
-
   public ResponseEntity<Object> rateAnswer(String answerId, String userId, double rating) {
     if (rating < 0 || rating > 5) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("rating/invalid");
@@ -115,11 +119,12 @@ public class AnswerService {
       answer.getRatings().add(newRating);
       user.getRatings().add(newRating);
       ratingRepository.save(newRating);
+
+      creditService.awardAnswer(answer, user, newRating);
     }
 
     int ratingCount = answer.getRatings().size();
-    double ratingAverage =
-        answer.getRatings().stream().mapToDouble(Rating::getRating).average().orElse(0);
+    double ratingAverage = getAnswerRatingAverage(answer);
     Map<String, Object> answerMap = new HashMap<>();
     answerMap.put("ratingCount", ratingCount);
     answerMap.put("ratingAverage", ratingAverage);
@@ -157,7 +162,7 @@ public class AnswerService {
     Answer answer = optionalAnswer.get();
     answer.setContent(content);
     if (files != null) {
-      answerFileRepository.deleteAll(answer.getAnswerFiles());
+      fileRepository.deleteAll(answer.getFiles());
       addFiles(files, answer);
     }
     answerRepository.save(answer);
@@ -180,6 +185,7 @@ public class AnswerService {
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body("user/not-authorized");
     }
     Answer answer = optionalAnswer.get();
+    fileRepository.deleteAll(answer.getFiles());
     answerRepository.delete(answer);
     return ResponseEntity.ok("answer/deleted");
   }
@@ -202,8 +208,6 @@ public class AnswerService {
   }
 
 
-
-
   // ------helper methods------------------------------------------
 
   private void addFiles(List<MultipartFile> files, Answer answer) {
@@ -212,11 +216,11 @@ public class AnswerService {
       if (files.isEmpty()) {
         return;
       }
-      Set<AnswerFiles> answerFiles =
+      Set<Files> answerFiles =
               files.stream()
                       .map(
                               file -> {
-                                AnswerFiles answerFile = new AnswerFiles();
+                                Files answerFile = new Files();
                                 try {
                                   answerFile.setFile(file.getBytes());
                                   answerFile.setFileName(file.getOriginalFilename());
@@ -224,13 +228,12 @@ public class AnswerService {
                                 } catch (IOException e) {
                                   e.printStackTrace();
                                 }
-                                answerFile.setAnswer(answer);
-                                answerFileRepository.save(answerFile);
+                                fileRepository.save(answerFile);
                                 return answerFile;
                               })
                       .collect(Collectors.toSet());
 
-      answer.setAnswerFiles(answerFiles);
+      answer.setFiles(answerFiles);
       answerRepository.save(answer);
       return;
     }
@@ -244,7 +247,7 @@ public class AnswerService {
     Answer answer = answerOptional.get();
 
     List<Map<String, String>> images =
-            answer.getAnswerFiles().stream()
+            answer.getFiles().stream()
                     .filter(answerFiles -> answerFiles.getFileType().contains("image"))
                     .map(
                             answerFiles -> {
@@ -260,5 +263,7 @@ public class AnswerService {
     return images;
   }
 
-
+  public double getAnswerRatingAverage(Answer answer) {
+    return answer.getRatings().stream().mapToDouble(Rating::getRating).average().orElse(0);
+  }
 }

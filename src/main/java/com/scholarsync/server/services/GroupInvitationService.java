@@ -3,9 +3,7 @@ package com.scholarsync.server.services;
 import com.scholarsync.server.dtos.GroupNotificationDTO;
 import com.scholarsync.server.entities.*;
 import com.scholarsync.server.repositories.*;
-import com.scholarsync.server.types.NotificationType;
-import com.scholarsync.server.webSocket.CustomNotificationDTO;
-import com.scholarsync.server.webSocket.WebSocketNotificationService;
+
 import java.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +16,8 @@ public class GroupInvitationService {
   @Autowired private GroupRepository groupRepository;
   @Autowired private UserRepository userRepository;
   @Autowired private NotificationRepository notificationRepository;
-  @Autowired private WebSocketNotificationService webSocketNotificationService;
+  @Autowired private LiveNotificationService liveNotificationService;
+  @Autowired private SessionRepository sessionRepository;
 
   public ResponseEntity<Object> sendGroupInvitation(Map<String, Object> groupInvitationBody) {
     String groupId = (String) groupInvitationBody.get("group_id");
@@ -52,13 +51,13 @@ public class GroupInvitationService {
     groupInvitationRepository.save(groupInvitation); // save invitation
 
     // stomp messaging push notification
-    CustomNotificationDTO customNotification = new CustomNotificationDTO();
-    customNotification.setGroupId(groupId);
-    customNotification.setFrom(group.getCreatedBy().getId());
-    customNotification.setTo(to.getId());
-    customNotification.setNotificationType(NotificationType.GROUP_INVITE);
-    webSocketNotificationService.sendNotification(to.getId(), customNotification);
-    // --
+
+    Optional<Session> session = sessionRepository.findSessionByUserId(to.getId());
+    GroupNotificationDTO customNotification = GroupNotificationDTO.groupInvitationToDTO(groupInvitation);
+    if (session.isPresent()) {
+      liveNotificationService.sendGroupNotification(session.get().getId(), customNotification);
+    }
+
 
     return ResponseEntity.ok("group-invitation/sent");
   }
