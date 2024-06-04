@@ -110,6 +110,10 @@ public class User {
   @JsonBackReference
   private Chat chat;
 
+
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+  private Set<Event> events;
+
   public User() {
     this.credits = 100;
     this.xp = 0;
