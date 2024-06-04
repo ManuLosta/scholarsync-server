@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class ChatService {
@@ -145,6 +146,14 @@ public class ChatService {
     chatRepository.save(chat.get());
     user.setChat(null);
     sender.convertAndSend("/chat/" + chatId + "/info", new ChatInfoNotification(chat.get().getUsers().size(), user.getUsername(), false));
+  }
+
+  public ResponseEntity<Object> getChatMembers(String chatId) {
+    Optional<Chat> chat = chatRepository.findById(chatId);
+    if (chat.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("chat/not-found");
+    Set<User> users = chat.get().getUsers();
+    Set<ProfileDTO> res =  users.stream().map(ProfileDTO::userToProfileDTO).collect(Collectors.toSet());
+    return ResponseEntity.ok(res);
   }
 
   public ResponseEntity<Object> getActiveChatsByGroup(String groupId) {

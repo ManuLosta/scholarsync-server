@@ -1,6 +1,7 @@
 package com.scholarsync.server.controllers;
 
 import com.scholarsync.server.dtos.MessageFromUserDTO;
+import com.scholarsync.server.dtos.ProfileDTO;
 import com.scholarsync.server.entities.Group;
 import com.scholarsync.server.entities.User;
 import com.scholarsync.server.repositories.GroupRepository;
@@ -95,5 +96,10 @@ public class ChatController {
   @GetMapping("/api/v1/chat/get-chats")
   public ResponseEntity<Object> getChats(@RequestParam String groupId) {
     return chatService.getActiveChatsByGroup(groupId);
+  }
+
+  @GetMapping("/api/v1/chat/get-chat-members")
+  public ResponseEntity<Object> getChatMembers(@RequestParam String chatId) {
+    return chatService.getChatMembers(chatId);
   }
 }

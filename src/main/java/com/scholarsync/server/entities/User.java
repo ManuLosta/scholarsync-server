@@ -1,5 +1,6 @@
 package com.scholarsync.server.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.scholarsync.server.constants.LevelMap;
 import com.scholarsync.server.types.levelType;
@@ -106,6 +107,7 @@ public class User {
 
   @ManyToOne
   @JoinColumn(name = "chat_id")
+  @JsonBackReference
   private Chat chat;
 
   public User() {
