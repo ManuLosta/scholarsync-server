@@ -35,9 +35,11 @@ public class Chat {
   @OneToMany
   private Set<Files> files;
 
+  @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL)
+  private Set<User> users;
+
 
   @CreationTimestamp
   private LocalDateTime createdAt;
 
-  private int userCount = 0;
 }

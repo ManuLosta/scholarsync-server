@@ -88,6 +88,8 @@ public class ChatService {
     chat.setName(name);
     chatRepository.save(chat);
 
+    user.setChat(chat);
+
     notifyGroupMembers(group, chat);
     return ResponseEntity.ok(new ChatNotificationDTO(chat.getId(), LocalDateTime.now(), chat.getName(), chat.getGroup().getTitle()));
   }
@@ -120,10 +122,12 @@ public class ChatService {
       chatNotFoundError(userId);
       return;
     }
-    chat.get().setUserCount(chat.get().getUserCount() + 1);
+
     chatRepository.save(chat.get());
+
+    user.setChat(chat.get());
     // send notification user joined chat
-    sender.convertAndSend("/chat/" + chatId, "user " + user.getUsername() + " joined chat");
+    sender.convertAndSend("/chat/" + chatId + "/info", new ChatInfoNotification(chat.get().getUsers().size(), user.getUsername(), true));
   }
 
   public void leaveChat(String userId, String chatId) {
@@ -138,9 +142,9 @@ public class ChatService {
       chatNotFoundError(userId);
       return;
     }
-    chat.get().setUserCount(chat.get().getUserCount() - 1);
     chatRepository.save(chat.get());
-    sender.convertAndSend("/chat/" + chatId, "user " + user.getUsername() + " left chat");
+    user.setChat(null);
+    sender.convertAndSend("/chat/" + chatId + "/info", new ChatInfoNotification(chat.get().getUsers().size(), user.getUsername(), false));
   }
 
   public ResponseEntity<Object> getActiveChatsByGroup(String groupId) {

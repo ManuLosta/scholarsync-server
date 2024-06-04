@@ -104,6 +104,10 @@ public class User {
   @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL)
   private Set<Rating> ratings;
 
+  @ManyToOne
+  @JoinColumn(name = "chat_id")
+  private Chat chat;
+
   public User() {
     this.credits = 100;
     this.xp = 0;

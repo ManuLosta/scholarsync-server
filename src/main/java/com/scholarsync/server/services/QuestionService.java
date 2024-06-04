@@ -62,7 +62,6 @@ public class QuestionService {
     if (questions.isEmpty()) {
       return ResponseEntity.ok(new ArrayList<Question>());
     }
-
     List<QuestionDTO> result = questions.stream().map(QuestionDTO::questionToDTO).toList();
 
     return ResponseEntity.ok(result);
