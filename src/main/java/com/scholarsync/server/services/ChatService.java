@@ -222,9 +222,8 @@ public class ChatService {
     fileRepository.save(chatFiles);
     // send notification file uploaded
 
-    String size = String.valueOf(bytes.length);
     FileDTO chatFileContainer = FileDTO.fileToDTO(chatFiles);
-    sender.convertAndSend("/chat/" + chatId, chatFileContainer);
+    sender.convertAndSend("/chat/" + chatId + "/files", chatFileContainer);
     return ResponseEntity.ok("file/uploaded");
   }
 
