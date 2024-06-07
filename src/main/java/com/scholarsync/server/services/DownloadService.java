@@ -38,7 +38,7 @@ public class DownloadService {
     headers.add(
             "Content-Type", (files.getFileType()));
 
-    return ResponseEntity.ok().headers(headers).body(files);
+    return ResponseEntity.ok().headers(headers).body(fileBytes);
   }
 
   private Result fetchFile(String id) {
