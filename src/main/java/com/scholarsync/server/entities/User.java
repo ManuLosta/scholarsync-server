@@ -2,7 +2,6 @@ package com.scholarsync.server.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.scholarsync.server.constants.LevelMap;
 import com.scholarsync.server.types.levelType;
 import jakarta.persistence.*;
 import java.time.LocalDate;
@@ -11,7 +10,6 @@ import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.web.multipart.MultipartFile;
 
 @Entity
 @Table(name = "users")

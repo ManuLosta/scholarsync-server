@@ -27,9 +27,4 @@ public class LiveNotificationService {
     this.template.convertAndSend("/individual/" + sessionId + "/notification", customNotification);
   }
 
-  @Scheduled(fixedRate = 5000)
-  public void sendPingToAllUsers() {
-    System.out.println("pinging all users");
-    this.template.convertAndSend("/global/ping", "ping");
-  }
 }

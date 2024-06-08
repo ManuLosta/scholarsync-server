@@ -17,6 +17,8 @@ public class Event {
   @GeneratedValue(strategy = GenerationType.UUID)
   private String id;
 
+  private String title;
+
   @ManyToOne
   @JoinColumn(name = "user_id")
   @JsonBackReference
