@@ -12,6 +12,8 @@ public interface EventRepository extends JpaRepository<Event, String> {
   List<Event> findByStartBetween(LocalDateTime start, LocalDateTime end);
 
   List<Event> findByUserAndStartBetween(User user, LocalDateTime start, LocalDateTime end);
+
+  List<Event> findByUser(User user);
 }
 
 

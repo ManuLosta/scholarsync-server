@@ -92,15 +92,12 @@ public class EventService {
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
-  public ResponseEntity<Object> getUserEvents(String userId, LocalDateTime start, LocalDateTime end) {
+  public ResponseEntity<Object> getUserEvents(String userId) {
     Result<User> userResult;
     if (checkUser(userId).success) userResult = checkUser(userId);
     else return ResponseEntity.status(HttpStatus.NOT_FOUND).body("user/not-found");
 
-    Result<Object> datesResult = checkDates(start, end);
-    if (!datesResult.success) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("dates/invalid");
-
-    return ResponseEntity.status(HttpStatus.OK).body(eventRepository.findByUserAndStartBetween(userResult.value, start, end));
+    return ResponseEntity.status(HttpStatus.OK).body(eventRepository.findByUser(userResult.value));
   }
 
   Result<User> checkUser(String userId) {
