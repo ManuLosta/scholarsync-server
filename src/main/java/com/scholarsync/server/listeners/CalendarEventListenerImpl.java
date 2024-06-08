@@ -17,13 +17,14 @@ import java.util.concurrent.ScheduledFuture;
 @Component
 public class CalendarEventListenerImpl implements CalendarEventListener {
 
-  private final TaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
+  private final TaskScheduler taskScheduler;
   private final Map<String, ScheduledFuture<?>> scheduledEvents = new HashMap<>();
   private final SimpMessagingTemplate sender;
 
   @Autowired
-  public CalendarEventListenerImpl(SimpMessagingTemplate sender) {
+  public CalendarEventListenerImpl(SimpMessagingTemplate sender, TaskScheduler taskScheduler) {
     this.sender = sender;
+    this.taskScheduler = taskScheduler;
   }
 
   @Override
