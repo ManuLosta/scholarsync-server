@@ -223,7 +223,8 @@ public class ChatService {
     // send notification file uploaded
 
     FileDTO chatFileContainer = FileDTO.fileToDTO(chatFiles);
-    sender.convertAndSend("/chat/" + chatId + "/files", chatFileContainer);
+    FileFromUserDTO response = FileFromUserDTO.fromUserToServer(chatFileContainer, ProfileDTO.userToProfileDTO(user.get()));
+    sender.convertAndSend("/chat/" + chatId + "/files", response);
     return ResponseEntity.ok("file/uploaded");
   }
 
