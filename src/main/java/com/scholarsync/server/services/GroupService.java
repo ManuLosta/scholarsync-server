@@ -40,7 +40,7 @@ public class GroupService {
     return response;
   }
 
-  private static void createGroup(Group group, Map<String, Object> groupMap) {
+  static void createGroup(Group group, Map<String, Object> groupMap) {
     groupMap.put("id", group.getId());
     groupMap.put("title", group.getTitle());
     groupMap.put("description", group.getDescription());
@@ -156,7 +156,7 @@ public class GroupService {
 
   public ResponseEntity<Object> removeUserFromGroupRequest(Map<String, String> groupData) {
     Optional<Group> optionalGroup = groupRepository.findById(groupData.get("group_id"));
-    Optional<User> optionalUser = userRepository.findById(groupData.get("sender_id"));
+    Optional<User> optionalUser = userRepository.findById(groupData.get("user_id"));
     if (optionalGroup.isEmpty()) {
       return new ResponseEntity<>("group/not-found", HttpStatus.NOT_FOUND);
     } else if (optionalUser.isEmpty()) {
@@ -175,7 +175,7 @@ public class GroupService {
 
   public ResponseEntity<Object> joinPublicGroup(Map<String, String> groupData) {
     Optional<Group> optionalGroup = groupRepository.findById(groupData.get("group_id"));
-    Optional<User> optionalUser = userRepository.findById(groupData.get("sender_id"));
+    Optional<User> optionalUser = userRepository.findById(groupData.get("user_id"));
     if (optionalGroup.isEmpty()) {
       return new ResponseEntity<>("group/not-found", HttpStatus.NOT_FOUND);
     } else if (optionalUser.isEmpty()) {

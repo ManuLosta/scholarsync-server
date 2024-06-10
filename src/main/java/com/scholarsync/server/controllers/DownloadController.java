@@ -19,11 +19,6 @@ public class DownloadController {
   @GetMapping
   public ResponseEntity<Object> downloadFile(
       @RequestParam String id) {
-    ResponseEntity<Object> response = downloadService.downloadFile(id);
-    if (response.getStatusCode().isError()) return response;
-    MediaType contentType = response.getHeaders().getContentType();
-    HttpHeaders headers = response.getHeaders();
-    Object body = response.getBody();
-    return ResponseEntity.ok().contentType(contentType).headers(headers).body(body);
+    return downloadService.downloadFile(id);
   }
 }

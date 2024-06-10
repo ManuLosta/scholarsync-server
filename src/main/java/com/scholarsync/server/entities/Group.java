@@ -53,4 +53,7 @@ public class Group {
 
   @OneToMany(mappedBy = "group", cascade = CascadeType.ALL)
   private Set<Question> questions;
+
+  @OneToMany(mappedBy = "group", cascade = CascadeType.ALL)
+  private Set<Event> events;
 }

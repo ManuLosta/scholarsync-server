@@ -50,9 +50,9 @@ public class ChatController {
   }
 
   @PostMapping("/api/v1/chat/upload-file")
-  public void uploadFile(
+  public ResponseEntity<Object> uploadFile(
       @RequestParam MultipartFile file, @RequestParam String userId, @RequestParam String chatId) {
-    chatService.uploadFile(file, chatId, userId);
+    return chatService.uploadFile(file, chatId, userId);
   }
 
   @PostMapping("/api/v1/chat/create-chat")
