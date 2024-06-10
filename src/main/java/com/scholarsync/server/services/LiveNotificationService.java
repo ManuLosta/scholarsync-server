@@ -5,7 +5,6 @@ import com.scholarsync.server.dtos.GroupNotificationDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.scheduling.annotation.Scheduled;
 
 @Service
 public class LiveNotificationService {
