@@ -40,7 +40,7 @@ public class GroupService {
     return response;
   }
 
-  private static void createGroup(Group group, Map<String, Object> groupMap) {
+  static void createGroup(Group group, Map<String, Object> groupMap) {
     groupMap.put("id", group.getId());
     groupMap.put("title", group.getTitle());
     groupMap.put("description", group.getDescription());

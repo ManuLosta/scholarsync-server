@@ -15,4 +15,6 @@ public interface QuestionRepository extends JpaRepository<Question, String> {
   @Modifying
   @Query(value = "UPDATE question SET created_at = :createdAt WHERE id = :id", nativeQuery = true)
   void updateCreatedAt(@Param("id") String id, @Param("createdAt") LocalDateTime createdAt);
+
+  Question[] findByContentContainingOrTitleContainingOrAuthorFirstNameContainingOrAuthorLastNameContainingOrAuthorUsernameContaining(String text, String text1, String text2, String text3, String text4);
 }
