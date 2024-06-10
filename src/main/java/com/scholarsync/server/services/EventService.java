@@ -97,7 +97,7 @@ public class EventService {
     if (checkUser(userId).success) userResult = checkUser(userId);
     else return ResponseEntity.status(HttpStatus.NOT_FOUND).body("user/not-found");
 
-    return ResponseEntity.status(HttpStatus.OK).body(eventRepository.findByUser(userResult.value));
+    return ResponseEntity.status(HttpStatus.OK).body(eventRepository.findByUser(userResult.value).stream().map(EventDTO::from));
   }
 
   Result<User> checkUser(String userId) {
