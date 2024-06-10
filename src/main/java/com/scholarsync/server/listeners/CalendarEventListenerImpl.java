@@ -36,7 +36,7 @@ public class CalendarEventListenerImpl implements CalendarEventListener {
                   "/individual/" + event.event().getUser().getId() + "/calendar", EventDTO.from(event));
             },
             // UTC-3
-            Instant.ofEpochSecond(
+            Instant.ofEpochMilli(
                 event.event().getStart().toInstant(ZoneOffset.UTC).toEpochMilli()));
     scheduledEvents.put(event.event().getId(), future);
   }
@@ -65,7 +65,7 @@ public class CalendarEventListenerImpl implements CalendarEventListener {
                   "/individual/" + event.event().getUser().getId() + "/calendar", EventDTO.from(event));
             },
             // UTC-3
-            Instant.ofEpochSecond(
+            Instant.ofEpochMilli(
                 event.event().getStart().toInstant(ZoneOffset.UTC).toEpochMilli()));
     scheduledEvents.put(event.event().getId(), future);
   }
