@@ -67,8 +67,8 @@ public class EventService {
   public ResponseEntity<Object> deleteEvent(String eventId) {
     Optional<Event> event = eventRepository.findById(eventId);
     if (event.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("event/not-found");
-    eventRepository.delete(event.get());
     calendarEventListener.onEventDeleted(new CalendarEvent(event.get()));
+    eventRepository.delete(event.get());
     return ResponseEntity.status(HttpStatus.OK).body("event/deleted");
   }
 
@@ -85,9 +85,10 @@ public class EventService {
     newEvent.setGroup(oldEvent.getGroup());
     ChangeType changeType = whatChanged(oldEvent, newEvent);
     if (changeType == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("event/no-changes");
+    calendarEventListener.onEventDeleted(new CalendarEvent(oldEvent));
     eventRepository.delete(oldEvent);
     eventRepository.save(newEvent);
-    calendarEventListener.onEventUpdated(new CalendarEvent(newEvent));
+    calendarEventListener.onEventCreated(new CalendarEvent(newEvent));
     EventDTO response = EventDTO.from(newEvent);
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }

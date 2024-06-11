@@ -50,23 +50,5 @@ public class CalendarEventListenerImpl implements CalendarEventListener {
     }
   }
 
-  @Override
-  public void onEventUpdated(CalendarEvent event) {
-    ScheduledFuture<?> taskToCancel = scheduledEvents.get(event.event().getId());
-    if (taskToCancel != null) {
-      taskToCancel.cancel(true);
-      scheduledEvents.remove(event.event().getId());
-    }
-    else return;
-    ScheduledFuture<?> future =
-        taskScheduler.schedule(
-            () -> {
-              sender.convertAndSend(
-                  "/individual/" + event.event().getUser().getId() + "/calendar", EventDTO.from(event));
-            },
-            // UTC-3
-            Instant.ofEpochMilli(
-                event.event().getStart().toInstant(ZoneOffset.UTC).toEpochMilli()));
-    scheduledEvents.put(event.event().getId(), future);
-  }
+
 }

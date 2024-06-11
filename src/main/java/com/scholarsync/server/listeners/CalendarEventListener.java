@@ -10,6 +10,4 @@ public interface CalendarEventListener {
   @EventListener
   void onEventDeleted(CalendarEvent event);
 
-  @EventListener
-  void onEventUpdated(CalendarEvent event);
 }
