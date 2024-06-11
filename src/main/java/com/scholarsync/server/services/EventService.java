@@ -22,14 +22,11 @@ import java.util.Optional;
 @Service
 public class EventService {
 
-  @Autowired
-  private CalendarEventListenerImpl calendarEventListener;
+  @Autowired private CalendarEventListenerImpl calendarEventListener;
 
   @Autowired private EventRepository eventRepository;
-  @Autowired
-  private UserRepository userRepository;
-  @Autowired
-  private GroupRepository groupRepository;
+  @Autowired private UserRepository userRepository;
+  @Autowired private GroupRepository groupRepository;
 
   public ResponseEntity<Object> createEvent(EventInputDTO eventInput) {
 
@@ -46,12 +43,14 @@ public class EventService {
     if (checkUser(userId).success) userResult = checkUser(userId);
     else return ResponseEntity.status(HttpStatus.NOT_FOUND).body("user/not-found");
 
-    if (checkGroup(groupId).success)  groupResult = checkGroup(groupId);
+    if (checkGroup(groupId).success) groupResult = checkGroup(groupId);
     else return ResponseEntity.status(HttpStatus.NOT_FOUND).body("group/not-found");
 
-    if (!checkDates(eventInput.start(), eventInput.end()).success)  return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("dates/invalid");
+    if (!checkDates(eventInput.start(), eventInput.end()).success)
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("dates/invalid");
 
-    if(!checkDates(LocalDateTime.now(), eventInput.start()).success) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("dates/invalid");
+    if (!checkDates(LocalDateTime.now(), eventInput.start()).success)
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("dates/invalid");
 
     event.setGroup(groupResult.value);
     event.setUser(userResult.value);
@@ -72,24 +71,18 @@ public class EventService {
     return ResponseEntity.status(HttpStatus.OK).body("event/deleted");
   }
 
-  public ResponseEntity<Object> updateEvent(String eventId, String title, LocalDateTime start, LocalDateTime end) {
+  public ResponseEntity<Object> updateEvent(
+      String eventId, String title, LocalDateTime start, LocalDateTime end) {
     Optional<Event> event = eventRepository.findById(eventId);
     if (event.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("event/not-found");
-    Event oldEvent = event.get();
-    Event newEvent = new Event();
-    newEvent.setId(eventId);
-    newEvent.setTitle(title);
-    newEvent.setStart(start);
-    newEvent.setEnd(end);
-    newEvent.setUser(oldEvent.getUser());
-    newEvent.setGroup(oldEvent.getGroup());
-    ChangeType changeType = whatChanged(oldEvent, newEvent);
-    if (changeType == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("event/no-changes");
-    calendarEventListener.onEventDeleted(new CalendarEvent(oldEvent));
-    eventRepository.delete(oldEvent);
-    eventRepository.save(newEvent);
-    calendarEventListener.onEventCreated(new CalendarEvent(newEvent));
-    EventDTO response = EventDTO.from(newEvent);
+    calendarEventListener.onEventDeleted(new CalendarEvent(event.get()));
+    Event updatedEvent = event.get();
+    updatedEvent.setTitle(title);
+    updatedEvent.setStart(start);
+    updatedEvent.setEnd(end);
+    eventRepository.save(updatedEvent);
+    calendarEventListener.onEventCreated(new CalendarEvent(updatedEvent));
+    EventDTO response = EventDTO.from(updatedEvent);
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
@@ -98,7 +91,8 @@ public class EventService {
     if (checkUser(userId).success) userResult = checkUser(userId);
     else return ResponseEntity.status(HttpStatus.NOT_FOUND).body("user/not-found");
 
-    return ResponseEntity.status(HttpStatus.OK).body(eventRepository.findByUser(userResult.value).stream().map(EventDTO::from));
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(eventRepository.findByUser(userResult.value).stream().map(EventDTO::from));
   }
 
   Result<User> checkUser(String userId) {
@@ -115,17 +109,11 @@ public class EventService {
     return (start.isAfter(end)) ? new Result<>(false, null) : new Result<>(true, null);
   }
 
-  record Result<T>(boolean success, T value ) {}
-
-  private ChangeType whatChanged(Event oldEvent, Event newEvent) {
-    if (!oldEvent.getTitle().equals(newEvent.getTitle())) return ChangeType.TITLE;
-    if (!oldEvent.getStart().equals(newEvent.getStart())) return ChangeType.START;
-    if (!oldEvent.getEnd().equals(newEvent.getEnd())) return ChangeType.END;
-    return null;
-  }
-
+  record Result<T>(boolean success, T value) {}
 
   private enum ChangeType {
-    TITLE, START, END
+    TITLE,
+    START,
+    END
   }
 }
