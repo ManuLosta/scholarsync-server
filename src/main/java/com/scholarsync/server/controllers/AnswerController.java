@@ -30,14 +30,14 @@ public class AnswerController {
   @PostMapping("/rate-answer")
   public ResponseEntity<Object> rateAnswer(@RequestBody Map<String, Object> body) {
     String answerId = (String) body.get("answer_id");
-    String userId = (String) body.get("sender_id");
+    String userId = (String) body.get("user_id");
     int rating = (int) body.get("rating");
     return answerService.rateAnswer(answerId, userId, rating);
   }
 
   @PostMapping("/delete")
   public ResponseEntity<Object> deleteAnswer(@RequestBody Map<String, String> body) {
-    String user_id = body.get("sender_id");
+    String user_id = body.get("user_id");
     String id = body.get("id");
     return answerService.deleteAnswer(user_id, id);
   }
