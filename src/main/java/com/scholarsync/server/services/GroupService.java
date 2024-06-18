@@ -209,7 +209,7 @@ public class GroupService {
 
   public ResponseEntity<Object> deleteGroup(Map<String, String> groupInfo) {
     String group_id = groupInfo.get("group_id");
-    String user_id = groupInfo.get("sender_id");
+    String user_id = groupInfo.get("user_id");
     Optional<Group> groupOptional = groupRepository.findById(group_id);
     Optional<User> userOptional = userRepository.findById(user_id);
     if (groupOptional.isEmpty() && userOptional.isEmpty()) {
