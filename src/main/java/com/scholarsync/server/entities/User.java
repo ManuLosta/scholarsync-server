@@ -109,6 +109,9 @@ public class User {
   @JsonBackReference
   private Chat chat;
 
+  @OneToOne(cascade = CascadeType.ALL)
+  @JoinColumn(name = "google_user_id", referencedColumnName = "user_id")
+  private GoogleUser googleUser;
 
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
   private Set<Event> events;
