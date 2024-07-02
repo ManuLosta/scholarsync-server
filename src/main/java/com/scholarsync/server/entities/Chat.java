@@ -44,4 +44,17 @@ public class Chat {
   @CreationTimestamp
   private LocalDateTime createdAt;
 
+  private Boolean isPublic;
+
+  @ElementCollection
+  @CollectionTable(
+          name = "chat_invited_users",
+          joinColumns = @JoinColumn(name = "chat_id")
+  )
+  @Column(name = "user_id")
+  private Set<String> invitedUserIds;
+
+  private String creatorUser;
+
+
 }

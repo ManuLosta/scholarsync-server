@@ -17,19 +17,26 @@ public class ChatDTO {
   private String name;
 
   private String groupId;
+  private Boolean isPublic;
 
   private String groupTitle;
 
   private Set<ProfileDTO> members;
 
+  private Set<String> invitedUserIds;
+
+  private String creatorUser;
 
   public static ChatDTO fromEntity(Chat chat) {
     ChatDTO chatDTO = new ChatDTO();
     chatDTO.setId(chat.getId());
+    chatDTO.setIsPublic(chat.getIsPublic());
     chatDTO.setName(chat.getName());
     chatDTO.setGroupId(chat.getGroup().getId());
     chatDTO.setGroupTitle(chat.getGroup().getTitle());
     chatDTO.setMembers(chat.getUsers().stream().map(ProfileDTO::userToProfileDTO).collect(Collectors.toSet()));
+    chatDTO.setInvitedUserIds(chat.getInvitedUserIds());
+    chatDTO.setCreatorUser(chat.getCreatorUser());
     return chatDTO;
   }
 

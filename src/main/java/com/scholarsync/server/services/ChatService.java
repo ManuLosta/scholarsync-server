@@ -77,7 +77,7 @@ public class ChatService {
     fileRepository.deleteById(chatFileId);
   }
 
-  public ResponseEntity<Object> createChat(Group group, String name, User user) {
+  public ResponseEntity<Object> createChat(Group group, String name, User user, Boolean isPublic, Set<String> invitedUserIds) {
 
     if (!isUserInGroup(user, group))
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body("user/not-in-group");
@@ -85,18 +85,37 @@ public class ChatService {
       return ResponseEntity.status(HttpStatus.CONFLICT).body("chat/exists");
 
     Chat chat = new Chat();
+    chat.setIsPublic(isPublic);
     chat.setGroup(group);
     chat.setName(name);
+    chat.setCreatorUser(user.getId());
+    chat.setInvitedUserIds(invitedUserIds);
     chatRepository.save(chat);
 
     user.setChat(chat);
+    if (chat.getIsPublic()){
+      notifyGroupMembers(group, chat);
+    }else {
+      notifyOnlyTheSelectUsers(chat, invitedUserIds);
+    }
 
-    notifyGroupMembers(group, chat);
     return ResponseEntity.ok(new ChatNotificationDTO(chat.getId(), LocalDateTime.now(), chat.getName(), chat.getGroup().getTitle()));
+  }
+
+  private void notifyOnlyTheSelectUsers( Chat chat, Set<String> invitedUserIds){
+
+    for (String groupUser : invitedUserIds) {
+      Optional<Session> session = sessionRepository.findSessionByUserId(groupUser);
+      if (session.isEmpty()) continue;
+      sender.convertAndSend(
+              "/individual/" + session.get().getId() + "/chat",
+              new ChatNotificationDTO(chat.getId(), LocalDateTime.now(), chat.getName(), chat.getGroup().getTitle()));
+    }
   }
 
   private void notifyGroupMembers(Group group, Chat chat) {
     Set<User> users = group.getUsers();
+
     for (User groupUser : users) {
       Optional<Session> session = sessionRepository.findSessionByUserId(groupUser.getId());
       if (session.isEmpty()) continue;
@@ -104,6 +123,7 @@ public class ChatService {
           "/individual/" + session.get().getId() + "/chat",
           new ChatNotificationDTO(chat.getId(), LocalDateTime.now(), chat.getName(), chat.getGroup().getTitle()));
     }
+
   }
 
   @Transactional
@@ -122,6 +142,10 @@ public class ChatService {
     Optional<Chat> chat = chatRepository.findById(chatId);
     if (chat.isEmpty()) {
       chatNotFoundError(userId);
+      return;
+    }
+    if (!((chat.get().getIsPublic()) || ( chat.get().getInvitedUserIds().contains(userId)))){
+      userNotInListToJoinChat(userId);
       return;
     }
     user.setChat(chat.get());
@@ -183,7 +207,7 @@ public class ChatService {
       chatNotFoundError(payload.sender_id());
       return;
     }
-    if (!isUserInGroup(user.get(), chat.get().getGroup())) {
+    if (( ! chat.get().getIsPublic()) && !isUserInGroup(user.get(), chat.get().getGroup())) {
       userNotInGroupError(payload);
       return;
     }
@@ -245,6 +269,12 @@ public class ChatService {
     sender.convertAndSend("/individual/" + userId + "/error", errorMessage);
     return;
   }
+  private void userNotInListToJoinChat(String userId) {
+    ErrorMessage errorMessage = new ErrorMessage();
+    errorMessage.setMessage("User is not in list");
+    errorMessage.setError("chat/user-in-list-dont-found");
+    sender.convertAndSend("/individual/" + userId + "/error", errorMessage);
+  }
 
   private void userNotLoggedInError(String userId) {
     ErrorMessage errorMessage = new ErrorMessage();
@@ -261,4 +291,29 @@ public class ChatService {
     sender.convertAndSend("/individual/" + userId + "/error", errorMessage);
     return;
   }
+
+  public void AskCanEnterToTheChat(String userId, String chatId) {
+    Optional<Chat> chat = chatRepository.findById(chatId);
+    if (chat.isEmpty()) return;
+    Optional<User> user = userRepository.findById(userId);
+    if (user.isEmpty()) return;
+    ProfileDTO profile = ProfileDTO.userToProfileDTO(user.get());
+
+    String id = chat.get().getCreatorUser();
+    sender.convertAndSend("/individual/" + id + "/ask-can-join-chat", profile);
+
+  }
+
+  public void notAllowEnterToTheChat(String userId, String chatId){
+
+    sender.convertAndSend("/individual/" + userId + "/" + chatId + "/result-ask-join", "cant_join");
+
+  }
+  public void allowEnterToTheChat(String userId, String chatId){
+
+    sender.convertAndSend("/individual/" + userId + "/" + chatId + "/result-ask-join", "can_join");
+
+  }
+
+
 }
