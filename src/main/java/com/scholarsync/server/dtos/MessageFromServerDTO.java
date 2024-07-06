@@ -15,4 +15,8 @@ public record MessageFromServerDTO (String message, ProfileDTO sender, LocalDate
   static public MessageFromServerDTO fromUserToServer(MessageFromUserDTO message, ProfileDTO sender){
     return new MessageFromServerDTO(message.message(), sender, LocalDateTime.now());
   }
+
+  static public MessageFromServerDTO fromAnonymousToServer(MessageFromAnonymousDTO message, ProfileDTO sender){
+    return new MessageFromServerDTO(message.message(), sender, LocalDateTime.now());
+  }
 }

@@ -1,5 +1,6 @@
 package com.scholarsync.server.controllers;
 
+import com.scholarsync.server.dtos.MessageFromAnonymousDTO;
 import com.scholarsync.server.dtos.MessageFromUserDTO;
 import com.scholarsync.server.dtos.ProfileDTO;
 import com.scholarsync.server.entities.Group;
@@ -33,6 +34,7 @@ public class ChatController {
   @Autowired private GroupRepository groupRepository;
 
   public record JoinChatType(String user_id, String chat_id) {}
+  public record AccessRequestType(String username, String chat_id) {}
 
   @MessageMapping("/chat/join")
   public void joinChat(@Payload JoinChatType joinChatType) {
@@ -49,10 +51,26 @@ public class ChatController {
     chatService.sendChatMessage(messageFromUserDTO);
   }
 
+  @MessageMapping("/chat/send-anonymous-message")
+  public void sendAnonymousMessage(@Payload MessageFromAnonymousDTO messageFromAnonymousDTO) {
+    chatService.sendAnonymousChatMessage(messageFromAnonymousDTO);
+  }
+
+  @MessageMapping("/chat/request-access")
+  public void requestAccess(@Payload AccessRequestType accessRequestType) {
+    chatService.accessRequest(accessRequestType.username, accessRequestType.chat_id);
+  }
+
   @PostMapping("/api/v1/chat/upload-file")
   public ResponseEntity<Object> uploadFile(
       @RequestParam MultipartFile file, @RequestParam String userId, @RequestParam String chatId) {
     return chatService.uploadFile(file, chatId, userId);
+  }
+
+  @PostMapping("/api/v1/chat/upload-anonymous-file")
+  public ResponseEntity<Object> uploadAnonymousFile(
+      @RequestParam MultipartFile file, @RequestParam String chatId, @RequestParam String username) {
+    return chatService.uploadAnonymousFile(file, chatId, username);
   }
 
   @PostMapping("/api/v1/chat/create-chat")
@@ -67,11 +85,12 @@ public class ChatController {
     User user = userOptional.get();
     Optional<Group> optionalGroup = groupRepository.findById(groupId);
     if (optionalGroup.isEmpty()) {
-      return ResponseEntity.status(404).body("group/not-found");
+      return chatService.createChat(null, name, user);
     }
     Group group = optionalGroup.get();
     return chatService.createChat(group, name, user);
   }
+
 
   @PostMapping("/api/v1/chat/delete-chat")
   public ResponseEntity<Object> deleteChat(@RequestBody Map<String, String> body) {

@@ -27,7 +27,10 @@ public class Chat {
   @Column(nullable = false)
   private String name;
 
-  @ManyToOne
+  @Column(nullable = false, name = "owner_id")
+  private String ownerId;
+
+  @ManyToOne(optional = true)
   @JoinColumn(name = "group_id")
   @JsonBackReference
   private Group group;
