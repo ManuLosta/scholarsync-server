@@ -106,11 +106,61 @@ public class ChatService {
   }
 
   @Transactional
-  public void accessRequest(String chatId, String username) {
+  public void accessAnonymousRequest(String chatId, String username) {
     Optional<Chat> chat = chatRepository.findById(chatId);
     if (chat.isEmpty()) return;
+    if(chat.get().getAnonymousUsers().contains(username)){
+      sender.convertAndSend("/individual/" + username + "/error", "username-taken");
+      return;
+    }
     sender.convertAndSend("/individual/" + chat.get().getOwnerId() + "/chat-access-request", new ChatAccessRequest(chatId, username));
     return;
+  }
+
+
+  @Transactional
+  public void accessRequest(String userId, String chatId) {
+    Optional<User> user = userRepository.findById(userId);
+    if (user.isEmpty()) {
+      userNotFoundError(userId);
+      return;
+    }
+    Optional<Chat> chat = chatRepository.findById(chatId);
+    if (chat.isEmpty()) {
+      chatNotFoundError(userId);
+      return;
+    }
+    sender.convertAndSend("/individual/" + chat.get().getOwnerId() + "/chat-access-request", new ChatAccessRequest(chatId, user.get().getUsername()));
+  }
+
+
+  public void acceptAnonymousRequest(String chatId, String username) {
+    Optional<Chat> chat = chatRepository.findById(chatId);
+    if (chat.isEmpty()) return;
+    chat.get().setAnonymousUsers(chat.get().getAnonymousUsers() + "," + username);
+    chatRepository.save(chat.get());
+    sender.convertAndSend("/individual/" + username + "/chat-request-accepted", chatId);
+    sender.convertAndSend("/chat/" + chatId + "/info", new ChatInfoNotification(chat.get().getUsers().size(), username, true));
+    return;
+  }
+
+  public void acceptRequest(String chatId, String userId) {
+    Optional<User> user = userRepository.findById(userId);
+    if (user.isEmpty()) {
+      userNotFoundError(userId);
+      return;
+    }
+    Optional<Chat> chat = chatRepository.findById(chatId);
+    if (chat.isEmpty()) {
+      chatNotFoundError(userId);
+      return;
+    }
+    chat.get().getUsers().add(user.get());
+    chatRepository.save(chat.get());
+    user.get().setChat(chat.get());
+    userRepository.save(user.get());
+    sender.convertAndSend("/individual/" + userId + "/chat-request-accepted", chatId);
+    sender.convertAndSend("/chat/" + chatId + "/info", new ChatInfoNotification(chat.get().getUsers().size(), user.get().getUsername(), true));
   }
 
   private void notifyGroupMembers(Group group, Chat chat) {
@@ -122,6 +172,14 @@ public class ChatService {
           "/individual/" + session.get().getId() + "/chat",
           new ChatNotificationDTO(chat.getId(), LocalDateTime.now(), chat.getName(), chat.getGroup().getTitle()));
     }
+  }
+
+  @Transactional
+  public ResponseEntity<Object> listAnonymousMembers(String chatId) {
+    Optional<Chat> chat = chatRepository.findById(chatId);
+    if (chat.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("chat/not-found");
+    String[] anonymousUsers = chat.get().getAnonymousUsers().split(",");
+    return ResponseEntity.ok(anonymousUsers);
   }
 
   @Transactional
@@ -298,4 +356,14 @@ public class ChatService {
     sender.convertAndSend("/individual/" + userId + "/error", errorMessage);
     return;
   }
+
+  public ResponseEntity<Object> getGlobalChats(String userId) {
+    Optional<User> userOptional = userRepository.findById(userId);
+    if (userOptional.isEmpty()) return new ResponseEntity<>("user/not-found", HttpStatus.NOT_FOUND);
+    User user = userOptional.get();
+    Chat chat = user.getChat();
+    if (chat == null) return new ResponseEntity<>("chat/not-found", HttpStatus.NOT_FOUND);
+    return ResponseEntity.ok(ChatDTO.fromEntity(chat));
+  }
+
 }

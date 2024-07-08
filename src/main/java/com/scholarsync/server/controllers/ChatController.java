@@ -56,10 +56,33 @@ public class ChatController {
     chatService.sendAnonymousChatMessage(messageFromAnonymousDTO);
   }
 
-  @MessageMapping("/chat/request-access")
-  public void requestAccess(@Payload AccessRequestType accessRequestType) {
-    chatService.accessRequest(accessRequestType.username, accessRequestType.chat_id);
+  @MessageMapping("/chat/request-anonymous-access")
+  public void requestAnonymousAccess(@Payload AccessRequestType accessRequestType) {
+    chatService.accessAnonymousRequest(accessRequestType.username, accessRequestType.chat_id);
   }
+
+  @MessageMapping("/chat/request-access")
+  public void requestAccess(@Payload JoinChatType accessRequestType) {
+    chatService.accessRequest(accessRequestType.user_id, accessRequestType.chat_id);
+  }
+
+
+
+  @MessageMapping("/chat/accept-anonymous-access")
+  public void acceptAnonymousAccess(@Payload AccessRequestType accessRequestType) {
+    chatService.acceptAnonymousRequest(accessRequestType.chat_id, accessRequestType.username);
+  }
+
+  @MessageMapping("/chat/accept-access")
+  public void acceptAccess(@Payload JoinChatType accessRequestType) {
+    chatService.acceptRequest(accessRequestType.chat_id, accessRequestType.user_id);
+  }
+
+  @GetMapping("/chat/list-anonymous-members")
+  public ResponseEntity<Object> listAnonymousUsers(@RequestParam String chatId) {
+    return chatService.listAnonymousMembers(chatId);
+  }
+
 
   @PostMapping("/api/v1/chat/upload-file")
   public ResponseEntity<Object> uploadFile(
@@ -110,6 +133,11 @@ public class ChatController {
   @GetMapping("/api/v1/chat/get-chat")
   public ResponseEntity<Object> getChat(@RequestParam String chatId) {
     return chatService.getChatById(chatId);
+  }
+
+  @GetMapping("/api/v1/chat/get-global-chat")
+  public ResponseEntity<Object> getGlobalChat(@RequestParam String userId) {
+    return chatService.getGlobalChats(userId);
   }
 
   @GetMapping("/api/v1/chat/get-chats")
