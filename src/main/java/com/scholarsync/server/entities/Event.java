@@ -19,8 +19,6 @@ public class Event {
 
   private String title;
 
-  private String googleId;
-
   @ManyToOne
   @JoinColumn(name = "user_id")
   @JsonBackReference

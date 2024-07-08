@@ -90,4 +90,15 @@ public class UserService {
     userRepository.save(foundUser);
     return ResponseEntity.ok("refresh-token/updated");
   }
+
+  public ResponseEntity<Object> deleteRefreshToken(String userId) {
+    Optional<User> user = userRepository.findById(userId);
+    if (user.isEmpty()) {
+      return ResponseEntity.badRequest().body("user/not-found");
+    }
+    User foundUser = user.get();
+    foundUser.setGoogleRefreshToken(null);
+    userRepository.save(foundUser);
+    return ResponseEntity.ok("refresh-token/deleted");
+  }
 }

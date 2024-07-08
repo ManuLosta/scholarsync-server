@@ -54,4 +54,10 @@ public class UserController {
     String userId = body.get("userId");
     return userService.loadRefreshToken(userId, refreshToken);
   }
+
+  @PostMapping("/delete-refresh-token")
+  public ResponseEntity<Object> deleteRefreshToken(@RequestBody Map<String, String> body) {
+    String userId = body.get("userId");
+    return userService.deleteRefreshToken(userId);
+  }
 }

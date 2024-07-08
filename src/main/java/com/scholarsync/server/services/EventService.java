@@ -41,10 +41,7 @@ public class EventService {
     event.setEnd(eventInput.end());
     String userId = eventInput.userId();
     String groupId = eventInput.groupId();
-    String googleId = null;
-    if (eventInput.googleId().isPresent()) {
-      googleId = eventInput.googleId().get();
-    }
+
 
     if (checkUser(userId).success) userResult = checkUser(userId);
     else return ResponseEntity.status(HttpStatus.NOT_FOUND).body("user/not-found");
@@ -60,7 +57,6 @@ public class EventService {
 
     event.setGroup(groupResult.value);
     event.setUser(userResult.value);
-    if (googleId != null) event.setGoogleId(googleId);
 
     eventRepository.save(event);
 
