@@ -205,7 +205,10 @@ public class GlobalChatService {
     if (userOptional.isEmpty()) return new ResponseEntity<>("user/not-found", HttpStatus.NOT_FOUND);
     User user = userOptional.get();
     Chat chat = user.getChat();
-    if (chat == null) return new ResponseEntity<>("chat/not-found", HttpStatus.NOT_FOUND);
+    if (chat == null) {
+      String res = "chat/not-found";
+      return ResponseEntity.ok(res);
+    }
     return ResponseEntity.ok(ChatDTO.fromEntity(chat));
   }
 
