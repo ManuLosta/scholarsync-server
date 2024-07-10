@@ -77,8 +77,7 @@ public class ChatService {
 
   public ResponseEntity<Object> createChat(Group group, String name, User user) {
 
-    if(group == null) return createGlobalChat(name, user);
-
+    if(group == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("group/not-found");
     if (!isUserInGroup(user, group))
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body("user/not-in-group");
     if (checkCompositeKey(name, group.getId()))
@@ -96,72 +95,13 @@ public class ChatService {
     return ResponseEntity.ok(new ChatNotificationDTO(chat.getId(), LocalDateTime.now(), chat.getName(), chat.getGroup().getTitle()));
   }
 
-  private ResponseEntity<Object> createGlobalChat(String name, User user) {
-    Chat chat = new Chat();
-    chat.setName(name);
-    chatRepository.save(chat);
-    user.setChat(chat);
-    chat.setOwnerId(user.getId());
-    return ResponseEntity.ok(new ChatNotificationDTO(chat.getId(), LocalDateTime.now(), chat.getName(), null));
-  }
-
-  @Transactional
-  public void accessAnonymousRequest(String chatId, String username) {
-    Optional<Chat> chat = chatRepository.findById(chatId);
-    if (chat.isEmpty()) return;
-    if(chat.get().getAnonymousUsers().contains(username)){
-      sender.convertAndSend("/individual/" + username + "/error", "username-taken");
-      return;
-    }
-    sender.convertAndSend("/individual/" + chat.get().getOwnerId() + "/chat-access-request", new ChatAccessRequest(chatId, username));
-    return;
-  }
 
 
-  @Transactional
-  public void accessRequest(String userId, String chatId) {
-    Optional<User> user = userRepository.findById(userId);
-    if (user.isEmpty()) {
-      userNotFoundError(userId);
-      return;
-    }
-    Optional<Chat> chat = chatRepository.findById(chatId);
-    if (chat.isEmpty()) {
-      chatNotFoundError(userId);
-      return;
-    }
-    sender.convertAndSend("/individual/" + chat.get().getOwnerId() + "/chat-access-request", new ChatAccessRequest(chatId, user.get().getUsername()));
-  }
 
 
-  public void acceptAnonymousRequest(String chatId, String username) {
-    Optional<Chat> chat = chatRepository.findById(chatId);
-    if (chat.isEmpty()) return;
-    chat.get().setAnonymousUsers(chat.get().getAnonymousUsers() + "," + username);
-    chatRepository.save(chat.get());
-    sender.convertAndSend("/individual/" + username + "/chat-request-accepted", chatId);
-    sender.convertAndSend("/chat/" + chatId + "/info", new ChatInfoNotification(chat.get().getUsers().size(), username, true));
-    return;
-  }
 
-  public void acceptRequest(String chatId, String userId) {
-    Optional<User> user = userRepository.findById(userId);
-    if (user.isEmpty()) {
-      userNotFoundError(userId);
-      return;
-    }
-    Optional<Chat> chat = chatRepository.findById(chatId);
-    if (chat.isEmpty()) {
-      chatNotFoundError(userId);
-      return;
-    }
-    chat.get().getUsers().add(user.get());
-    chatRepository.save(chat.get());
-    user.get().setChat(chat.get());
-    userRepository.save(user.get());
-    sender.convertAndSend("/individual/" + userId + "/chat-request-accepted", chatId);
-    sender.convertAndSend("/chat/" + chatId + "/info", new ChatInfoNotification(chat.get().getUsers().size(), user.get().getUsername(), true));
-  }
+
+
 
   private void notifyGroupMembers(Group group, Chat chat) {
     Set<User> users = group.getUsers();
@@ -174,13 +114,7 @@ public class ChatService {
     }
   }
 
-  @Transactional
-  public ResponseEntity<Object> listAnonymousMembers(String chatId) {
-    Optional<Chat> chat = chatRepository.findById(chatId);
-    if (chat.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("chat/not-found");
-    String[] anonymousUsers = chat.get().getAnonymousUsers().split(",");
-    return ResponseEntity.ok(anonymousUsers);
-  }
+
 
   @Transactional
   public void joinChat(String userId, String chatId) {
@@ -263,11 +197,7 @@ public class ChatService {
     sender.convertAndSend("/chat/" + payload.chat_id(), message);
   }
 
-  @Transactional
-  public void sendAnonymousChatMessage(MessageFromAnonymousDTO payload) {
-    MessageFromServerDTO message = MessageFromServerDTO.fromAnonymousToServer(payload, ProfileDTO.anonymousUser(payload.username()));
-    sender.convertAndSend("/chat/" + payload.chat_id(), message);
-  }
+
 
 
 
@@ -298,30 +228,9 @@ public class ChatService {
     return ResponseEntity.ok("file/uploaded");
   }
 
-  @Transactional
-  public ResponseEntity<Object> uploadAnonymousFile(MultipartFile file, String chatId, String username) {
-    Optional<Chat> chat = chatRepository.findById(chatId);
-    if (chat.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("chat/not-found");
 
 
-    byte[] bytes;
-    try {
-      bytes = file.getBytes();
-    } catch (IOException e) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("file/not-found");
-    }
-    Files chatFiles = new Files();
-    chatFiles.setFile(bytes);
-    chatFiles.setFileName(file.getOriginalFilename());
-    chatFiles.setFileType(file.getContentType());
-    fileRepository.save(chatFiles);
-    // send notification file uploaded
 
-    FileDTO chatFileContainer = FileDTO.fileToDTO(chatFiles);
-    FileFromUserDTO response = FileFromUserDTO.fromUserToServer(chatFileContainer, ProfileDTO.anonymousUser(username));
-    sender.convertAndSend("/chat/" + chatId + "/files", response);
-    return ResponseEntity.ok("file/uploaded");
-  }
 
   private boolean checkCompositeKey(String name, String groupId) {
     return chatRepository.existsByNameAndGroupId(name, groupId);
@@ -355,15 +264,6 @@ public class ChatService {
     errorMessage.setError("user/not-found");
     sender.convertAndSend("/individual/" + userId + "/error", errorMessage);
     return;
-  }
-
-  public ResponseEntity<Object> getGlobalChats(String userId) {
-    Optional<User> userOptional = userRepository.findById(userId);
-    if (userOptional.isEmpty()) return new ResponseEntity<>("user/not-found", HttpStatus.NOT_FOUND);
-    User user = userOptional.get();
-    Chat chat = user.getChat();
-    if (chat == null) return new ResponseEntity<>("chat/not-found", HttpStatus.NOT_FOUND);
-    return ResponseEntity.ok(ChatDTO.fromEntity(chat));
   }
 
 }

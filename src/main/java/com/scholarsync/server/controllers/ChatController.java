@@ -51,37 +51,7 @@ public class ChatController {
     chatService.sendChatMessage(messageFromUserDTO);
   }
 
-  @MessageMapping("/chat/send-anonymous-message")
-  public void sendAnonymousMessage(@Payload MessageFromAnonymousDTO messageFromAnonymousDTO) {
-    chatService.sendAnonymousChatMessage(messageFromAnonymousDTO);
-  }
 
-  @MessageMapping("/chat/request-anonymous-access")
-  public void requestAnonymousAccess(@Payload AccessRequestType accessRequestType) {
-    chatService.accessAnonymousRequest(accessRequestType.username, accessRequestType.chat_id);
-  }
-
-  @MessageMapping("/chat/request-access")
-  public void requestAccess(@Payload JoinChatType accessRequestType) {
-    chatService.accessRequest(accessRequestType.user_id, accessRequestType.chat_id);
-  }
-
-
-
-  @MessageMapping("/chat/accept-anonymous-access")
-  public void acceptAnonymousAccess(@Payload AccessRequestType accessRequestType) {
-    chatService.acceptAnonymousRequest(accessRequestType.chat_id, accessRequestType.username);
-  }
-
-  @MessageMapping("/chat/accept-access")
-  public void acceptAccess(@Payload JoinChatType accessRequestType) {
-    chatService.acceptRequest(accessRequestType.chat_id, accessRequestType.user_id);
-  }
-
-  @GetMapping("/chat/list-anonymous-members")
-  public ResponseEntity<Object> listAnonymousUsers(@RequestParam String chatId) {
-    return chatService.listAnonymousMembers(chatId);
-  }
 
 
   @PostMapping("/api/v1/chat/upload-file")
@@ -90,11 +60,7 @@ public class ChatController {
     return chatService.uploadFile(file, chatId, userId);
   }
 
-  @PostMapping("/api/v1/chat/upload-anonymous-file")
-  public ResponseEntity<Object> uploadAnonymousFile(
-      @RequestParam MultipartFile file, @RequestParam String chatId, @RequestParam String username) {
-    return chatService.uploadAnonymousFile(file, chatId, username);
-  }
+
 
   @PostMapping("/api/v1/chat/create-chat")
   public ResponseEntity<Object> createChat(@RequestBody Map<String, String> body) {
@@ -135,10 +101,6 @@ public class ChatController {
     return chatService.getChatById(chatId);
   }
 
-  @GetMapping("/api/v1/chat/get-global-chat")
-  public ResponseEntity<Object> getGlobalChat(@RequestParam String userId) {
-    return chatService.getGlobalChats(userId);
-  }
 
   @GetMapping("/api/v1/chat/get-chats")
   public ResponseEntity<Object> getChats(@RequestParam String groupId) {
