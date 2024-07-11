@@ -47,9 +47,10 @@ public class GlobalChatService {
     User user = userOptional.get();
     Chat chat = new Chat();
     chat.setName(name);
-    chatRepository.save(chat);
     user.setChat(chat);
     chat.setOwnerId(user.getId());
+    chatRepository.save(chat);
+    userRepository.save(user);
     return ResponseEntity.ok(new ChatNotificationDTO(chat.getId(), LocalDateTime.now(), chat.getName(), null));
   }
 
