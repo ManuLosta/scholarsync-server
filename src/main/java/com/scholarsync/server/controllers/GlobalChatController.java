@@ -35,7 +35,7 @@ public class GlobalChatController {
 
   @MessageMapping("/chat/request-anonymous-access")
   public void requestAnonymousAccess(@Payload AccessRequestType accessRequestType) {
-    globalChatService.accessAnonymousRequest(accessRequestType.username, accessRequestType.chat_id);
+    globalChatService.accessAnonymousRequest(accessRequestType.chat_id, accessRequestType.username);
   }
 
   @MessageMapping("/chat/request-access")

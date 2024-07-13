@@ -58,7 +58,11 @@ public class GlobalChatService {
   public void accessAnonymousRequest(String chatId, String username) {
     Optional<Chat> chat = chatRepository.findById(chatId);
     if (chat.isEmpty()) return;
-    if(chat.get().getAnonymousUsers().contains(username)){
+    if(chat.get().getAnonymousUsers() == null) {
+      sender.convertAndSend("/individual/" + chat.get().getOwnerId() + "/chat-access-request", new ChatAccessRequest(chatId, username));
+      return;
+    }
+    if(chat.get().getAnonymousUsers().contains(username)) {
       sender.convertAndSend("/individual/" + username + "/error", "username-taken");
       return;
     }
@@ -148,6 +152,7 @@ public class GlobalChatService {
   public ResponseEntity<Object> leaveAnonymousChat(String username, String chatId) {
     Optional<Chat> chat = chatRepository.findById(chatId);
     if (chat.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("chat/not-found");
+    if(chat.get().getAnonymousUsers() == null) return  ResponseEntity.ok("users/empty");
     if (!chat.get().getAnonymousUsers().contains(username)) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("user/not-found");
     String[] anonymousUsers = chat.get().getAnonymousUsers().split(",");
     StringBuilder newUsers = new StringBuilder();
