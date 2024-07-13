@@ -54,6 +54,8 @@ public class GlobalChatService {
     return ResponseEntity.ok(new ChatNotificationDTO(chat.getId(), LocalDateTime.now(), chat.getName(), null));
   }
 
+  public record ChatAccessUserRequest(String chatId, String userId){};
+
   @Transactional
   public void accessAnonymousRequest(String chatId, String username) {
     Optional<Chat> chat = chatRepository.findById(chatId);
@@ -82,7 +84,9 @@ public class GlobalChatService {
       chatNotFoundError(userId);
       return;
     }
-    sender.convertAndSend("/individual/" + chat.get().getOwnerId() + "/chat-access-request", new ChatAccessRequest(chatId, user.get().getId()));
+    sender.convertAndSend(
+        "/individual/" + chat.get().getOwnerId() + "/chat-access-request",
+        new ChatAccessUserRequest(chatId, user.get().getId()));
   }
 
   public void acceptAnonymousRequest(String chatId, String username) {
@@ -96,6 +100,8 @@ public class GlobalChatService {
     return;
   }
 
+
+  @Transactional
   public void acceptRequest(String chatId, String userId) {
     Optional<User> user = userRepository.findById(userId);
     if (user.isEmpty()) {
