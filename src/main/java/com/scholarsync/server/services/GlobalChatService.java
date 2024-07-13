@@ -89,6 +89,7 @@ public class GlobalChatService {
         new ChatAccessUserRequest(chatId, user.get().getId()));
   }
 
+  @Transactional
   public void acceptAnonymousRequest(String chatId, String username) {
     Optional<Chat> chat = chatRepository.findById(chatId);
     if (chat.isEmpty()) return;
