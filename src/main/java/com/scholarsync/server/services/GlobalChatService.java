@@ -82,7 +82,7 @@ public class GlobalChatService {
       chatNotFoundError(userId);
       return;
     }
-    sender.convertAndSend("/individual/" + chat.get().getOwnerId() + "/chat-access-request", new ChatAccessRequest(chatId, user.get().getUsername()));
+    sender.convertAndSend("/individual/" + chat.get().getOwnerId() + "/chat-access-request", new ChatAccessRequest(chatId, user.get().getId()));
   }
 
   public void acceptAnonymousRequest(String chatId, String username) {
