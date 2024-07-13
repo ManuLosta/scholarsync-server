@@ -88,7 +88,8 @@ public class GlobalChatService {
   public void acceptAnonymousRequest(String chatId, String username) {
     Optional<Chat> chat = chatRepository.findById(chatId);
     if (chat.isEmpty()) return;
-    chat.get().setAnonymousUsers(chat.get().getAnonymousUsers() + "," + username);
+    if(chat.get().getAnonymousUsers() == null) chat.get().setAnonymousUsers(username);
+    else chat.get().setAnonymousUsers(chat.get().getAnonymousUsers() + "," + username);
     chatRepository.save(chat.get());
     sender.convertAndSend("/individual/" + username + "/chat-request-accepted", chatId);
     sender.convertAndSend("/chat/" + chatId + "/info", new ChatInfoNotification(chat.get().getUsers().size(), username, true));
