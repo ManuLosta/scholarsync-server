@@ -19,14 +19,12 @@ import java.util.Map;
 @Controller
 public class GlobalChatController {
 
-  @Autowired
-  GlobalChatService globalChatService;
+  @Autowired GlobalChatService globalChatService;
   @Autowired private UserRepository userRepository;
 
-
   public record JoinChatType(String user_id, String chat_id) {}
-  public record AccessRequestType(String username, String chat_id) {}
 
+  public record AccessRequestType(String username, String chat_id) {}
 
   @MessageMapping("/chat/send-anonymous-message")
   public void sendAnonymousMessage(@Payload MessageFromAnonymousDTO messageFromAnonymousDTO) {
@@ -42,8 +40,6 @@ public class GlobalChatController {
   public void requestAccess(@Payload JoinChatType accessRequestType) {
     globalChatService.accessRequest(accessRequestType.user_id, accessRequestType.chat_id);
   }
-
-
 
   @MessageMapping("/chat/accept-anonymous-access")
   public void acceptAnonymousAccess(@Payload AccessRequestType accessRequestType) {
@@ -69,15 +65,24 @@ public class GlobalChatController {
 
   @PostMapping("/api/v1/global-chat/upload-anonymous-file")
   public ResponseEntity<Object> uploadAnonymousFile(
-          @RequestParam MultipartFile file, @RequestParam String chatId, @RequestParam String username) {
+      @RequestParam MultipartFile file,
+      @RequestParam String chatId,
+      @RequestParam String username) {
     return globalChatService.uploadAnonymousFile(file, chatId, username);
+  }
+
+  @PostMapping("/api/v1/global-chat/leave-anonymous")
+  public ResponseEntity<Object> leaveChatAnonymous(@RequestBody Map<String, String> body) {
+    String username = body.get("username");
+    String chatId = body.get("chatId");
+    return globalChatService.leaveAnonymousChat(username, chatId);
   }
 
   @PostMapping("/api/v1/global-chat/leave")
   public ResponseEntity<Object> leaveChat(@RequestBody Map<String, String> body) {
     String userId = body.get("userId");
     String chatId = body.get("chatId");
-    return globalChatService.leaveAnonymousChat(userId, chatId);
+    return globalChatService.leaveChat(userId, chatId);
   }
 
   @GetMapping("/api/v1/global-chat/get-global-chat")
