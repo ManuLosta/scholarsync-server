@@ -27,8 +27,10 @@ public class ChatDTO {
     ChatDTO chatDTO = new ChatDTO();
     chatDTO.setId(chat.getId());
     chatDTO.setName(chat.getName());
-    chatDTO.setGroupId(chat.getGroup().getId());
-    chatDTO.setGroupTitle(chat.getGroup().getTitle());
+    if(chat.getGroup()!=null) {
+      chatDTO.setGroupId(chat.getGroup().getId());
+      chatDTO.setGroupTitle(chat.getGroup().getTitle());
+    }
     chatDTO.setMembers(chat.getUsers().stream().map(ProfileDTO::userToProfileDTO).collect(Collectors.toSet()));
     return chatDTO;
   }

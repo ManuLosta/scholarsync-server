@@ -41,8 +41,6 @@ public class ChatService {
     if (user.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("user/not-found");
     Optional<Chat> chat = chatRepository.findById(chatId);
     if (chat.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("chat/not-found");
-    if (!isUserInGroup(user.get(), chat.get().getGroup()))
-      return ResponseEntity.status(HttpStatus.FORBIDDEN).body("user/not-in-chat");
     for (Files file : chat.get().getFiles()) {
       fileRepository.deleteById(file.getId());
     }
@@ -79,6 +77,7 @@ public class ChatService {
 
   public ResponseEntity<Object> createChat(Group group, String name, User user) {
 
+    if(group == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("group/not-found");
     if (!isUserInGroup(user, group))
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body("user/not-in-group");
     if (checkCompositeKey(name, group.getId()))
@@ -87,6 +86,7 @@ public class ChatService {
     Chat chat = new Chat();
     chat.setGroup(group);
     chat.setName(name);
+    chat.setOwnerId(user.getId());
     chatRepository.save(chat);
 
     user.setChat(chat);
@@ -94,6 +94,14 @@ public class ChatService {
     notifyGroupMembers(group, chat);
     return ResponseEntity.ok(new ChatNotificationDTO(chat.getId(), LocalDateTime.now(), chat.getName(), chat.getGroup().getTitle()));
   }
+
+
+
+
+
+
+
+
 
   private void notifyGroupMembers(Group group, Chat chat) {
     Set<User> users = group.getUsers();
@@ -105,6 +113,8 @@ public class ChatService {
           new ChatNotificationDTO(chat.getId(), LocalDateTime.now(), chat.getName(), chat.getGroup().getTitle()));
     }
   }
+
+
 
   @Transactional
   public void joinChat(String userId, String chatId) {
@@ -183,21 +193,13 @@ public class ChatService {
       chatNotFoundError(payload.sender_id());
       return;
     }
-    if (!isUserInGroup(user.get(), chat.get().getGroup())) {
-      userNotInGroupError(payload);
-      return;
-    }
     MessageFromServerDTO message = MessageFromServerDTO.fromUserToServer(payload, ProfileDTO.userToProfileDTO(user.get()));
     sender.convertAndSend("/chat/" + payload.chat_id(), message);
   }
 
-  private void userNotInGroupError(MessageFromUserDTO payload) {
-    ErrorMessage errorMessage = new ErrorMessage();
-    errorMessage.setMessage("User not in chat");
-    errorMessage.setError("user/not-in-chat");
-    sender.convertAndSend("/individual/" + payload.sender_id() + "/error", errorMessage);
-    return;
-  }
+
+
+
 
   @Transactional
   public ResponseEntity<Object> uploadFile(MultipartFile file, String chatId, String userId) {
@@ -205,9 +207,7 @@ public class ChatService {
     if (user.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("user/not-found");
     Optional<Chat> chat = chatRepository.findById(chatId);
     if (chat.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("chat/not-found");
-    if (!isUserInGroup(user.get(), chat.get().getGroup()))
-      return ResponseEntity.status(HttpStatus.FORBIDDEN).body("user/not-in-chat");
-    // upload file
+
 
     byte[] bytes;
     try {
@@ -227,6 +227,10 @@ public class ChatService {
     sender.convertAndSend("/chat/" + chatId + "/files", response);
     return ResponseEntity.ok("file/uploaded");
   }
+
+
+
+
 
   private boolean checkCompositeKey(String name, String groupId) {
     return chatRepository.existsByNameAndGroupId(name, groupId);
@@ -261,4 +265,5 @@ public class ChatService {
     sender.convertAndSend("/individual/" + userId + "/error", errorMessage);
     return;
   }
+
 }
