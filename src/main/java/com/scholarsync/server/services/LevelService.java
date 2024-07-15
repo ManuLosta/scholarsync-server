@@ -12,7 +12,7 @@ public class LevelService {
 
    public void giveXp(User user, int amount) {
         user.setXp(user.getXp() + amount);
-        user.setLevel(LevelMap.getLevelByXp(user.getXp()));
+        user.setLevel(LevelMap.getLevelByXp(user.getXp() + amount));
         userRepository.save(user);
    }
 }

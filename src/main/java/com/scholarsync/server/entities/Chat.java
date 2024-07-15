@@ -10,6 +10,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 
@@ -27,7 +28,12 @@ public class Chat {
   @Column(nullable = false)
   private String name;
 
-  @ManyToOne
+  @Column(nullable = false, name = "owner_id")
+  private String ownerId;
+
+  private String anonymousUsers;
+
+  @ManyToOne(optional = true)
   @JoinColumn(name = "group_id")
   @JsonBackReference
   private Group group;

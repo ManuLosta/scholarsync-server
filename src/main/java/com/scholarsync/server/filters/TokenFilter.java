@@ -25,7 +25,10 @@ public class TokenFilter extends OncePerRequestFilter {
     String path = request.getServletPath();
     return path.contains("/api/v1/auth")
         || "OPTIONS".equalsIgnoreCase(request.getMethod())
-        || path.contains("/api/v1/filler") || path.contains("/message-broker");
+        || path.contains("/api/v1/filler")
+        || path.contains("/message-broker")
+        || path.contains("global-chat")
+        || path.contains("/api/v1/downloads");
   }
 
   @Override

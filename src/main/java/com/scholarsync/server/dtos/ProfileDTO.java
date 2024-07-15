@@ -82,4 +82,10 @@ public class ProfileDTO {
 
     return profileDTO;
   }
+
+  public static ProfileDTO anonymousUser(String username){
+    ProfileDTO profileDTO = new ProfileDTO();
+    profileDTO.setUsername(username);
+    return profileDTO;
+  }
 }
