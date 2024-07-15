@@ -10,6 +10,7 @@ import com.scholarsync.server.listeners.CalendarEventListenerImpl;
 import com.scholarsync.server.repositories.EventRepository;
 import com.scholarsync.server.repositories.GroupRepository;
 import com.scholarsync.server.repositories.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +29,7 @@ public class EventService {
   @Autowired private UserRepository userRepository;
   @Autowired private GroupRepository groupRepository;
 
+  @Transactional
   public ResponseEntity<Object> createEvent(EventInputDTO eventInput) {
 
     Result<User> userResult;
@@ -39,6 +41,7 @@ public class EventService {
     event.setEnd(eventInput.end());
     String userId = eventInput.userId();
     String groupId = eventInput.groupId();
+
 
     if (checkUser(userId).success) userResult = checkUser(userId);
     else return ResponseEntity.status(HttpStatus.NOT_FOUND).body("user/not-found");

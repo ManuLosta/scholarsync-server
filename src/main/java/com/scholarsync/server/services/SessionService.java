@@ -5,6 +5,9 @@ import com.scholarsync.server.entities.Session;
 import com.scholarsync.server.entities.User;
 import com.scholarsync.server.repositories.SessionRepository;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,8 +29,12 @@ public class SessionService {
     if (session.isPresent()) {
       if (session.get().getExpires().isAfter(LocalDateTime.now())) {
         User user = session.get().getUser();
+        String refreshToken = user.getGoogleRefreshToken();
         ProfileDTO profileDTO = ProfileDTO.userToProfileDTO(user);
-        return new ResponseEntity<>(profileDTO, HttpStatus.OK);
+        Map<String, Object> response = new HashMap<>();
+        response.put("refresh_token", Objects.requireNonNullElse(refreshToken, ""));
+        response.put("profile", profileDTO);
+        return ResponseEntity.ok(response);
       } else {
         sessionRepository.delete(session.get());
         return new ResponseEntity<>("auth/unauthorized", HttpStatus.UNAUTHORIZED);

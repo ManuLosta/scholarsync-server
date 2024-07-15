@@ -53,6 +53,9 @@ public class User {
   @Enumerated(EnumType.STRING)
   private levelType level;
 
+  @Column(name = "google_refresh_token")
+  private String googleRefreshToken;
+
 
 
   @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
