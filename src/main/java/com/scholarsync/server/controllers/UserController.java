@@ -47,4 +47,17 @@ public class UserController {
   public ResponseEntity<Object> getProfilePicture(@RequestParam(name = "user_id") String userId) {
     return userService.getProfilePicture(userId);
   }
+
+  @PostMapping("/load-refresh-token")
+  public ResponseEntity<Object> loadRefreshToken(@RequestBody Map<String, String> body) {
+    String refreshToken = body.get("refreshToken");
+    String userId = body.get("userId");
+    return userService.loadRefreshToken(userId, refreshToken);
+  }
+
+  @PostMapping("/delete-refresh-token")
+  public ResponseEntity<Object> deleteRefreshToken(@RequestBody Map<String, String> body) {
+    String userId = body.get("userId");
+    return userService.deleteRefreshToken(userId);
+  }
 }

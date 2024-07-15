@@ -79,4 +79,26 @@ public class UserService {
     response.put("base64Encoding", Base64.getEncoder().encodeToString(foundUser.getProfilePicture().getFile()));
     return ResponseEntity.ok(response);
   }
+
+  public ResponseEntity<Object> loadRefreshToken(String userId, String refreshToken) {
+    Optional<User> user = userRepository.findById(userId);
+    if (user.isEmpty()) {
+      return ResponseEntity.badRequest().body("user/not-found");
+    }
+    User foundUser = user.get();
+    foundUser.setGoogleRefreshToken(refreshToken);
+    userRepository.save(foundUser);
+    return ResponseEntity.ok("refresh-token/updated");
+  }
+
+  public ResponseEntity<Object> deleteRefreshToken(String userId) {
+    Optional<User> user = userRepository.findById(userId);
+    if (user.isEmpty()) {
+      return ResponseEntity.badRequest().body("user/not-found");
+    }
+    User foundUser = user.get();
+    foundUser.setGoogleRefreshToken(null);
+    userRepository.save(foundUser);
+    return ResponseEntity.ok("refresh-token/deleted");
+  }
 }
