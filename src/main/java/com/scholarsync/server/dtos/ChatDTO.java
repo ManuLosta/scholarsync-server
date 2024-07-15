@@ -16,6 +16,8 @@ public class ChatDTO {
 
   private String name;
 
+  private String ownerId;
+
   private String groupId;
 
   private String groupTitle;
@@ -27,6 +29,7 @@ public class ChatDTO {
     ChatDTO chatDTO = new ChatDTO();
     chatDTO.setId(chat.getId());
     chatDTO.setName(chat.getName());
+    chatDTO.setOwnerId(chat.getOwnerId());
     if(chat.getGroup()!=null) {
       chatDTO.setGroupId(chat.getGroup().getId());
       chatDTO.setGroupTitle(chat.getGroup().getTitle());
